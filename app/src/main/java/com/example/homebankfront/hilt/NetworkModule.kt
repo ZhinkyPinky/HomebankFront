@@ -34,7 +34,7 @@ class NetworkModule {
 
         return Retrofit
             .Builder()
-            .baseUrl("http://localhost:8080/api/")
+            .baseUrl("http://192.168.68.87:8080/api/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }

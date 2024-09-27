@@ -16,7 +16,8 @@ fun NavController.navigateToCustomerTransactionHeadAndRows(
 
 fun NavGraphBuilder.customerTransactionHeadAndRowsScreen(
     onBackClick : () -> Unit,
-    onEditTransactionClick : (Long, Long) -> Unit,
+    onEditTransactionHeadClick : (Long, Long) -> Unit,
+    onEditTransactionRowClick : (Long) -> Unit
 ) {
     composable(
         route = "customer/{customerId}/transaction_head/{transactionHeadId}",
@@ -26,7 +27,8 @@ fun NavGraphBuilder.customerTransactionHeadAndRowsScreen(
     ) {
         CustomerTransactionHeadAndRowsRoute(
             onBackClick = onBackClick,
-            onEditTransactionClick = onEditTransactionClick
+            onEditTransactionHeadClick = onEditTransactionHeadClick,
+            onEditTransactionRowClick = onEditTransactionRowClick
         )
     }
 }

@@ -28,6 +28,8 @@ class EditTransactionHeadViewModel @Inject constructor(
     private val _editTransactionHeadUiState : MutableStateFlow<EditTransactionHeadUiState> = MutableStateFlow(EditTransactionHeadUiState.Loading)
     val editTransactionHeadUiState = _editTransactionHeadUiState.asStateFlow()
 
+
+
     fun onEvent(event : EditTransactionHeadEvent) {
         when (event) {
             is EditTransactionHeadEvent.UpdateTransactionHead -> updateTransactionHead(event.transactionHead)

@@ -31,8 +31,10 @@ interface ApiService {
         @Path("transactionHeadId") transactionHeadId : Long
     ) : CustomerTransactionHeadAndRows
 
-    @GET("customer/{customerId}/transactionHead/{transactionHeadId}/transactionRow/{transactionRowId}")
-    suspend fun getTransactionRow(transactionRowId : Long) : TransactionRow
+    @GET("transactionRow/{transactionRowId}")
+    suspend fun getTransactionRow(
+        @Path("transactionRowId") transactionRowId : Long
+    ) : TransactionRow
 
     @POST("transactionHead")
     suspend fun saveTransactionHead(@Body transactionHead : TransactionHead)

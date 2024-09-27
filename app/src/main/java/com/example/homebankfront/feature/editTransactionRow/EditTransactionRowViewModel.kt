@@ -21,7 +21,14 @@ class EditTransactionRowViewModel @Inject constructor(
     private val transactionRowId : Long = checkNotNull(savedStateHandle["transactionRowId"])
 
     private val _editTransactionRowUiState : MutableStateFlow<EditTransactionRowUiState> = MutableStateFlow(EditTransactionRowUiState.Loading)
-    val transactionRowUiState = _editTransactionRowUiState.asStateFlow()
+    val editTransactionRowUiState = _editTransactionRowUiState.asStateFlow()
+
+    fun onEvent(event : EditTransactionRowEvent) {
+        when (event) {
+            is EditTransactionRowEvent.Update -> updateTransactionRow(event.transactionRow)
+            is EditTransactionRowEvent.Save -> TODO()
+        }
+    }
 
     fun getTransactionRow() {
         _editTransactionRowUiState.update { EditTransactionRowUiState.Loading }
@@ -37,9 +44,16 @@ class EditTransactionRowViewModel @Inject constructor(
         }
     }
 
-    fun onEvent() {
-
+    private fun updateTransactionRow(transactionRow : TransactionRow) {
+        _editTransactionRowUiState.update { currentState ->
+            if (currentState is EditTransactionRowUiState.Ready) {
+                currentState.copy(transactionRow = transactionRow)
+            } else {
+                currentState
+            }
+        }
     }
+
 }
 
 sealed interface EditTransactionRowUiState {
@@ -47,4 +61,16 @@ sealed interface EditTransactionRowUiState {
     data class Ready(
         val transactionRow : TransactionRow
     ) : EditTransactionRowUiState
+
+    data object Saved : EditTransactionRowUiState
+}
+
+sealed interface EditTransactionRowEvent {
+    data class Update(
+        val transactionRow : TransactionRow
+    ) : EditTransactionRowEvent
+
+    data class Save(
+        val transactionRow : TransactionRow
+    ) : EditTransactionRowEvent
 }

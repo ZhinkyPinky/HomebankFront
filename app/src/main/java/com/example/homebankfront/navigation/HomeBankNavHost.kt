@@ -10,6 +10,8 @@ import com.example.homebankfront.feature.customerTransactionHeadAndRows.navigati
 import com.example.homebankfront.feature.customerTransactionHeadAndRows.navigation.navigateToCustomerTransactionHeadAndRows
 import com.example.homebankfront.feature.editTransactionHead.navigation.editTransactionHeadScreen
 import com.example.homebankfront.feature.editTransactionHead.navigation.navigateToEditTransactionHead
+import com.example.homebankfront.feature.editTransactionRow.navigation.editTransactionRowScreen
+import com.example.homebankfront.feature.editTransactionRow.navigation.navigateToEditTransactionRow
 import com.example.homebankfront.ui.HomebankAppState
 
 @Composable
@@ -31,9 +33,12 @@ fun HomeBankNavHost(appState : HomebankAppState) {
 
         customerTransactionHeadAndRowsScreen(
             onBackClick = navController::popBackStack,
-            onEditTransactionClick = navController::navigateToEditTransactionHead
+            onEditTransactionHeadClick = navController::navigateToEditTransactionHead,
+            onEditTransactionRowClick = navController::navigateToEditTransactionRow
         )
 
         editTransactionHeadScreen(onBackClick = navController::popBackStack)
+
+        editTransactionRowScreen(onBackClick = navController::popBackStack)
     }
 }
