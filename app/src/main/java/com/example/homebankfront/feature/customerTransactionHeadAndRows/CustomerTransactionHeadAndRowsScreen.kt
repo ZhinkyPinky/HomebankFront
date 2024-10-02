@@ -3,6 +3,7 @@ package com.example.homebankfront.feature.customerTransactionHeadAndRows
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -29,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableTarget
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +39,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,12 +51,12 @@ import com.example.homebankfront.dataAccess.bodies.TransactionRow
 
 @Composable
 internal fun CustomerTransactionHeadAndRowsRoute(
-    viewModel : CustomerTransactionHeadAndRowsViewModel = hiltViewModel(),
-    onEditTransactionHeadClick : (Long, Long) -> Unit,
-    onEditTransactionRowClick : (Long) -> Unit,
-    onBackClick : () -> Unit
+    viewModel: CustomerTransactionHeadAndRowsViewModel = hiltViewModel(),
+    onEditTransactionHeadClick: (Long, Long) -> Unit,
+    onEditTransactionRowClick: (Long, Long) -> Unit,
+    onBackClick: () -> Unit
 ) {
-    val customerAndTransactionHeadAndRowsUiState : CustomerTransactionHeadAndRowsUiState by viewModel.customerTransactionHeadAndRowsUiState.collectAsStateWithLifecycle()
+    val customerAndTransactionHeadAndRowsUiState: CustomerTransactionHeadAndRowsUiState by viewModel.customerTransactionHeadAndRowsUiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getCustomerTransactionHeadAndRows()
@@ -69,11 +73,11 @@ internal fun CustomerTransactionHeadAndRowsRoute(
 
 @Composable
 fun CustomerTransactionHeadAndRowsScreen(
-    customerTransactionHeadAndRowsUiState : CustomerTransactionHeadAndRowsUiState,
-    onEditTransactionClick : (Long, Long) -> Unit,
-    onEditTransactionRowClick : (Long) -> Unit,
-    onTransactionRowClick : () -> Unit,
-    onBackClick : () -> Unit
+    customerTransactionHeadAndRowsUiState: CustomerTransactionHeadAndRowsUiState,
+    onEditTransactionClick: (Long, Long) -> Unit,
+    onEditTransactionRowClick: (Long, Long) -> Unit,
+    onTransactionRowClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     when (customerTransactionHeadAndRowsUiState) {
         is CustomerTransactionHeadAndRowsUiState.Loading -> {}
@@ -95,18 +99,18 @@ fun CustomerTransactionHeadAndRowsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomerTransactionHeadAndRowsScreen(
-    customer : Customer,
-    transactionHead : TransactionHead,
-    transactionRows : List<TransactionRow>,
-    onEditTransactionHeadClick : (Long, Long) -> Unit,
-    onEditTransactionRowClick : (Long) -> Unit,
-    onTransactionRowClick : () -> Unit,
-    onBackClick : () -> Unit
+    customer: Customer,
+    transactionHead: TransactionHead,
+    transactionRows: List<TransactionRow>,
+    onEditTransactionHeadClick: (Long, Long) -> Unit,
+    onEditTransactionRowClick: (Long, Long) -> Unit,
+    onTransactionRowClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(customer.name) },
+                title = { Text(text = customer.name) },
                 navigationIcon = {
                     IconButton(
                         onClick = { onBackClick() },
@@ -126,14 +130,21 @@ fun CustomerTransactionHeadAndRowsScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
 
                 ),
-                modifier = Modifier.padding(bottom = 2.dp)
+                modifier = Modifier.padding(bottom = 1.dp)
             )
         },
     ) { paddingValues ->
         Column(
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(1.dp),
             modifier = Modifier.padding(paddingValues)
         ) {
+
+            TransactionHeadInfo(
+                customer = customer,
+                transactionHead = transactionHead,
+                onEditTransactionHeadClick = onEditTransactionHeadClick
+            )
+
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -141,23 +152,69 @@ fun CustomerTransactionHeadAndRowsScreen(
                     .background(MaterialTheme.colorScheme.primary)
                     .fillMaxWidth()
             ) {
-                Text(text = "Transaktion")
+                Text(text = "Rader")
 
-                IconButton(onClick = {
-                    onEditTransactionHeadClick(
-                        customer.id,
-                        transactionHead.id
-                    )
-                }) {
+                IconButton(onClick = {}) {
                     Icon(
-                        imageVector = Icons.Filled.Edit,
+                        imageVector = Icons.Filled.Add,
                         contentDescription = "",
-                        modifier = Modifier.size(16.dp)
-                    )
+
+                        )
                 }
             }
 
-            Column(modifier = Modifier.background(MaterialTheme.colorScheme.primary)) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(1.dp),
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .fillMaxSize()
+            ) {
+                transactionRowList(
+                    transactionRows = transactionRows,
+                    onTransactionRowClick = onTransactionRowClick,
+                    onEvent = {},
+                    onEditTransactionRowClick = onEditTransactionRowClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun TransactionHeadInfo(
+    customer: Customer,
+    transactionHead: TransactionHead,
+    onEditTransactionHeadClick: (Long, Long) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primary)
+            .fillMaxWidth()
+    ) {
+        Text(text = "Transaktion")
+
+        IconButton(onClick = {
+            onEditTransactionHeadClick(
+                customer.id,
+                transactionHead.id
+            )
+        }) {
+            Icon(
+                imageVector = Icons.Filled.Edit,
+                contentDescription = "",
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primary)
+    ) {
+        Row {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Titel",
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -204,104 +261,164 @@ fun CustomerTransactionHeadAndRowsScreen(
                         text = "245",
                         color = MaterialTheme.colorScheme.onPrimary
                     )
-
                 }
             }
 
+            Column {
+                Text(
+                    text = "Startdatum",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = transactionHead.startDate.toString(),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primary)
-                    .fillMaxWidth()
-            ) {
-                Text(text = "Rader")
+                Text(
+                    text = "Prel. Slutdatum",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = transactionHead.prelEndDate.toString(),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
 
-                IconButton(onClick = {}) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "",
-
-                        )
-                }
-            }
-
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background)
-                    .fillMaxSize()
-            ) {
-                transactionRowList(
-                    transactionRows = transactionRows,
-                    onTransactionRowClick = onTransactionRowClick,
-                    onEvent = {},
-                    onEditTransactionRowClick = onEditTransactionRowClick
+                Text(
+                    text = "Slutdatum",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = transactionHead.endDate.toString(),
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
+
+        Text(
+            text = "Beskrivning",
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontSize = 12.sp
+        )
+        Text(
+            text = transactionHead.description,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
     }
 }
 
-
 fun LazyListScope.transactionRowList(
-    transactionRows : List<TransactionRow>,
-    onTransactionRowClick : () -> Unit,
-    onEditTransactionRowClick : (Long) -> Unit,
-    onEvent : () -> Unit
+    transactionRows: List<TransactionRow>,
+    onTransactionRowClick: () -> Unit,
+    onEditTransactionRowClick: (Long, Long) -> Unit,
+    onEvent: () -> Unit
 ) {
     itemsIndexed(
         items = transactionRows
-    ) { index, transactionRow ->
+    ) { _, transactionRow ->
+        TransactionRowListItem(
+            transactionRow = transactionRow,
+            onEditTransactionRowClick = onEditTransactionRowClick,
+            onEvent = onEvent
+        )
+    }
+}
 
-        var expanded by rememberSaveable { mutableStateOf(false) }
+@Composable
+fun TransactionRowListItem(
+    transactionRow: TransactionRow,
+    onEditTransactionRowClick: (Long, Long) -> Unit,
+    onEvent: () -> Unit
+) {
+    var dropDownMenuExpanded by rememberSaveable { mutableStateOf(false) }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text(text = "Redigera") },
-                onClick = { onEditTransactionRowClick(transactionRow.id) }
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(MaterialTheme.colorScheme.primary)
+            .clickable {
+
+            }
+    ) {
+
+        Text(
+            text = "${transactionRow.transactionRowNo}",
+            modifier = Modifier.align(Alignment.CenterVertically).weight(0.5f).padding(8.dp)
+        )
+        Column(modifier = Modifier.weight(3f)) {
+            Text(
+                text = "Titel",
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 12.sp
             )
 
-            DropdownMenuItem(
-                text = { Text(text = "Ta bort") },
-                onClick = { }
+            Text(
+                text = transactionRow.name,
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .background(MaterialTheme.colorScheme.primary)
-                .clickable {
-
-                }
-        ) {
-
+        Column(modifier = Modifier.weight(2f)) {
             Text(
-                text = "${transactionRow.transactionRowNo}",
-                modifier = Modifier.weight(1F)
+                text = "Datum",
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 12.sp
             )
-            Text(
-                text = transactionRow.transactionName,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1F)
-            )
+
             Text(
                 text = "${transactionRow.paymentDate}",
-                modifier = Modifier.weight(1F)
             )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "${transactionRow.amount}",
-                modifier = Modifier.weight(1F)
+                text = "Belopp",
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 12.sp
             )
 
-            IconButton(onClick = {expanded = true}) {
+            Text(
+                text = "${transactionRow.amount}",
+            )
+        }
+
+        Box {
+            DropdownMenu(
+                expanded = dropDownMenuExpanded,
+                onDismissRequest = { dropDownMenuExpanded = false },
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            ) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = "Redigera",
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    },
+                    onClick = {
+                        onEditTransactionRowClick(
+                            transactionRow.transactionHeadId,
+                            transactionRow.id
+                        )
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = "Ta bort",
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    },
+                    onClick = { onEvent() }
+                )
+            }
+
+            IconButton(onClick = { dropDownMenuExpanded = !dropDownMenuExpanded }) {
                 Icon(
                     imageVector = Icons.Filled.MoreVert,
                     contentDescription = ""

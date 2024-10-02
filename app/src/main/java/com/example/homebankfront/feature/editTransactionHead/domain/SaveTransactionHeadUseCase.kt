@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 
-class SaveTransactionHeadUseCase
-@Inject constructor(
-    private val repository : Repository
-){
-    suspend operator fun invoke(transactionHead : TransactionHead)  = repository.saveTransactionHead(transactionHead)
+class SaveTransactionHeadUseCase @Inject constructor(
+    private val repository: Repository
+) {
+    suspend operator fun invoke(transactionHead: TransactionHead) =
+        repository.saveTransactionHead(transactionHead)
 }

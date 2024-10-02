@@ -31,14 +31,14 @@ import java.time.ZoneId
 
 @Composable
 fun EditTransactionRowRoute(
-    viewModel : EditTransactionRowViewModel = hiltViewModel(),
-    onBackClick : () -> Unit
+    viewModel: EditTransactionRowViewModel = hiltViewModel(),
+    onBackClick: () -> Unit
 ) {
     val editTransactionRowUiState by viewModel.editTransactionRowUiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         if (editTransactionRowUiState !is EditTransactionRowUiState.Saved) {
-            viewModel.getTransactionRow()
+            viewModel.getCustomersAndTransactionRow()
         }
     }
 
@@ -49,10 +49,11 @@ fun EditTransactionRowRoute(
     )
 }
 
-@Composable fun EditTransactionRowScreen(
-    editTransactionRowUiState : EditTransactionRowUiState,
-    onEvent : (EditTransactionRowEvent) -> Unit,
-    onBackClick : () -> Unit
+@Composable
+fun EditTransactionRowScreen(
+    editTransactionRowUiState: EditTransactionRowUiState,
+    onEvent: (EditTransactionRowEvent) -> Unit,
+    onBackClick: () -> Unit
 ) {
     when (editTransactionRowUiState) {
         is EditTransactionRowUiState.Loading -> {}
@@ -69,45 +70,39 @@ fun EditTransactionRowRoute(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun EditTransactionRowScreen(
-    transactionRow : TransactionRow,
-    onEvent : (EditTransactionRowEvent) -> Unit,
-    onBackClick : () -> Unit
+@Composable
+fun EditTransactionRowScreen(
+    transactionRow: TransactionRow,
+    onEvent: (EditTransactionRowEvent) -> Unit,
+    onBackClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Redigera")
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { onBackClick() },
+            TopAppBar(title = {
+                Text(text = "Redigera")
+            }, navigationIcon = {
+                IconButton(
+                    onClick = { onBackClick() },
 
-                        ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = ""
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { onEvent(EditTransactionRowEvent.Save(transactionRow)) }
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Done,
-                            contentDescription = ""
-                        )
-                    }
-                },
-                colors = TopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    scrolledContainerColor = MaterialTheme.colorScheme.primary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = ""
+                    )
+                }
+            }, actions = {
+                IconButton(onClick = { onEvent(EditTransactionRowEvent.Save(transactionRow)) }) {
+                    Icon(
+                        imageVector = Icons.Filled.Done, contentDescription = ""
+                    )
+                }
+            }, colors = TopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                scrolledContainerColor = MaterialTheme.colorScheme.primary,
+                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+            )
             )
         },
     ) { paddingValues ->
@@ -118,17 +113,25 @@ fun EditTransactionRowRoute(
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.primary)
         ) {
-            TextField(
-                label = "Titel",
-                text = transactionRow.transactionName,
-                onValueChange = { onEvent(EditTransactionRowEvent.Update(transactionRow = transactionRow.copy(transactionName = it))) }
-            )
+            TextField(label = "Titel", text = transactionRow.name, onValueChange = {
+                onEvent(
+                    EditTransactionRowEvent.Update(
+                        transactionRow = transactionRow.copy(
+                            name = it
+                        )
+                    )
+                )
+            })
 
-            TextField(
-                label = "Belopp",
-                text = transactionRow.amount.toString(),
-                onValueChange = { onEvent(EditTransactionRowEvent.Update(transactionRow = transactionRow.copy(amount = it.toInt()))) }
-            )
+            TextField(label = "Belopp", text = transactionRow.amount.toString(), onValueChange = {
+                onEvent(
+                    EditTransactionRowEvent.Update(
+                        transactionRow = transactionRow.copy(
+                            amount = it.toInt()
+                        )
+                    )
+                )
+            })
 
             DatePicker(
                 label = "Datum",
@@ -138,10 +141,8 @@ fun EditTransactionRowRoute(
                         onEvent(
                             EditTransactionRowEvent.Update(
                                 transactionRow = transactionRow.copy(
-                                    paymentDate = Instant
-                                        .ofEpochMilli(it)
-                                        .atZone(ZoneId.systemDefault())
-                                        .toLocalDate()
+                                    paymentDate = Instant.ofEpochMilli(it)
+                                        .atZone(ZoneId.systemDefault()).toLocalDate()
                                 )
                             )
                         )
@@ -150,11 +151,15 @@ fun EditTransactionRowRoute(
                 },
             )
 
-            TextField(
-                label = "Beskrivning",
-                text = transactionRow.description,
-                onValueChange = { onEvent(EditTransactionRowEvent.Update(transactionRow = transactionRow.copy(description = it))) }
-            )
+            TextField(label = "Beskrivning", text = transactionRow.description, onValueChange = {
+                onEvent(
+                    EditTransactionRowEvent.Update(
+                        transactionRow = transactionRow.copy(
+                            description = it
+                        )
+                    )
+                )
+            })
         }
     }
 }

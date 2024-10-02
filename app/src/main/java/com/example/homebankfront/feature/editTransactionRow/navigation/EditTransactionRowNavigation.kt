@@ -8,18 +8,21 @@ import androidx.navigation.navArgument
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowRoute
 
 fun NavController.navigateToEditTransactionRow(
-    transactionRowId : Long
+    transactionHeadId: Long,
+    transactionRowId: Long
 ) = navigate(
-    route = "transactionRow/$transactionRowId/edit"
+    route = "transactionHead/$transactionHeadId/transactionRow/$transactionRowId/edit"
 )
 
 fun NavGraphBuilder.editTransactionRowScreen(
-    onBackClick : () -> Unit
+    onBackClick: () -> Unit
 ) {
     composable(
-        route = "transactionRow/{transactionRowId}/edit",
+        route = "transactionHead/{transactionHeadId}/transactionRow/{transactionRowId}/edit",
         arguments = listOf(
-            navArgument("transactionRowId") { type = NavType.LongType })
+            navArgument("transactionHeadId") { type = NavType.LongType },
+            navArgument("transactionRowId") { type = NavType.LongType }
+        )
     ) {
         EditTransactionRowRoute(
             onBackClick = onBackClick

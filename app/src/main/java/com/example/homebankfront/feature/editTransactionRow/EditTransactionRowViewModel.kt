@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.dataAccess.bodies.TransactionRow
 import com.example.homebankfront.feature.editTransactionRow.domain.GetTransactionRowUseCase
+import com.example.homebankfront.feature.editTransactionRow.domain.SaveTransactionRowUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,23 +15,27 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditTransactionRowViewModel @Inject constructor(
-    savedStateHandle : SavedStateHandle,
-    private val getTransactionRowUseCase : GetTransactionRowUseCase,
-    //private val saveTransactionRowUseCase : SaveTransactionRowUseCase
+    savedStateHandle: SavedStateHandle,
+    private val getTransactionRowUseCase: GetTransactionRowUseCase,
+    private val saveTransactionRowUseCase: SaveTransactionRowUseCase
 ) : ViewModel() {
-    private val transactionRowId : Long = checkNotNull(savedStateHandle["transactionRowId"])
+    private val transactionHeadId: Long = checkNotNull(savedStateHandle["transactionHeadId"])
+    private val transactionRowId: Long = checkNotNull(savedStateHandle["transactionRowId"])
 
-    private val _editTransactionRowUiState : MutableStateFlow<EditTransactionRowUiState> = MutableStateFlow(EditTransactionRowUiState.Loading)
+    private val _editTransactionRowUiState: MutableStateFlow<EditTransactionRowUiState> =
+        MutableStateFlow(EditTransactionRowUiState.Loading)
     val editTransactionRowUiState = _editTransactionRowUiState.asStateFlow()
 
-    fun onEvent(event : EditTransactionRowEvent) {
+    fun onEvent(event: EditTransactionRowEvent) {
         when (event) {
             is EditTransactionRowEvent.Update -> updateTransactionRow(event.transactionRow)
-            is EditTransactionRowEvent.Save -> TODO()
+            is EditTransactionRowEvent.Save -> viewModelScope.launch {
+                saveTransactionRowUseCase(event.transactionRow)
+            }
         }
     }
 
-    fun getTransactionRow() {
+    fun getCustomersAndTransactionRow() {
         _editTransactionRowUiState.update { EditTransactionRowUiState.Loading }
 
         viewModelScope.launch {
@@ -44,7 +49,7 @@ class EditTransactionRowViewModel @Inject constructor(
         }
     }
 
-    private fun updateTransactionRow(transactionRow : TransactionRow) {
+    private fun updateTransactionRow(transactionRow: TransactionRow) {
         _editTransactionRowUiState.update { currentState ->
             if (currentState is EditTransactionRowUiState.Ready) {
                 currentState.copy(transactionRow = transactionRow)
@@ -59,7 +64,7 @@ class EditTransactionRowViewModel @Inject constructor(
 sealed interface EditTransactionRowUiState {
     data object Loading : EditTransactionRowUiState
     data class Ready(
-        val transactionRow : TransactionRow
+        val transactionRow: TransactionRow
     ) : EditTransactionRowUiState
 
     data object Saved : EditTransactionRowUiState
@@ -67,10 +72,10 @@ sealed interface EditTransactionRowUiState {
 
 sealed interface EditTransactionRowEvent {
     data class Update(
-        val transactionRow : TransactionRow
+        val transactionRow: TransactionRow
     ) : EditTransactionRowEvent
 
     data class Save(
-        val transactionRow : TransactionRow
+        val transactionRow: TransactionRow
     ) : EditTransactionRowEvent
 }

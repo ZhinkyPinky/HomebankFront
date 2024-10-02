@@ -1,5 +1,6 @@
 package com.example.homebankfront.designsystem
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -13,19 +14,24 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun TextField(
-    label : String,
-    text : String,
-    onValueChange : (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String,
+    text: String,
+    isSelected: Boolean = false,
+    enabled: Boolean = true,
+    onValueChange: (String) -> Unit,
 ) {
+    Log.d(label, isSelected.toString())
 
     OutlinedTextField(
         value = text,
         onValueChange = onValueChange,
+        enabled = enabled,
         label = { Text(text = label) },
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
             unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            disabledTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            disabledTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
             errorTextColor = Color.Red,
 
             focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -38,10 +44,12 @@ fun TextField(
 
             focusedBorderColor = MaterialTheme.colorScheme.onSecondaryContainer,
             unfocusedBorderColor = MaterialTheme.colorScheme.background,
+            disabledBorderColor = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.background,
             errorBorderColor = Color.Red,
 
             focusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
             unfocusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            disabledLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
             errorLabelColor = Color.Red,
 
             focusedPlaceholderColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -51,6 +59,10 @@ fun TextField(
             focusedTrailingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
             unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
         ),
-        modifier = Modifier.fillMaxWidth().padding(6.dp)
+        modifier = modifier.then(
+            Modifier
+                .fillMaxWidth()
+                .padding(6.dp)
+        )
     )
 }

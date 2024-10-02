@@ -15,7 +15,7 @@ import com.example.homebankfront.feature.editTransactionRow.navigation.navigateT
 import com.example.homebankfront.ui.HomebankAppState
 
 @Composable
-fun HomeBankNavHost(appState : HomebankAppState) {
+fun HomeBankNavHost(appState: HomebankAppState) {
     val navController = appState.navController
 
     NavHost(
@@ -27,6 +27,7 @@ fun HomeBankNavHost(appState : HomebankAppState) {
         )
 
         customerAndTransactionHeadsScreen(
+            onNewTransactionHeadClick = navController::navigateToEditTransactionHead,
             onTransactionHeadClick = navController::navigateToCustomerTransactionHeadAndRows,
             onBackClick = navController::popBackStack
         )
