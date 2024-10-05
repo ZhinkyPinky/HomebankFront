@@ -21,13 +21,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.homebankfront.ui.theme.HomeBankFrontTheme
+import com.example.homebankfront.ui.theme.ThemePreviews
 import java.time.LocalDate
 
 @Composable
 fun DatePicker(
-    label : String,
-    date : LocalDate?,
-    onDateSelected : (Long?) -> Unit
+    label: String,
+    date: LocalDate?,
+    onDateSelected: (Long?) -> Unit
 ) {
     val showDialog = rememberSaveable { mutableStateOf(false) }
 
@@ -91,10 +93,11 @@ fun DatePicker(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerDialog(
-    onDateSelected : (Long?) -> Unit,
-    onDismiss : () -> Unit
+    onDateSelected: (Long?) -> Unit,
+    onDismiss: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState()
+
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
@@ -115,27 +118,42 @@ fun DatePickerDialog(
             ) {
                 Text(text = "Avbryt")
             }
-        }
+        },
+        colors = DatePickerDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.primary,
+
+        )
     ) {
         DatePicker(
             state = datePickerState,
             colors = DatePickerDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                headlineContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                dayContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                selectedDayContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                weekdayContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                subheadContentColor = MaterialTheme.colorScheme.onPrimary,
+                navigationContentColor = MaterialTheme.colorScheme.onPrimary,
+                headlineContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                yearContentColor = MaterialTheme.colorScheme.onSecondary,
+                currentYearContentColor = MaterialTheme.colorScheme.onSecondary,
+                selectedYearContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                dayContentColor = MaterialTheme.colorScheme.onSecondary,
+                selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
+
 
                 dateTextFieldColors = TextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    disabledTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledTextColor = MaterialTheme.colorScheme.onSecondary,
                     errorTextColor = Color.Red,
 
-                    focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    errorContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedContainerColor = MaterialTheme.colorScheme.primary,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = MaterialTheme.colorScheme.primary,
+                    errorContainerColor = MaterialTheme.colorScheme.primary,
 
                     cursorColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     errorCursorColor = Color.Red,
@@ -150,8 +168,22 @@ fun DatePickerDialog(
 
                     focusedTrailingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
+
+
+                    )
             )
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+fun DatePickerDialogPreview(){
+
+    HomeBankFrontTheme {
+        DatePickerDialog(
+            onDateSelected = {_ -> },
+            onDismiss = {}
         )
     }
 }

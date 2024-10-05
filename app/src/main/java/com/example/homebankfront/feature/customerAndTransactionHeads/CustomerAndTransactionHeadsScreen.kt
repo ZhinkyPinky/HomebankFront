@@ -1,5 +1,6 @@
 package com.example.homebankfront.feature.customerAndTransactionHeads
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.dataAccess.bodies.Customer
 import com.example.homebankfront.dataAccess.bodies.TransactionHead
+import com.example.homebankfront.designsystem.TextWithLabel
 
 
 @Composable
@@ -98,14 +100,9 @@ fun CustomerAndTransactionHeadsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = customer.name)
-                },
+                title = { Text(text = customer.name) },
                 navigationIcon = {
-                    IconButton(
-                        onClick = { onBackClick() },
-
-                        ) {
+                    IconButton(onClick = { onBackClick() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = ""
@@ -121,19 +118,18 @@ fun CustomerAndTransactionHeadsScreen(
                     }
                 },
                 colors = TopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    scrolledContainerColor = MaterialTheme.colorScheme.primary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
     ) { paddingValues ->
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(vertical = 2.dp),
+            verticalArrangement = Arrangement.spacedBy(1.dp),
+            contentPadding = PaddingValues(vertical = 1.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -156,14 +152,15 @@ fun LazyListScope.transactionHeadList(
     onEvent: () -> Unit
 ) {
     itemsIndexed(
-        items = transactionHeads
-    ) { index, transactionHead ->
+        items = transactionHeads,
+        key = { _, transactionHead -> transactionHead.id }
+    ) { _, transactionHead ->
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable {
                     onTransactionHeadClick(
                         customerId,
@@ -171,56 +168,43 @@ fun LazyListScope.transactionHeadList(
                     )
                 }
         ) {
+
             Column(
                 modifier = Modifier
-                    .wrapContentWidth()
                     .padding(8.dp)
+                    .weight(1f)
             ) {
-                Text(
-                    text = if (customerId == transactionHead.lenderId) "Till" else "Från",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 12.sp
-                )
-                Text(
-                    text = if (customerId == transactionHead.lenderId) transactionHead.borrower else transactionHead.lender,
-                    color = MaterialTheme.colorScheme.onPrimary
+                TextWithLabel(
+                    label = if (customerId == transactionHead.lenderId) "Till" else "Från",
+                    text = if (customerId == transactionHead.lenderId) {
+                        transactionHead.borrower ?: ""
+                    } else {
+                        transactionHead.lender ?: ""
+                    }
                 )
 
-                Text(
-                    text = "Titel",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 12.sp,
+                TextWithLabel(
+                    label = "Titel",
+                    text = transactionHead.transactionName ?: ""
                 )
-                Text(
-                    text = transactionHead.transactionName,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
+
             }
 
             Column(
-                horizontalAlignment = Alignment.End,
                 modifier = Modifier
-                    .wrapContentWidth()
                     .padding(8.dp)
+                    .weight(1f)
             ) {
-                Text(
-                    text = "Startdatum",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 12.sp
-                )
-                Text(
+                TextWithLabel(
+                    label = "Startdatum",
                     text = transactionHead.startDate.toString(),
-                    color = MaterialTheme.colorScheme.onPrimary
+                    horizontalAlignment = Alignment.End
                 )
 
-                Text(
-                    text = "Saldo",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 12.sp,
-                )
-                Text(
+                TextWithLabel(
+                    label = "Saldo",
                     text = "2254",
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    horizontalAlignment = Alignment.End
                 )
             }
         }

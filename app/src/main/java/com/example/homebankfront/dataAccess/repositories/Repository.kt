@@ -92,9 +92,9 @@ class Repository @Inject constructor(
         apiService.saveTransactionRow(transactionRow)
     }
 
-    suspend fun deleteTransactionRow(transactionRow: TransactionRow) =
-        apiService.deleteTransactionRow(transactionRow)
-
+    suspend fun deleteTransactionRow(transactionRowId: Long) {
+        apiService.deleteTransactionRow(transactionRowId)
+    }
     private fun emitError(message: String): Nothing {
         throw Exception(message)
     }

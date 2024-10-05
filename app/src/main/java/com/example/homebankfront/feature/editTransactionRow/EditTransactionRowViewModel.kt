@@ -17,7 +17,7 @@ import javax.inject.Inject
 class EditTransactionRowViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getTransactionRowUseCase: GetTransactionRowUseCase,
-    private val saveTransactionRowUseCase: SaveTransactionRowUseCase
+    private val saveTransactionRowUseCase: SaveTransactionRowUseCase,
 ) : ViewModel() {
     private val transactionHeadId: Long = checkNotNull(savedStateHandle["transactionHeadId"])
     private val transactionRowId: Long = checkNotNull(savedStateHandle["transactionRowId"])
@@ -31,6 +31,10 @@ class EditTransactionRowViewModel @Inject constructor(
             is EditTransactionRowEvent.Update -> updateTransactionRow(event.transactionRow)
             is EditTransactionRowEvent.Save -> viewModelScope.launch {
                 saveTransactionRowUseCase(event.transactionRow)
+            }.invokeOnCompletion {
+                _editTransactionRowUiState.update {
+                    EditTransactionRowUiState.Saved
+                }
             }
         }
     }
@@ -38,13 +42,24 @@ class EditTransactionRowViewModel @Inject constructor(
     fun getCustomersAndTransactionRow() {
         _editTransactionRowUiState.update { EditTransactionRowUiState.Loading }
 
-        viewModelScope.launch {
-            getTransactionRowUseCase(transactionRowId).collect { transactionRow ->
-                _editTransactionRowUiState.update {
-                    EditTransactionRowUiState.Ready(
-                        transactionRow = transactionRow
-                    )
+        if (transactionRowId != TransactionRow().id) {
+            viewModelScope.launch {
+                getTransactionRowUseCase(transactionRowId).collect { transactionRow ->
+                    _editTransactionRowUiState.update {
+                        EditTransactionRowUiState.Ready(
+                            transactionRow = transactionRow
+                        )
+                    }
                 }
+            }
+        } else {
+            _editTransactionRowUiState.update {
+                EditTransactionRowUiState.Ready(
+                    transactionRow = TransactionRow(
+                        transactionHeadId = transactionHeadId,
+                        typeOfTransactionCode = TransactionRow.Type.LOAN.name
+                    )
+                )
             }
         }
     }

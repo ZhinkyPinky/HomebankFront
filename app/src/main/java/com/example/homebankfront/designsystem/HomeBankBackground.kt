@@ -2,6 +2,7 @@ package com.example.homebankfront.designsystem
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.LocalAbsoluteTonalElevation
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -13,11 +14,11 @@ import androidx.compose.ui.unit.dp
 import com.example.homebankfront.ui.theme.LocalBackgroundTheme
 
 @Composable
-fun HomebankBackground(
+fun HomeBankBackground(
     modifier : Modifier = Modifier,
     content : @Composable () -> Unit
 ) {
-    val color = LocalBackgroundTheme.current.color
+    val color = MaterialTheme.colorScheme.surface
     val tonalElevation = LocalBackgroundTheme.current.tonalElevation
 
     Surface(

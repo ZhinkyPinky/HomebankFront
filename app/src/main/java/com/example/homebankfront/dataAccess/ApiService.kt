@@ -43,8 +43,8 @@ interface ApiService {
     @POST("transactionRow")
     suspend fun saveTransactionRow(@Body transactionRow: TransactionRow)
 
-    @DELETE("transactionRow")
-    suspend fun deleteTransactionRow(transactionRow: TransactionRow)
+    @DELETE("transactionRow/{transactionRowId}")
+    suspend fun deleteTransactionRow(@Path("transactionRowId") transactionRowId: Long)
 
     @GET("transactionRow/{transactionRowId}")
     suspend fun getTransactionRow(@Path("transactionRowId") transactionRowId: Long): TransactionRow

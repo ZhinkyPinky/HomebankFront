@@ -3,39 +3,72 @@ package com.example.homebankfront.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = primaryDark,
     onPrimary = onPrimaryDark,
-    primaryContainer = primaryContainerDark,
-    onPrimaryContainer = onPrimaryContainerDark,
-    inversePrimary = inversePrimaryDark,
+
     secondary = secondaryDark,
     onSecondary = onSecondaryDark,
-    secondaryContainer = secondaryContainerDark,
-    onSecondaryContainer = onSecondaryContainerDark,
+
     tertiary = tertiaryDark,
     onTertiary = onTertiaryDark,
+
+
+    primaryContainer = primaryContainerDark,
+    onPrimaryContainer = onPrimaryContainerDark,
+
+    secondaryContainer = secondaryContainerDark,
+    onSecondaryContainer = onSecondaryContainerDark,
+
     tertiaryContainer = tertiaryContainerDark,
     onTertiaryContainer = onTertiaryContainerDark,
-    background = backgroundDark,
-    onBackground = onBackgroundDark,
+
+
+    surfaceDim = surfaceDimDark,
+
     surface = surfaceDark,
     onSurface = onSurfaceDark,
+
+    surfaceBright = surfaceBrightDark,
+
+    surfaceContainerLowest = surfaceContainerLowestDark,
+    surfaceContainerLow = surfaceContainerLowDark,
+    surfaceContainer = surfaceContainerDark,
+    surfaceContainerHigh = surfaceContainerHighDark,
+    surfaceContainerHighest = surfaceContainerHighestDark,
+
     surfaceVariant = surfaceVariantDark,
     onSurfaceVariant = onSurfaceVariantDark,
     surfaceTint = surfaceTintDark,
-    inverseSurface = inverseSurfaceDark,
-    inverseOnSurface = inverseOnSurfaceDark,
-    error = errorDark,
-    onError = onErrorDark,
-    errorContainer = errorContainerDark,
-    onErrorContainer = onErrorContainerDark,
+
     outline = outlineDark,
     outlineVariant = outlineVariantDark,
-    scrim = scrimDark
+
+
+    error = errorDark,
+    onError = onErrorDark,
+
+    errorContainer = errorContainerDark,
+    onErrorContainer = onErrorContainerDark,
+
+
+    inverseSurface = inverseSurfaceDark,
+    inverseOnSurface = inverseOnSurfaceDark,
+
+    inversePrimary = inversePrimaryDark,
+
+
+    scrim = scrimDark,
+
+
+    background = backgroundDark,
+    onBackground = onBackgroundDark,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -71,22 +104,18 @@ private val LightColorScheme = lightColorScheme(
 )
 
 
-
 @Composable
-fun HomebankFrontTheme(
-    darkTheme : Boolean = isSystemInDarkTheme(),
+fun HomeBankFrontTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    //dynamicColor : Boolean = true,
-    content : @Composable () -> Unit
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        /*
         dynamicColor -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
-         */
 
         darkTheme -> DarkColorScheme
         else -> LightColorScheme

@@ -36,6 +36,10 @@ class EditTransactionHeadViewModel @Inject constructor(
             is EditTransactionHeadEvent.UpdateTransactionHead -> updateTransactionHead(event.transactionHead)
             is EditTransactionHeadEvent.SaveTransactionHead -> viewModelScope.launch {
                 saveTransactionHeadUseCase(event.transactionHead)
+            }.invokeOnCompletion {
+                _editTransactionHeadUiState.update {
+                    EditTransactionHeadUiState.Saved
+                }
             }
         }
     }

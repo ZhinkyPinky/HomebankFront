@@ -1,6 +1,5 @@
 package com.example.homebankfront.feature.customerTransactionHeadAndRows
 
-import android.util.Printer
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,7 +32,7 @@ class CustomerTransactionHeadAndRowsViewModel @Inject constructor(
         when (event) {
             is TransactionHeadAndRowsEvent.DeleteRow -> viewModelScope.launch {
                 deleteTransactionRowUseCase(
-                    event.transactionRow
+                    event.transactionRowId
                 )
             }
         }
@@ -70,6 +69,6 @@ sealed interface CustomerTransactionHeadAndRowsUiState {
 
 sealed interface TransactionHeadAndRowsEvent {
     data class DeleteRow(
-        val transactionRow: TransactionRow
+        val transactionRowId : Long
     ) : TransactionHeadAndRowsEvent
 }

@@ -122,17 +122,17 @@ fun EditTransactionHeadScreen(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Done,
+                            imageVector = Icons.Filled.Check,
                             contentDescription = ""
                         )
                     }
                 },
                 colors = TopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    scrolledContainerColor = MaterialTheme.colorScheme.primary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         },
@@ -142,11 +142,11 @@ fun EditTransactionHeadScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.surface)
         ) {
             TextField(
                 label = "Titel",
-                text = transactionHead.transactionName,
+                text = transactionHead.transactionName ?: "",
                 onValueChange = {
                     onEvent(
                         EditTransactionHeadEvent.UpdateTransactionHead(
@@ -199,7 +199,7 @@ fun EditTransactionHeadScreen(
 
                 TextField(
                     label = "Långivare",
-                    text = transactionHead.lender,
+                    text = transactionHead.lender ?: "",
                     isSelected = lenderChoiceDropdownMenuExpanded,
                     enabled = false,
                     onValueChange = { },
@@ -211,6 +211,7 @@ fun EditTransactionHeadScreen(
 
             Box {
                 var borrowerChoiceDropdownMenuExpanded by rememberSaveable { mutableStateOf(false) }
+
                 DropdownMenu(
                     expanded = borrowerChoiceDropdownMenuExpanded,
                     offset = DpOffset(x = 5.dp, y = 0.dp),
@@ -251,7 +252,7 @@ fun EditTransactionHeadScreen(
 
                 TextField(
                     label = "Låntagare",
-                    text = transactionHead.borrower,
+                    text = transactionHead.borrower ?: "",
                     isSelected = borrowerChoiceDropdownMenuExpanded,
                     enabled = false,
                     onValueChange = { },
@@ -327,7 +328,7 @@ fun EditTransactionHeadScreen(
 
             TextField(
                 label = "Beskrivning",
-                text = transactionHead.description,
+                text = transactionHead.description ?: "",
                 onValueChange = {
                     onEvent(
                         EditTransactionHeadEvent.UpdateTransactionHead(
