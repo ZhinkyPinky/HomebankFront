@@ -1,11 +1,16 @@
 package com.example.homebankfront.designsystem
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -22,6 +27,7 @@ import androidx.compose.ui.unit.dp
 fun TextFieldWithDropdownMenu(
     label: String = "",
     text: String = "",
+    selectedKey: String,
     menuOptions: Map<String, String>,
     onClick: (String, String) -> Unit,
 ) {
@@ -49,15 +55,21 @@ fun TextFieldWithDropdownMenu(
             onDismissRequest = { expanded = false },
         ) {
             menuOptions.forEach { (key, value) ->
+                val selected = rememberSaveable { selectedKey == key }
+
                 DropdownMenuItem(
                     text = {
                         Text(text = value)
                     },
+                    leadingIcon = { if (selected) Icon(imageVector = Icons.Filled.Check, contentDescription = "")},
                     onClick = {
                         onClick(key, value)
                         expanded = false
                     },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    modifier = Modifier.background(
+                        if (selected) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainer
+                    )
                 )
             }
         }

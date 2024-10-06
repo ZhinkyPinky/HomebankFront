@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -20,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -147,6 +149,7 @@ fun EditTransactionHeadScreen(
             TextFieldWithDropdownMenu(
                 label = "Långivare",
                 text = transactionHead.lender ?: "",
+                selectedKey = transactionHead.lenderId.toString(),
                 menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
                 onClick = { lenderId, lender ->
                     if (lenderId.toLongOrNull() != null) {
@@ -165,6 +168,7 @@ fun EditTransactionHeadScreen(
             TextFieldWithDropdownMenu(
                 label = "Låntagare",
                 text = transactionHead.borrower ?: "",
+                selectedKey = transactionHead.borrowerId.toString(),
                 menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
                 onClick = { borrowerId, borrower ->
                     if (borrowerId.toLongOrNull() != null) {
@@ -180,12 +184,14 @@ fun EditTransactionHeadScreen(
                 }
             )
 
-
+            /*
             TextField(
                 label = "Saldo",
                 text = "456",
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 onValueChange = {}
             )
+             */
 
             DatePicker(
                 label = "Startdatum",

@@ -74,33 +74,63 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
-    primaryContainer = primaryContainerLight,
-    onPrimaryContainer = onPrimaryContainerLight,
-    inversePrimary = inversePrimaryLight,
+
     secondary = secondaryLight,
     onSecondary = onSecondaryLight,
-    secondaryContainer = secondaryContainerLight,
-    onSecondaryContainer = onSecondaryContainerLight,
+
     tertiary = tertiaryLight,
     onTertiary = onTertiaryLight,
+
+
+    primaryContainer = primaryContainerLight,
+    onPrimaryContainer = onPrimaryContainerLight,
+
+    secondaryContainer = secondaryContainerLight,
+    onSecondaryContainer = onSecondaryContainerLight,
+
     tertiaryContainer = tertiaryContainerLight,
     onTertiaryContainer = onTertiaryContainerLight,
-    background = backgroundLight,
-    onBackground = onBackgroundLight,
+
+
+    surfaceDim = surfaceDimLight,
+
     surface = surfaceLight,
     onSurface = onSurfaceLight,
+
+    surfaceBright = surfaceBrightLight,
+
+    surfaceContainerLowest = surfaceContainerLowestLight,
+    surfaceContainerLow = surfaceContainerLowLight,
+    surfaceContainer = surfaceContainerLight,
+    surfaceContainerHigh = surfaceContainerHighLight,
+    surfaceContainerHighest = surfaceContainerHighestLight,
+
     surfaceVariant = surfaceVariantLight,
     onSurfaceVariant = onSurfaceVariantLight,
     surfaceTint = surfaceTintLight,
-    inverseSurface = inverseSurfaceLight,
-    inverseOnSurface = inverseOnSurfaceLight,
-    error = errorLight,
-    onError = onErrorLight,
-    errorContainer = errorContainerLight,
-    onErrorContainer = onErrorContainerLight,
+
     outline = outlineLight,
     outlineVariant = outlineVariantLight,
-    scrim = scrimLight
+
+
+    error = errorLight,
+    onError = onErrorLight,
+
+    errorContainer = errorContainerLight,
+    onErrorContainer = onErrorContainerLight,
+
+
+    inverseSurface = inverseSurfaceLight,
+    inverseOnSurface = inverseOnSurfaceLight,
+
+    inversePrimary = inversePrimaryLight,
+
+
+    scrim = scrimLight,
+
+
+    background = backgroundLight,
+    onBackground = onBackgroundLight,
 )
 
 

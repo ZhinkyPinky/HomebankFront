@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -163,14 +164,20 @@ fun TransactionHeadInfo(
             .fillMaxWidth()
             .padding(start = 6.dp)
     ) {
-        Text(text = "Transaktion")
+        Text(
+            text = "Transaktion",
+            color = MaterialTheme.colorScheme.onSurface
+        )
 
-        IconButton(onClick = {
-            onEditTransactionHeadClick(
-                customer.id,
-                transactionHead.id
-            )
-        }) {
+        IconButton(
+            onClick = {
+                onEditTransactionHeadClick(
+                    customer.id,
+                    transactionHead.id
+                )
+            },
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+        ) {
             Icon(
                 imageVector = Icons.Filled.Edit,
                 contentDescription = "",
@@ -234,7 +241,7 @@ fun TransactionHeadInfo(
             Column(modifier = Modifier.weight(1f)) {
                 TextWithLabel(
                     label = "Startdatum",
-                    text = transactionHead.startDate.toString(),
+                    text = transactionHead.startDate?.toString() ?: "",
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier.padding(
                         top = 6.dp,
@@ -245,7 +252,7 @@ fun TransactionHeadInfo(
 
                 TextWithLabel(
                     label = "Prel. Slutdatum",
-                    text = transactionHead.prelEndDate.toString(),
+                    text = transactionHead.prelEndDate?.toString() ?: "" ,
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier.padding(
                         top = 3.dp,
@@ -256,7 +263,7 @@ fun TransactionHeadInfo(
 
                 TextWithLabel(
                     label = "Slutdatum",
-                    text = transactionHead.endDate.toString(),
+                    text = transactionHead.endDate?.toString() ?: "",
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier.padding(
                         top = 3.dp,
@@ -296,11 +303,14 @@ fun TransactionRowList(
             .fillMaxWidth()
             .padding(start = 6.dp)
     ) {
-        Text(text = "Rader")
+        Text(text = "Rader", color = MaterialTheme.colorScheme.onSurface)
 
-        IconButton(onClick = {
-            onEditTransactionRowClick(transactionHead.id, TransactionRow().id)
-        }) {
+        IconButton(
+            onClick = {
+                onEditTransactionRowClick(transactionHead.id, TransactionRow().id)
+            },
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+        ) {
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = "",

@@ -170,8 +170,12 @@ fun EditTransactionRowScreen(
                 },
             )
 
-            TextFieldWithDropdownMenu(label = "Typ",
-                text = transactionRow.typeOfTransaction ?: "",
+            TextFieldWithDropdownMenu(
+                label = "Typ",
+                text = transactionRow.typeOfTransactionCode?.let { TransactionRow.Type.valueOf(it).value }
+                    ?: "",
+                selectedKey = transactionRow.typeOfTransactionCode?.let { TransactionRow.Type.valueOf(it).name }
+                    ?: "",
                 menuOptions = TransactionRow.Type.entries.associateBy({ it.name }, { it.value }),
                 onClick = { key, value ->
                     onEvent(
@@ -183,7 +187,8 @@ fun EditTransactionRowScreen(
                     )
                 })
 
-            TextField(label = "Beskrivning",
+            TextField(
+                label = "Beskrivning",
                 text = transactionRow.description ?: "",
                 singleLine = false,
                 onValueChange = {
