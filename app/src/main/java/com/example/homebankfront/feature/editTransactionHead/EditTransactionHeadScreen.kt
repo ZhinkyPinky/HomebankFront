@@ -1,25 +1,17 @@
 package com.example.homebankfront.feature.editTransactionHead
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -27,12 +19,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,6 +27,7 @@ import com.example.homebankfront.dataAccess.bodies.Customer
 import com.example.homebankfront.dataAccess.bodies.TransactionHead
 import com.example.homebankfront.designsystem.DatePicker
 import com.example.homebankfront.designsystem.TextField
+import com.example.homebankfront.designsystem.TextFieldWithDropdownMenu
 import java.time.Instant
 import java.time.ZoneId
 
@@ -156,111 +144,42 @@ fun EditTransactionHeadScreen(
                 }
             )
 
-            Box {
-                var lenderChoiceDropdownMenuExpanded by rememberSaveable { mutableStateOf(false) }
-
-                DropdownMenu(
-                    expanded = lenderChoiceDropdownMenuExpanded,
-                    offset = DpOffset(x = 5.dp, y = 0.dp),
-                    onDismissRequest = { lenderChoiceDropdownMenuExpanded = false },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ) {
-                    customers.forEach { customer ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = customer.name,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+            TextFieldWithDropdownMenu(
+                label = "Långivare",
+                text = transactionHead.lender ?: "",
+                menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
+                onClick = { lenderId, lender ->
+                    if (lenderId.toLongOrNull() != null) {
+                        onEvent(
+                            EditTransactionHeadEvent.UpdateTransactionHead(
+                                transactionHead.copy(
+                                    lenderId = lenderId.toLong(),
+                                    lender = lender
                                 )
-                            },
-                            leadingIcon = {
-                                if (transactionHead.lenderId == customer.id) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Check,
-                                        contentDescription = ""
-                                    )
-                                }
-                            },
-                            onClick = {
-                                onEvent(
-                                    EditTransactionHeadEvent.UpdateTransactionHead(
-                                        transactionHead = transactionHead.copy(
-                                            lender = customer.name,
-                                            lenderId = customer.id
-                                        )
-                                    )
-                                )
-
-                                lenderChoiceDropdownMenuExpanded = false
-                            }
+                            )
                         )
                     }
                 }
+            )
 
-                TextField(
-                    label = "Långivare",
-                    text = transactionHead.lender ?: "",
-                    isSelected = lenderChoiceDropdownMenuExpanded,
-                    enabled = false,
-                    onValueChange = { },
-                    modifier = Modifier.clickable {
-                        lenderChoiceDropdownMenuExpanded = !lenderChoiceDropdownMenuExpanded
-                    }
-                )
-            }
-
-            Box {
-                var borrowerChoiceDropdownMenuExpanded by rememberSaveable { mutableStateOf(false) }
-
-                DropdownMenu(
-                    expanded = borrowerChoiceDropdownMenuExpanded,
-                    offset = DpOffset(x = 5.dp, y = 0.dp),
-                    onDismissRequest = { borrowerChoiceDropdownMenuExpanded = false },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                ) {
-                    customers.forEach { customer ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = customer.name,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+            TextFieldWithDropdownMenu(
+                label = "Låntagare",
+                text = transactionHead.borrower ?: "",
+                menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
+                onClick = { borrowerId, borrower ->
+                    if (borrowerId.toLongOrNull() != null) {
+                        onEvent(
+                            EditTransactionHeadEvent.UpdateTransactionHead(
+                                transactionHead.copy(
+                                    borrowerId = borrowerId.toLong(),
+                                    borrower = borrower
                                 )
-                            },
-                            leadingIcon = {
-                                if (transactionHead.borrowerId == customer.id) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Check,
-                                        contentDescription = ""
-                                    )
-                                }
-                            },
-                            onClick = {
-                                onEvent(
-                                    EditTransactionHeadEvent.UpdateTransactionHead(
-                                        transactionHead = transactionHead.copy(
-                                            borrower = customer.name,
-                                            borrowerId = customer.id
-                                        )
-                                    )
-                                )
-
-                                borrowerChoiceDropdownMenuExpanded = false
-                            }
+                            )
                         )
                     }
                 }
+            )
 
-                TextField(
-                    label = "Låntagare",
-                    text = transactionHead.borrower ?: "",
-                    isSelected = borrowerChoiceDropdownMenuExpanded,
-                    enabled = false,
-                    onValueChange = { },
-                    modifier = Modifier.clickable {
-                        borrowerChoiceDropdownMenuExpanded = !borrowerChoiceDropdownMenuExpanded
-                    }
-                )
-            }
 
             TextField(
                 label = "Saldo",
@@ -329,6 +248,7 @@ fun EditTransactionHeadScreen(
             TextField(
                 label = "Beskrivning",
                 text = transactionHead.description ?: "",
+                singleLine = false,
                 onValueChange = {
                     onEvent(
                         EditTransactionHeadEvent.UpdateTransactionHead(

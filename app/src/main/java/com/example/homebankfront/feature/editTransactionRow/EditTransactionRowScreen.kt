@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -28,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,13 +37,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.dataAccess.bodies.TransactionRow
 import com.example.homebankfront.designsystem.DatePicker
 import com.example.homebankfront.designsystem.TextField
+import com.example.homebankfront.designsystem.TextFieldWithDropdownMenu
 import java.time.Instant
 import java.time.ZoneId
 
 @Composable
 fun EditTransactionRowRoute(
-    viewModel: EditTransactionRowViewModel = hiltViewModel(),
-    onBackClick: () -> Unit
+    viewModel: EditTransactionRowViewModel = hiltViewModel(), onBackClick: () -> Unit
 ) {
     val editTransactionRowUiState by viewModel.editTransactionRowUiState.collectAsStateWithLifecycle()
 
@@ -134,15 +136,21 @@ fun EditTransactionRowScreen(
                 )
             })
 
-            TextField(label = "Belopp", text = transactionRow.amount.toString(), onValueChange = {
-                onEvent(
-                    EditTransactionRowEvent.Update(
-                        transactionRow = transactionRow.copy(
-                            amount = it.toInt()
+            TextField(
+                label = "Belopp",
+                text = transactionRow.amount.toString(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                onValueChange = {
+                    if (it.toIntOrNull() != null) {
+                        onEvent(
+                            EditTransactionRowEvent.Update(
+                                transactionRow = transactionRow.copy(
+                                    amount = it.toInt()
+                                )
+                            )
                         )
-                    )
-                )
-            })
+                    }
+                })
 
             DatePicker(
                 label = "Datum",
@@ -162,9 +170,22 @@ fun EditTransactionRowScreen(
                 },
             )
 
-            TextField(
-                label = "Beskrivning",
+            TextFieldWithDropdownMenu(label = "Typ",
+                text = transactionRow.typeOfTransaction ?: "",
+                menuOptions = TransactionRow.Type.entries.associateBy({ it.name }, { it.value }),
+                onClick = { key, value ->
+                    onEvent(
+                        EditTransactionRowEvent.Update(
+                            transactionRow = transactionRow.copy(
+                                typeOfTransactionCode = key, typeOfTransaction = value
+                            )
+                        )
+                    )
+                })
+
+            TextField(label = "Beskrivning",
                 text = transactionRow.description ?: "",
+                singleLine = false,
                 onValueChange = {
                     onEvent(
                         EditTransactionRowEvent.Update(
@@ -174,62 +195,6 @@ fun EditTransactionRowScreen(
                         )
                     )
                 })
-
-            Box {
-                var transactionTypeDropDownExpanded by rememberSaveable { mutableStateOf(false) }
-
-                DropdownMenu(
-                    expanded = transactionTypeDropDownExpanded,
-                    offset = DpOffset(x = 5.dp, y = 0.dp),
-                    onDismissRequest = { transactionTypeDropDownExpanded = false },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ) {
-                    TransactionRow.Type.entries.forEach { transactionType ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = transactionType.value,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                            },
-
-                            leadingIcon = {
-                                if (transactionRow.typeOfTransactionCode == transactionType.name) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Check,
-                                        contentDescription = "",
-                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                }
-                            },
-
-                            onClick = {
-                                onEvent(
-                                    EditTransactionRowEvent.Update(
-                                        transactionRow = transactionRow.copy(
-                                            typeOfTransaction = transactionType.value,
-                                            typeOfTransactionCode = transactionType.name
-                                        )
-                                    )
-                                )
-
-                                transactionTypeDropDownExpanded = false
-                            }
-                        )
-                    }
-                }
-
-                TextField(
-                    label = "Typ",
-                    text = transactionRow.typeOfTransaction ?: "",
-                    isSelected = transactionTypeDropDownExpanded,
-                    enabled = false,
-                    onValueChange = { },
-                    modifier = Modifier.clickable {
-                        transactionTypeDropDownExpanded = !transactionTypeDropDownExpanded
-                    }
-                )
-            }
         }
     }
 }
