@@ -38,12 +38,6 @@ fun EditTransactionHeadRoute(
 ) {
     val editTransactionHeadState: EditTransactionHeadState by viewModel.editTransactionHeadState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        if (editTransactionHeadState !is EditTransactionHeadState.Saved) {
-            viewModel.getCustomerAndTransactionHead()
-        }
-    }
-
     EditTransactionHeadScreen(
         editTransactionHeadState = editTransactionHeadState,
         onEvent = viewModel::onEvent,
