@@ -1,5 +1,6 @@
 package com.example.homebankfront.feature.customerTransactionHeadAndRows
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -88,6 +89,10 @@ fun CustomerTransactionHeadAndRowsScreen(
                 onBackClick = onBackClick,
                 onEvent = onEvent,
             )
+        }
+
+        is CustomerTransactionHeadAndRowsUiState.Deleted -> {
+            onBackClick()
         }
     }
 }
@@ -229,7 +234,7 @@ fun TransactionHeadInfo(
 
                 TextWithLabel(
                     label = "Saldo",
-                    text = "2556",
+                    text = transactionHead.amount.toString(),
                     modifier = Modifier.padding(
                         top = 3.dp,
                         bottom = 3.dp,
@@ -252,7 +257,7 @@ fun TransactionHeadInfo(
 
                 TextWithLabel(
                     label = "Prel. Slutdatum",
-                    text = transactionHead.prelEndDate?.toString() ?: "" ,
+                    text = transactionHead.prelEndDate?.toString() ?: "",
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier.padding(
                         top = 3.dp,
@@ -386,11 +391,14 @@ fun TransactionRowListItem(
                         )
                     )
 
+                    Log.d("boop", transactionRow.toString())
+
                     TextWithLabel(
                         label = "Typ",
-                        text = transactionRow.typeOfTransactionCode?.let {
+                        text =
+                        transactionRow.typeOfTransactionCode?.let {
                             TransactionRow.Type.valueOf(
-                                it
+                                it //TODO: Uppercase?
                             ).value
                         } ?: "",
                         modifier = Modifier.padding(
@@ -461,7 +469,7 @@ fun TransactionRowListItem(
                     }
 
                     TextButton(onClick = {
-                        onEvent(TransactionHeadAndRowsEvent.DeleteRow(transactionRowId = transactionRow.id))
+                        onEvent(TransactionHeadAndRowsEvent.DeleteRow(transactionRow = transactionRow))
                     }) {
                         Text(text = "Ta bort", color = MaterialTheme.colorScheme.onSurface)
                     }

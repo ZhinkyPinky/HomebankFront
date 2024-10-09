@@ -84,17 +84,24 @@ class Repository @Inject constructor(
         }
     }
 
-    suspend fun saveTransactionHead(transactionHead: TransactionHead) {
-        apiService.saveTransactionHead(transactionHead)
-    }
-
     suspend fun saveTransactionRow(transactionRow: TransactionRow) {
         apiService.saveTransactionRow(transactionRow)
     }
 
-    suspend fun deleteTransactionRow(transactionRowId: Long) {
-        apiService.deleteTransactionRow(transactionRowId)
+    suspend fun deleteTransactionRow(transactionRow: TransactionRow) {
+        apiService.deleteTransactionRow(transactionRow)
+
+
     }
+
+    suspend fun saveTransactionHead(transactionHead: TransactionHead) {
+        apiService.saveTransactionHead(transactionHead)
+    }
+
+    suspend fun deleteTransactionHead(transactionHead: TransactionHead) {
+        apiService.deleteTransactionHead(transactionHead)
+    }
+
     private fun emitError(message: String): Nothing {
         throw Exception(message)
     }

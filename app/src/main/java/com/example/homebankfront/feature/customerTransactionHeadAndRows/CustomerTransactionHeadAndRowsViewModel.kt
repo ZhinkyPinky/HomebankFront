@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.dataAccess.bodies.Customer
 import com.example.homebankfront.dataAccess.bodies.TransactionHead
 import com.example.homebankfront.dataAccess.bodies.TransactionRow
+import com.example.homebankfront.feature.customerTransactionHeadAndRows.domain.DeleteTransactionHeadUseCase
 import com.example.homebankfront.feature.customerTransactionHeadAndRows.domain.DeleteTransactionRowUseCase
 import com.example.homebankfront.feature.customerTransactionHeadAndRows.domain.GetCustomerTransactionHeadAndRowsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class CustomerTransactionHeadAndRowsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getCustomerTransactionHeadAndRowsUseCase: GetCustomerTransactionHeadAndRowsUseCase,
+    private val deleteTransactionHeadUseCase: DeleteTransactionHeadUseCase,
     private val deleteTransactionRowUseCase: DeleteTransactionRowUseCase
 ) : ViewModel() {
     private val customerId: Long = checkNotNull(savedStateHandle["customerId"])
@@ -30,10 +32,20 @@ class CustomerTransactionHeadAndRowsViewModel @Inject constructor(
 
     fun onEvent(event: TransactionHeadAndRowsEvent) {
         when (event) {
+            is TransactionHeadAndRowsEvent.DeleteTransactionHead -> viewModelScope.launch {
+                deleteTransactionHeadUseCase(event.transactionHead)
+            }.invokeOnCompletion {
+                _customerTransactionHeadAndRowsUiState.update {
+                    CustomerTransactionHeadAndRowsUiState.Deleted
+                }
+            }
+
             is TransactionHeadAndRowsEvent.DeleteRow -> viewModelScope.launch {
                 deleteTransactionRowUseCase(
-                    event.transactionRowId
+                    event.transactionRow
                 )
+            }.invokeOnCompletion {
+                getCustomerTransactionHeadAndRows()
             }
         }
     }
@@ -65,10 +77,13 @@ sealed interface CustomerTransactionHeadAndRowsUiState {
         val transactionHead: TransactionHead,
         val transactionRows: List<TransactionRow>
     ) : CustomerTransactionHeadAndRowsUiState
+
+    data object Deleted : CustomerTransactionHeadAndRowsUiState
 }
 
 sealed interface TransactionHeadAndRowsEvent {
-    data class DeleteRow(
-        val transactionRowId : Long
-    ) : TransactionHeadAndRowsEvent
+    data class DeleteTransactionHead(val transactionHead: TransactionHead) :
+        TransactionHeadAndRowsEvent
+
+    data class DeleteRow(val transactionRow: TransactionRow) : TransactionHeadAndRowsEvent
 }

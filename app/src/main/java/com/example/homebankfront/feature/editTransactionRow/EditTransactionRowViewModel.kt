@@ -29,13 +29,7 @@ class EditTransactionRowViewModel @Inject constructor(
     fun onEvent(event: EditTransactionRowEvent) {
         when (event) {
             is EditTransactionRowEvent.Update -> updateTransactionRow(event.transactionRow)
-            is EditTransactionRowEvent.Save -> viewModelScope.launch {
-                saveTransactionRowUseCase(event.transactionRow)
-            }.invokeOnCompletion {
-                _editTransactionRowUiState.update {
-                    EditTransactionRowUiState.Saved
-                }
-            }
+            is EditTransactionRowEvent.Save -> saveTransactionRow()
         }
     }
 
@@ -74,23 +68,28 @@ class EditTransactionRowViewModel @Inject constructor(
         }
     }
 
+    private fun saveTransactionRow() {
+        viewModelScope.launch {
+            _editTransactionRowUiState.value.let {
+                if (it is EditTransactionRowUiState.Ready) {
+                    saveTransactionRowUseCase(it.transactionRow)
+                }
+            }
+        }.invokeOnCompletion {
+            _editTransactionRowUiState.update {
+                EditTransactionRowUiState.Saved
+            }
+        }
+    }
+}
+
+sealed interface EditTransactionRowEvent {
+    data class Update(val transactionRow: TransactionRow) : EditTransactionRowEvent
+    data class Save(val transactionRow: TransactionRow) : EditTransactionRowEvent
 }
 
 sealed interface EditTransactionRowUiState {
     data object Loading : EditTransactionRowUiState
-    data class Ready(
-        val transactionRow: TransactionRow
-    ) : EditTransactionRowUiState
-
+    data class Ready(val transactionRow: TransactionRow) : EditTransactionRowUiState
     data object Saved : EditTransactionRowUiState
-}
-
-sealed interface EditTransactionRowEvent {
-    data class Update(
-        val transactionRow: TransactionRow
-    ) : EditTransactionRowEvent
-
-    data class Save(
-        val transactionRow: TransactionRow
-    ) : EditTransactionRowEvent
 }

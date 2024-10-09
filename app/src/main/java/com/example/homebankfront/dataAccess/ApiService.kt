@@ -12,6 +12,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 
 interface ApiService {
@@ -34,17 +35,20 @@ interface ApiService {
         @Path("customerId") customerId: Long, @Path("transactionHeadId") transactionHeadId: Long
     ): CustomerAndTransactionHeadAndRows
 
-    @POST("transactionHead")
-    suspend fun saveTransactionHead(@Body transactionHead: TransactionHead)
+    @POST("transactionHead?action=save")
+    suspend fun saveTransactionHead(
+        @Body transactionHead: TransactionHead
+    )
 
-    @DELETE
+    @POST("transactionHead?action=delete")
     suspend fun deleteTransactionHead(@Body transactionHead: TransactionHead)
 
-    @POST("transactionRow")
-    suspend fun saveTransactionRow(@Body transactionRow: TransactionRow)
+    @POST("transactionRow?action=save")
+    suspend fun saveTransactionRow(
+        @Body transactionRow: TransactionRow)
 
-    @DELETE("transactionRow/{transactionRowId}")
-    suspend fun deleteTransactionRow(@Path("transactionRowId") transactionRowId: Long)
+    @POST("transactionRow?action=delete")
+    suspend fun deleteTransactionRow(@Body transactionRow: TransactionRow)
 
     @GET("transactionRow/{transactionRowId}")
     suspend fun getTransactionRow(@Path("transactionRowId") transactionRowId: Long): TransactionRow

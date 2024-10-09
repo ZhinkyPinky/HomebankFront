@@ -203,7 +203,7 @@ fun LazyListScope.transactionHeadList(
 
                 TextWithLabel(
                     label = "Saldo",
-                    text = "2254",
+                    text = transactionHead.amount.toString(),
                     horizontalAlignment = Alignment.End
                 )
             }
