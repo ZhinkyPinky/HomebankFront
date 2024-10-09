@@ -1,6 +1,5 @@
-package com.example.homebankfront.feature.customerAndTransactionHeads
+package com.example.homebankfront.feature.transactionHeadsList
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.dataAccess.bodies.Customer
@@ -41,21 +38,20 @@ import com.example.homebankfront.designsystem.TextWithLabel
 
 
 @Composable
-internal fun CustomerAndTransactionHeadsRoute(
-    viewModel: CustomerAndTransactionHeadsViewModel = hiltViewModel(),
+internal fun TransactionHeadsListRoute(
+    viewModel: TransactionHeadsListViewModel = hiltViewModel(),
     onNewTransactionHeadClick: (Long, Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
-    val customerAndTransactionHeadsUiState: CustomerAndTransactionHeadsUiState by viewModel.customerAndTransactionHeadsUiState.collectAsStateWithLifecycle()
+    val transactionHeadsListState: TransactionHeadsListState by viewModel.transactionHeadsListState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getCustomerAndTransactionHeads()
     }
 
-    CustomerAndTransactionHeadsScreen(
-        customerAndTransactionHeadsUiState = customerAndTransactionHeadsUiState,
-        onEvent = viewModel::onEvent,
+    TransactionHeadsListScreen(
+        transactionHeadsListState = transactionHeadsListState,
         onNewTransactionHeadClick = onNewTransactionHeadClick,
         onTransactionHeadClick = onTransactionHeadClick,
         onBackClick = onBackClick
@@ -63,21 +59,19 @@ internal fun CustomerAndTransactionHeadsRoute(
 }
 
 @Composable
-fun CustomerAndTransactionHeadsScreen(
-    customerAndTransactionHeadsUiState: CustomerAndTransactionHeadsUiState,
-    onEvent: () -> Unit,
+fun TransactionHeadsListScreen(
+    transactionHeadsListState: TransactionHeadsListState,
     onNewTransactionHeadClick: (Long, Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
-    when (customerAndTransactionHeadsUiState) {
-        is CustomerAndTransactionHeadsUiState.Loading -> {}
+    when (transactionHeadsListState) {
+        is TransactionHeadsListState.Loading -> {}
 
-        is CustomerAndTransactionHeadsUiState.Ready -> {
-            CustomerAndTransactionHeadsScreen(
-                customer = customerAndTransactionHeadsUiState.customer,
-                transactionHeads = customerAndTransactionHeadsUiState.transactionHeads,
-                onEvent = onEvent,
+        is TransactionHeadsListState.Ready -> {
+            TransactionHeadsListScreen(
+                customer = transactionHeadsListState.customer,
+                transactionHeads = transactionHeadsListState.transactionHeads,
                 onNewTransactionHeadClick = onNewTransactionHeadClick,
                 onTransactionHeadClick = onTransactionHeadClick,
                 onBackClick = onBackClick
@@ -89,10 +83,9 @@ fun CustomerAndTransactionHeadsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomerAndTransactionHeadsScreen(
+fun TransactionHeadsListScreen(
     customer: Customer,
     transactionHeads: List<TransactionHead>,
-    onEvent: () -> Unit,
     onNewTransactionHeadClick: (Long, Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
@@ -139,7 +132,6 @@ fun CustomerAndTransactionHeadsScreen(
                 customerId = customer.id,
                 transactionHeads = transactionHeads,
                 onTransactionHeadClick = onTransactionHeadClick,
-                onEvent = onEvent
             )
         }
     }
@@ -149,7 +141,6 @@ fun LazyListScope.transactionHeadList(
     customerId: Long,
     transactionHeads: List<TransactionHead>,
     onTransactionHeadClick: (Long, Long) -> Unit,
-    onEvent: () -> Unit
 ) {
     itemsIndexed(
         items = transactionHeads,

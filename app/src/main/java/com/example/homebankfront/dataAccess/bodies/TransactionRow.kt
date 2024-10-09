@@ -7,7 +7,7 @@ data class TransactionRow(
     val id: Long = -1L,
     val transactionHeadId: Long = -1L,
     val transactionRowNo: Int = -1,
-    val typeOfTransactionCode: String? = null,
+    val typeOfTransactionCode: Type? = null,
     val name: String = "",
     val description: String? = null,
     val paymentDate: LocalDate? = null,

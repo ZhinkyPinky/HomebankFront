@@ -11,14 +11,14 @@ fun NavController.navigateToEditTransactionRow(
     transactionHeadId: Long,
     transactionRowId: Long
 ) = navigate(
-    route = "transactionHead/$transactionHeadId/transactionRow/$transactionRowId/edit"
+    route = "transactionHeads/$transactionHeadId/transactionRows/$transactionRowId/edit"
 )
 
 fun NavGraphBuilder.editTransactionRowScreen(
     onBackClick: () -> Unit
 ) {
     composable(
-        route = "transactionHead/{transactionHeadId}/transactionRow/{transactionRowId}/edit",
+        route = "transactionHeads/{transactionHeadId}/transactionRows/{transactionRowId}/edit",
         arguments = listOf(
             navArgument("transactionHeadId") { type = NavType.LongType },
             navArgument("transactionRowId") { type = NavType.LongType }

@@ -1,4 +1,4 @@
-package com.example.homebankfront.feature.customerTransactionHeadAndRows
+package com.example.homebankfront.feature.transactionHeadAndRows
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -47,20 +47,20 @@ import com.example.homebankfront.ui.theme.ThemePreviews
 import java.time.LocalDate
 
 @Composable
-internal fun CustomerTransactionHeadAndRowsRoute(
-    viewModel: CustomerTransactionHeadAndRowsViewModel = hiltViewModel(),
+internal fun TransactionHeadAndRowsRoute(
+    viewModel: TransactionHeadAndRowsViewModel = hiltViewModel(),
     onEditTransactionHeadClick: (Long, Long) -> Unit,
     onEditTransactionRowClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
-    val customerAndTransactionHeadAndRowsUiState: CustomerTransactionHeadAndRowsUiState by viewModel.customerTransactionHeadAndRowsUiState.collectAsStateWithLifecycle()
+    val transactionHeadAndRowsUiState: TransactionHeadAndRowsState by viewModel.transactionHeadAndRowsState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getCustomerTransactionHeadAndRows()
     }
 
-    CustomerTransactionHeadAndRowsScreen(
-        customerTransactionHeadAndRowsUiState = customerAndTransactionHeadAndRowsUiState,
+    TransactionHeadAndRowsScreen(
+        transactionHeadAndRowsState = transactionHeadAndRowsUiState,
         onEditTransactionClick = onEditTransactionHeadClick,
         onEditTransactionRowClick = onEditTransactionRowClick,
         onBackClick = onBackClick,
@@ -70,20 +70,20 @@ internal fun CustomerTransactionHeadAndRowsRoute(
 
 
 @Composable
-fun CustomerTransactionHeadAndRowsScreen(
-    customerTransactionHeadAndRowsUiState: CustomerTransactionHeadAndRowsUiState,
+fun TransactionHeadAndRowsScreen(
+    transactionHeadAndRowsState: TransactionHeadAndRowsState,
     onEditTransactionClick: (Long, Long) -> Unit,
     onEditTransactionRowClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit,
     onEvent: (TransactionHeadAndRowsEvent) -> Unit
 ) {
-    when (customerTransactionHeadAndRowsUiState) {
-        is CustomerTransactionHeadAndRowsUiState.Loading -> {}
-        is CustomerTransactionHeadAndRowsUiState.Ready -> {
-            CustomerTransactionHeadAndRowsScreen(
-                customer = customerTransactionHeadAndRowsUiState.customer,
-                transactionHead = customerTransactionHeadAndRowsUiState.transactionHead,
-                transactionRows = customerTransactionHeadAndRowsUiState.transactionRows,
+    when (transactionHeadAndRowsState) {
+        is TransactionHeadAndRowsState.Loading -> {}
+        is TransactionHeadAndRowsState.Ready -> {
+            TransactionHeadAndRowsScreen(
+                customer = transactionHeadAndRowsState.customer,
+                transactionHead = transactionHeadAndRowsState.transactionHead,
+                transactionRows = transactionHeadAndRowsState.transactionRows,
                 onEditTransactionHeadClick = onEditTransactionClick,
                 onEditTransactionRowClick = onEditTransactionRowClick,
                 onBackClick = onBackClick,
@@ -91,8 +91,12 @@ fun CustomerTransactionHeadAndRowsScreen(
             )
         }
 
-        is CustomerTransactionHeadAndRowsUiState.Deleted -> {
+        is TransactionHeadAndRowsState.Deleted -> {
             onBackClick()
+        }
+
+        is TransactionHeadAndRowsState.Error -> {
+            //TODO()
         }
     }
 }
@@ -100,7 +104,7 @@ fun CustomerTransactionHeadAndRowsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomerTransactionHeadAndRowsScreen(
+fun TransactionHeadAndRowsScreen(
     customer: Customer,
     transactionHead: TransactionHead,
     transactionRows: List<TransactionRow>,
@@ -395,12 +399,7 @@ fun TransactionRowListItem(
 
                     TextWithLabel(
                         label = "Typ",
-                        text =
-                        transactionRow.typeOfTransactionCode?.let {
-                            TransactionRow.Type.valueOf(
-                                it //TODO: Uppercase?
-                            ).value
-                        } ?: "",
+                        text = transactionRow.typeOfTransactionCode?.value ?: "",
                         modifier = Modifier.padding(
                             top = 3.dp,
                             bottom = 6.dp,
@@ -509,7 +508,7 @@ fun TransactionRowListItemPreview() {
     val transactionRow = TransactionRow(
         transactionRowNo = 1,
         name = "TestTestTestTestTestTestTest",
-        typeOfTransactionCode = TransactionRow.Type.PAYBACK.name,
+        typeOfTransactionCode = TransactionRow.Type.PAYBACK,
         amount = 555,
         paymentDate = LocalDate.now(),
         description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."

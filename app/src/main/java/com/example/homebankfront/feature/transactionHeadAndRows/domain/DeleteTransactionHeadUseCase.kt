@@ -1,14 +1,12 @@
-package com.example.homebankfront.feature.editTransactionHead.domain
+package com.example.homebankfront.feature.transactionHeadAndRows.domain
 
 import com.example.homebankfront.dataAccess.bodies.TransactionHead
-import com.example.homebankfront.dataAccess.repositories.CustomerRepository
 import com.example.homebankfront.dataAccess.repositories.TransactionHeadRepository
 import javax.inject.Inject
 
-
-class SaveTransactionHeadUseCase @Inject constructor(
+class DeleteTransactionHeadUseCase @Inject constructor(
     private val transactionHeadRepository: TransactionHeadRepository
 ) {
     suspend operator fun invoke(transactionHead: TransactionHead) =
-        transactionHeadRepository.saveTransactionHead(transactionHead)
+        transactionHeadRepository.deleteTransactionHead(transactionHead)
 }

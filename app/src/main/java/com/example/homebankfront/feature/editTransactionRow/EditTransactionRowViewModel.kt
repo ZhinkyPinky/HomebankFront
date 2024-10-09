@@ -22,9 +22,13 @@ class EditTransactionRowViewModel @Inject constructor(
     private val transactionHeadId: Long = checkNotNull(savedStateHandle["transactionHeadId"])
     private val transactionRowId: Long = checkNotNull(savedStateHandle["transactionRowId"])
 
-    private val _editTransactionRowUiState: MutableStateFlow<EditTransactionRowUiState> =
-        MutableStateFlow(EditTransactionRowUiState.Loading)
-    val editTransactionRowUiState = _editTransactionRowUiState.asStateFlow()
+    private val _editTransactionRowState: MutableStateFlow<EditTransactionRowState> =
+        MutableStateFlow(EditTransactionRowState.Loading)
+    val editTransactionRowUiState = _editTransactionRowState.asStateFlow()
+
+    init {
+        getTransactionRow()
+    }
 
     fun onEvent(event: EditTransactionRowEvent) {
         when (event) {
@@ -33,35 +37,24 @@ class EditTransactionRowViewModel @Inject constructor(
         }
     }
 
-    fun getCustomersAndTransactionRow() {
-        _editTransactionRowUiState.update { EditTransactionRowUiState.Loading }
-
-        if (transactionRowId != TransactionRow().id) {
-            viewModelScope.launch {
-                getTransactionRowUseCase(transactionRowId).collect { transactionRow ->
-                    _editTransactionRowUiState.update {
-                        EditTransactionRowUiState.Ready(
-                            transactionRow = transactionRow
-                        )
-                    }
-                }
-            }
-        } else {
-            _editTransactionRowUiState.update {
-                EditTransactionRowUiState.Ready(
-                    transactionRow = TransactionRow(
-                        transactionHeadId = transactionHeadId,
-                        typeOfTransactionCode = TransactionRow.Type.LOAN.name
+    private fun getTransactionRow() {
+        viewModelScope.launch {
+            try {
+                _editTransactionRowState.update {
+                    EditTransactionRowState.Ready(
+                        getTransactionRowUseCase(transactionHeadId, transactionRowId)
                     )
-                )
+                }
+            } catch (e: Exception) {
+                error(e.message)
             }
         }
     }
 
     private fun updateTransactionRow(transactionRow: TransactionRow) {
-        _editTransactionRowUiState.update { currentState ->
-            if (currentState is EditTransactionRowUiState.Ready) {
-                currentState.copy(transactionRow = transactionRow)
+        _editTransactionRowState.update { currentState ->
+            if (currentState is EditTransactionRowState.Ready) {
+                currentState.copy(transactionRow)
             } else {
                 currentState
             }
@@ -70,26 +63,24 @@ class EditTransactionRowViewModel @Inject constructor(
 
     private fun saveTransactionRow() {
         viewModelScope.launch {
-            _editTransactionRowUiState.value.let {
-                if (it is EditTransactionRowUiState.Ready) {
-                    saveTransactionRowUseCase(it.transactionRow)
+            _editTransactionRowState.value.let { currentState ->
+                if (currentState is EditTransactionRowState.Ready) {
+                    try {
+                        saveTransactionRowUseCase(currentState.transactionRow)
+                        _editTransactionRowState.update { EditTransactionRowState.Saved }
+                    } catch (e: Exception) {
+                        error(e.message)
+                    }
                 }
-            }
-        }.invokeOnCompletion {
-            _editTransactionRowUiState.update {
-                EditTransactionRowUiState.Saved
             }
         }
     }
-}
 
-sealed interface EditTransactionRowEvent {
-    data class Update(val transactionRow: TransactionRow) : EditTransactionRowEvent
-    data class Save(val transactionRow: TransactionRow) : EditTransactionRowEvent
-}
-
-sealed interface EditTransactionRowUiState {
-    data object Loading : EditTransactionRowUiState
-    data class Ready(val transactionRow: TransactionRow) : EditTransactionRowUiState
-    data object Saved : EditTransactionRowUiState
+    private fun error(message: String?) {
+        _editTransactionRowState.update {
+            EditTransactionRowState.Error(
+                message ?: "Unknown error"
+            )
+        }
+    }
 }

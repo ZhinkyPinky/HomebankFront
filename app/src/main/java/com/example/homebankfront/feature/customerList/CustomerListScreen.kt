@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -30,32 +29,29 @@ internal fun CustomerListRoute(
     viewModel: CustomerListViewModel = hiltViewModel(),
     onCustomerClick: (Long) -> Unit
 ) {
-    val customerListUiState: CustomerListUiState by viewModel.customerListUiState.collectAsStateWithLifecycle()
+    val customerListState: CustomerListState by viewModel.customerListState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getCustomers()
     }
 
     CustomerListScreen(
-        customerListUiState = customerListUiState,
+        customerListState = customerListState,
         onCustomerClick = onCustomerClick,
-        viewModel::onEvent
     )
 }
 
 @Composable
 fun CustomerListScreen(
-    customerListUiState: CustomerListUiState,
+    customerListState: CustomerListState,
     onCustomerClick: (Long) -> Unit,
-    onEvent: () -> Unit
 ) {
-    when (customerListUiState) {
-        is CustomerListUiState.Loading -> {}
-        is CustomerListUiState.Ready -> {
+    when (customerListState) {
+        is CustomerListState.Loading -> {}
+        is CustomerListState.Ready -> {
             CustomerListScreen(
-                customers = customerListUiState.customers,
+                customers = customerListState.customers,
                 onCustomerClick = onCustomerClick,
-                onEvent = onEvent
             )
         }
     }
@@ -66,13 +62,11 @@ fun CustomerListScreen(
 fun CustomerListScreen(
     customers: List<Customer>,
     onCustomerClick: (Long) -> Unit,
-    onEvent: () -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Konton") },
-                colors = TopAppBarColors(
+                title = { Text("Konton") }, colors = TopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     scrolledContainerColor = MaterialTheme.colorScheme.surface,
                     navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
@@ -90,8 +84,7 @@ fun CustomerListScreen(
         ) {
             customerList(
                 customers = customers,
-                onCustomerClick,
-                onEvent = onEvent
+                onCustomerClick = onCustomerClick,
             )
         }
     }
@@ -100,7 +93,6 @@ fun CustomerListScreen(
 fun LazyListScope.customerList(
     customers: List<Customer>,
     onCustomerClick: (Long) -> Unit,
-    onEvent: () -> Unit
 ) {
     itemsIndexed(
         items = customers
@@ -130,13 +122,12 @@ fun CustomerListScreenPreview() {
         Customer(name = "Test"),
         Customer(name = "Test"),
 
-    )
+        )
 
     HomeBankFrontTheme {
         CustomerListScreen(
             customers = customers,
             onCustomerClick = { _ -> },
-            onEvent = {}
         )
     }
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -21,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,16 +36,16 @@ fun EditTransactionHeadRoute(
     viewModel: EditTransactionHeadViewModel = hiltViewModel(),
     onBackClick: () -> Unit
 ) {
-    val editTransactionHeadUiState: EditTransactionHeadUiState by viewModel.editTransactionHeadUiState.collectAsStateWithLifecycle()
+    val editTransactionHeadState: EditTransactionHeadState by viewModel.editTransactionHeadState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        if (editTransactionHeadUiState !is EditTransactionHeadUiState.Saved) {
+        if (editTransactionHeadState !is EditTransactionHeadState.Saved) {
             viewModel.getCustomerAndTransactionHead()
         }
     }
 
     EditTransactionHeadScreen(
-        editTransactionHeadUiState = editTransactionHeadUiState,
+        editTransactionHeadState = editTransactionHeadState,
         onEvent = viewModel::onEvent,
         onBackClick = onBackClick
     )
@@ -55,22 +53,22 @@ fun EditTransactionHeadRoute(
 
 @Composable
 fun EditTransactionHeadScreen(
-    editTransactionHeadUiState: EditTransactionHeadUiState,
+    editTransactionHeadState: EditTransactionHeadState,
     onEvent: (EditTransactionHeadEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
-    when (editTransactionHeadUiState) {
-        is EditTransactionHeadUiState.Loading -> {}
-        is EditTransactionHeadUiState.Ready -> {
+    when (editTransactionHeadState) {
+        is EditTransactionHeadState.Loading -> {}
+        is EditTransactionHeadState.Ready -> {
             EditTransactionHeadScreen(
-                transactionHead = editTransactionHeadUiState.transactionHead,
-                customers = editTransactionHeadUiState.customers,
+                transactionHead = editTransactionHeadState.transactionHead,
+                customers = editTransactionHeadState.customers,
                 onEvent = onEvent,
                 onBackClick = onBackClick
             )
         }
 
-        is EditTransactionHeadUiState.Saved -> {
+        is EditTransactionHeadState.Saved -> {
             onBackClick()
         }
     }
@@ -105,7 +103,7 @@ fun EditTransactionHeadScreen(
                     IconButton(
                         onClick = {
                             onEvent(
-                                EditTransactionHeadEvent.SaveTransactionHead(
+                                EditTransactionHeadEvent.Save(
                                     transactionHead
                                 )
                             )
@@ -139,7 +137,7 @@ fun EditTransactionHeadScreen(
                 text = transactionHead.transactionName ?: "",
                 onValueChange = {
                     onEvent(
-                        EditTransactionHeadEvent.UpdateTransactionHead(
+                        EditTransactionHeadEvent.Update(
                             transactionHead = transactionHead.copy(transactionName = it)
                         )
                     )
@@ -154,7 +152,7 @@ fun EditTransactionHeadScreen(
                 onClick = { lenderId, lender ->
                     if (lenderId.toLongOrNull() != null) {
                         onEvent(
-                            EditTransactionHeadEvent.UpdateTransactionHead(
+                            EditTransactionHeadEvent.Update(
                                 transactionHead.copy(
                                     lenderId = lenderId.toLong(),
                                     lender = lender
@@ -173,7 +171,7 @@ fun EditTransactionHeadScreen(
                 onClick = { borrowerId, borrower ->
                     if (borrowerId.toLongOrNull() != null) {
                         onEvent(
-                            EditTransactionHeadEvent.UpdateTransactionHead(
+                            EditTransactionHeadEvent.Update(
                                 transactionHead.copy(
                                     borrowerId = borrowerId.toLong(),
                                     borrower = borrower
@@ -199,7 +197,7 @@ fun EditTransactionHeadScreen(
                 onDateSelected = {
                     it?.let {
                         onEvent(
-                            EditTransactionHeadEvent.UpdateTransactionHead(
+                            EditTransactionHeadEvent.Update(
                                 transactionHead = transactionHead.copy(
                                     startDate = Instant
                                         .ofEpochMilli(it)
@@ -219,7 +217,7 @@ fun EditTransactionHeadScreen(
                 onDateSelected = {
                     it?.let {
                         onEvent(
-                            EditTransactionHeadEvent.UpdateTransactionHead(
+                            EditTransactionHeadEvent.Update(
                                 transactionHead = transactionHead.copy(
                                     prelEndDate = Instant
                                         .ofEpochMilli(it)
@@ -238,7 +236,7 @@ fun EditTransactionHeadScreen(
                 onDateSelected = {
                     it?.let {
                         onEvent(
-                            EditTransactionHeadEvent.UpdateTransactionHead(
+                            EditTransactionHeadEvent.Update(
                                 transactionHead = transactionHead.copy(
                                     endDate = Instant
                                         .ofEpochMilli(it)
@@ -257,7 +255,7 @@ fun EditTransactionHeadScreen(
                 singleLine = false,
                 onValueChange = {
                     onEvent(
-                        EditTransactionHeadEvent.UpdateTransactionHead(
+                        EditTransactionHeadEvent.Update(
                             transactionHead = transactionHead.copy(description = it)
                         )
                     )

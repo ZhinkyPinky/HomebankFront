@@ -1,13 +1,10 @@
 package com.example.homebankfront.feature.editTransactionHead
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.dataAccess.bodies.Customer
-import com.example.homebankfront.dataAccess.bodies.CustomersAndTransactionHead
 import com.example.homebankfront.dataAccess.bodies.TransactionHead
-import com.example.homebankfront.feature.editTransactionHead.domain.GetCustomerAndTransactionHeadUseCase
 import com.example.homebankfront.feature.editTransactionHead.domain.SaveTransactionHeadUseCase
 import com.example.homebankfront.feature.editTransactionRow.domain.GetCustomersAndTransactionHeadUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,51 +24,41 @@ class EditTransactionHeadViewModel @Inject constructor(
     private val customerId: Long = checkNotNull(savedStateHandle["customerId"])
     private val transactionHeadId: Long = checkNotNull(savedStateHandle["transactionHeadId"])
 
-    private val _editTransactionHeadUiState: MutableStateFlow<EditTransactionHeadUiState> =
-        MutableStateFlow(EditTransactionHeadUiState.Loading)
-    val editTransactionHeadUiState = _editTransactionHeadUiState.asStateFlow()
+    private val _editTransactionHeadState: MutableStateFlow<EditTransactionHeadState> =
+        MutableStateFlow(EditTransactionHeadState.Loading)
+    val editTransactionHeadState = _editTransactionHeadState.asStateFlow()
+
+    init {
+        getCustomerAndTransactionHead()
+    }
 
     fun onEvent(event: EditTransactionHeadEvent) {
         when (event) {
-            is EditTransactionHeadEvent.UpdateTransactionHead -> updateTransactionHead(event.transactionHead)
-            is EditTransactionHeadEvent.SaveTransactionHead -> viewModelScope.launch {
+            is EditTransactionHeadEvent.Update -> updateTransactionHead(event.transactionHead)
+            is EditTransactionHeadEvent.Save -> viewModelScope.launch {
                 saveTransactionHeadUseCase(event.transactionHead)
             }.invokeOnCompletion {
-                _editTransactionHeadUiState.update {
-                    EditTransactionHeadUiState.Saved
+                _editTransactionHeadState.update {
+                    EditTransactionHeadState.Saved
                 }
             }
         }
     }
 
-    fun getCustomerAndTransactionHead() {
-        _editTransactionHeadUiState.update { EditTransactionHeadUiState.Loading }
-
-        if (transactionHeadId != -1L) {
-            viewModelScope.launch {
-                getCustomersAndTransactionHeadUseCase(
-                    transactionHeadId
-                ).collect { customersAndTransactionHead ->
-                    _editTransactionHeadUiState.update {
-                        EditTransactionHeadUiState.Ready(
-                            transactionHead = customersAndTransactionHead.transactionHead,
-                            customers = customersAndTransactionHead.customers
-                        )
-                    }
-                }
-            }
-        } else {
-            _editTransactionHeadUiState.update {
-                EditTransactionHeadUiState.Ready(
-                    transactionHead = TransactionHead()
+    private fun getCustomerAndTransactionHead() = viewModelScope.launch {
+        getCustomersAndTransactionHeadUseCase(transactionHeadId).let { customersAndTransactionHead ->
+            _editTransactionHeadState.update {
+                EditTransactionHeadState.Ready(
+                    transactionHead = customersAndTransactionHead.transactionHead,
+                    customers = customersAndTransactionHead.customers
                 )
             }
         }
     }
 
     private fun updateTransactionHead(transactionHead: TransactionHead) {
-        _editTransactionHeadUiState.update { currentState ->
-            if (currentState is EditTransactionHeadUiState.Ready) {
+        _editTransactionHeadState.update { currentState ->
+            if (currentState is EditTransactionHeadState.Ready) {
                 currentState.copy(transactionHead = transactionHead)
             } else {
                 currentState
@@ -80,22 +67,3 @@ class EditTransactionHeadViewModel @Inject constructor(
     }
 }
 
-sealed interface EditTransactionHeadUiState {
-    data object Loading : EditTransactionHeadUiState
-    data class Ready(
-        val transactionHead: TransactionHead = TransactionHead(),
-        val customers: List<Customer> = listOf()
-    ) : EditTransactionHeadUiState
-
-    data object Saved : EditTransactionHeadUiState
-}
-
-sealed interface EditTransactionHeadEvent {
-    data class UpdateTransactionHead(
-        val transactionHead: TransactionHead
-    ) : EditTransactionHeadEvent
-
-    data class SaveTransactionHead(
-        val transactionHead: TransactionHead
-    ) : EditTransactionHeadEvent
-}

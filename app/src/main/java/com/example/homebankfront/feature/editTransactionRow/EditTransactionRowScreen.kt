@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,14 +37,8 @@ fun EditTransactionRowRoute(
 ) {
     val editTransactionRowUiState by viewModel.editTransactionRowUiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        if (editTransactionRowUiState !is EditTransactionRowUiState.Saved) {
-            viewModel.getCustomersAndTransactionRow()
-        }
-    }
-
     EditTransactionRowScreen(
-        editTransactionRowUiState = editTransactionRowUiState,
+        editTransactionRowState = editTransactionRowUiState,
         onEvent = viewModel::onEvent,
         onBackClick = onBackClick
     )
@@ -53,23 +46,25 @@ fun EditTransactionRowRoute(
 
 @Composable
 fun EditTransactionRowScreen(
-    editTransactionRowUiState: EditTransactionRowUiState,
+    editTransactionRowState: EditTransactionRowState,
     onEvent: (EditTransactionRowEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
-    when (editTransactionRowUiState) {
-        is EditTransactionRowUiState.Loading -> {}
-        is EditTransactionRowUiState.Ready -> {
+    when (editTransactionRowState) {
+        is EditTransactionRowState.Loading -> {}
+        is EditTransactionRowState.Ready -> {
             EditTransactionRowScreen(
-                transactionRow = editTransactionRowUiState.transactionRow,
+                transactionRow = editTransactionRowState.transactionRow,
                 onEvent = onEvent,
                 onBackClick = onBackClick
             )
         }
 
-        is EditTransactionRowUiState.Saved -> {
+        is EditTransactionRowState.Saved -> {
             onBackClick()
         }
+
+        is EditTransactionRowState.Error -> {//TODO}
     }
 }
 
@@ -163,16 +158,16 @@ fun EditTransactionRowScreen(
 
             TextFieldWithDropdownMenu(
                 label = "Typ",
-                text = transactionRow.typeOfTransactionCode?.let { TransactionRow.Type.valueOf(it).value }
+                text = transactionRow.typeOfTransactionCode?.value
                     ?: "",
-                selectedKey = transactionRow.typeOfTransactionCode?.let { TransactionRow.Type.valueOf(it).name }
-                    ?: "",
+                selectedKey = transactionRow.typeOfTransactionCode?.name ?: "",
                 menuOptions = TransactionRow.Type.entries.associateBy({ it.name }, { it.value }),
                 onClick = { key, value ->
                     onEvent(
                         EditTransactionRowEvent.Update(
                             transactionRow = transactionRow.copy(
-                                typeOfTransactionCode = key, typeOfTransaction = value
+                                typeOfTransactionCode = TransactionRow.Type.valueOf(key),
+                                typeOfTransaction = value
                             )
                         )
                     )

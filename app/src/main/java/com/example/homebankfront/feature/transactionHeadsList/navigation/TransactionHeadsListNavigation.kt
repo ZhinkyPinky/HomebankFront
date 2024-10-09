@@ -1,28 +1,28 @@
-package com.example.homebankfront.feature.customerAndTransactionHeads.navigation
+package com.example.homebankfront.feature.transactionHeadsList.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.homebankfront.feature.customerAndTransactionHeads.CustomerAndTransactionHeadsRoute
+import com.example.homebankfront.feature.transactionHeadsList.TransactionHeadsListRoute
 
-fun NavController.navigateToCustomerAndTransactionHeads(
+fun NavController.navigateToTransactionHeadsList(
     customerId: Long,
 ) = navigate(
-    route = "customer/$customerId"
+    route = "customers/$customerId/transactionHeads"
 )
 
-fun NavGraphBuilder.customerAndTransactionHeadsScreen(
+fun NavGraphBuilder.transactionHeadsListScreen(
     onNewTransactionHeadClick: (Long, Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
     composable(
-        route = "customer/{customerId}",
+        route = "customers/{customerId}/transactionHeads",
         arguments = listOf(navArgument("customerId") { type = NavType.LongType })
     ) {
-        CustomerAndTransactionHeadsRoute(
+        TransactionHeadsListRoute(
             onNewTransactionHeadClick = onNewTransactionHeadClick,
             onTransactionHeadClick = onTransactionHeadClick,
             onBackClick = onBackClick

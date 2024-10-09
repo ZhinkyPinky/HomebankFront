@@ -2,12 +2,12 @@ package com.example.homebankfront.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
-import com.example.homebankfront.feature.customerAndTransactionHeads.navigation.customerAndTransactionHeadsScreen
-import com.example.homebankfront.feature.customerAndTransactionHeads.navigation.navigateToCustomerAndTransactionHeads
+import com.example.homebankfront.feature.transactionHeadsList.navigation.transactionHeadsListScreen
+import com.example.homebankfront.feature.transactionHeadsList.navigation.navigateToTransactionHeadsList
 import com.example.homebankfront.feature.customerList.navigation.CUSTOMER_LIST_ROUTE
 import com.example.homebankfront.feature.customerList.navigation.customerListScreen
-import com.example.homebankfront.feature.customerTransactionHeadAndRows.navigation.customerTransactionHeadAndRowsScreen
-import com.example.homebankfront.feature.customerTransactionHeadAndRows.navigation.navigateToCustomerTransactionHeadAndRows
+import com.example.homebankfront.feature.transactionHeadAndRows.navigation.transactionHeadAndRowsScreen
+import com.example.homebankfront.feature.transactionHeadAndRows.navigation.navigateToTransactionHeadAndRows
 import com.example.homebankfront.feature.editTransactionHead.navigation.editTransactionHeadScreen
 import com.example.homebankfront.feature.editTransactionHead.navigation.navigateToEditTransactionHead
 import com.example.homebankfront.feature.editTransactionRow.navigation.editTransactionRowScreen
@@ -23,16 +23,16 @@ fun HomeBankNavHost(appState: HomebankAppState) {
         startDestination = CUSTOMER_LIST_ROUTE
     ) {
         customerListScreen(
-            onCustomerClick = navController::navigateToCustomerAndTransactionHeads
+            onCustomerClick = navController::navigateToTransactionHeadsList
         )
 
-        customerAndTransactionHeadsScreen(
+        transactionHeadsListScreen(
             onNewTransactionHeadClick = navController::navigateToEditTransactionHead,
-            onTransactionHeadClick = navController::navigateToCustomerTransactionHeadAndRows,
+            onTransactionHeadClick = navController::navigateToTransactionHeadAndRows,
             onBackClick = navController::popBackStack
         )
 
-        customerTransactionHeadAndRowsScreen(
+        transactionHeadAndRowsScreen(
             onBackClick = navController::popBackStack,
             onEditTransactionHeadClick = navController::navigateToEditTransactionHead,
             onEditTransactionRowClick = navController::navigateToEditTransactionRow
