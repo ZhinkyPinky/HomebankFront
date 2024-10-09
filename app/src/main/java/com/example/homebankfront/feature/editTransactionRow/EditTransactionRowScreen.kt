@@ -64,7 +64,9 @@ fun EditTransactionRowScreen(
             onBackClick()
         }
 
-        is EditTransactionRowState.Error -> {//TODO}
+        is EditTransactionRowState.Error -> {
+            //TODO
+        }
     }
 }
 
