@@ -1,9 +1,9 @@
 package com.example.homebankfront.hilt
 
-import com.example.homebankfront.dataAccess.ApiService
-import com.example.homebankfront.dataAccess.repositories.CustomerRepository
-import com.example.homebankfront.dataAccess.repositories.TransactionHeadRepository
-import com.example.homebankfront.dataAccess.repositories.TransactionRowRepository
+import com.example.homebankfront.data.services.ApiService
+import com.example.homebankfront.data.repositories.CustomerRepository
+import com.example.homebankfront.data.repositories.TransactionHeadRepository
+import com.example.homebankfront.data.repositories.TransactionRowRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

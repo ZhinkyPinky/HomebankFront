@@ -1,4 +1,4 @@
-package com.example.homebankfront.dataAccess.bodies
+package com.example.homebankfront.data.bodies
 
 import java.time.LocalDate
 import java.time.LocalDateTime

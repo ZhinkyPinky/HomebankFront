@@ -1,8 +1,8 @@
 package com.example.homebankfront.hilt
 
-import com.example.homebankfront.dataAccess.ApiService
-import com.example.homebankfront.dataAccess.LocalDateAdapter
-import com.example.homebankfront.dataAccess.LocalDateTimeAdapter
+import com.example.homebankfront.data.services.ApiService
+import com.example.homebankfront.data.LocalDateAdapter
+import com.example.homebankfront.data.LocalDateTimeAdapter
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module

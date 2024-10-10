@@ -1,7 +1,7 @@
 package com.example.homebankfront.feature.transactionHeadsList
 
-import com.example.homebankfront.dataAccess.bodies.Customer
-import com.example.homebankfront.dataAccess.bodies.TransactionHead
+import com.example.homebankfront.data.bodies.Customer
+import com.example.homebankfront.data.bodies.TransactionHead
 
 
 sealed interface TransactionHeadsListState {

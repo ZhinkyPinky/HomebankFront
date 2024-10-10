@@ -1,7 +1,7 @@
-package com.example.homebankfront.dataAccess.repositories
+package com.example.homebankfront.data.repositories
 
-import com.example.homebankfront.dataAccess.ApiService
-import com.example.homebankfront.dataAccess.bodies.TransactionHead
+import com.example.homebankfront.data.services.ApiService
+import com.example.homebankfront.data.bodies.TransactionHead
 import javax.inject.Inject
 
 class TransactionHeadRepository @Inject constructor(

@@ -1,8 +1,7 @@
 package com.example.homebankfront.feature.customerList.domain
 
-import com.example.homebankfront.dataAccess.bodies.Customer
-import com.example.homebankfront.dataAccess.repositories.CustomerRepository
-import kotlinx.coroutines.flow.Flow
+import com.example.homebankfront.data.bodies.Customer
+import com.example.homebankfront.data.repositories.CustomerRepository
 import javax.inject.Inject
 
 class GetCustomersUseCase @Inject constructor(

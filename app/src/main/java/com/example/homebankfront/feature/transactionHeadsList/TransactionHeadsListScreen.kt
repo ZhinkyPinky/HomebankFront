@@ -32,9 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.homebankfront.dataAccess.bodies.Customer
-import com.example.homebankfront.dataAccess.bodies.TransactionHead
-import com.example.homebankfront.designsystem.TextWithLabel
+import com.example.homebankfront.data.bodies.Customer
+import com.example.homebankfront.data.bodies.TransactionHead
+import com.example.homebankfront.ui.components.TextWithLabel
 
 
 @Composable

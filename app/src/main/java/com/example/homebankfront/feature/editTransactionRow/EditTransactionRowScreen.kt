@@ -14,22 +14,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.homebankfront.dataAccess.bodies.TransactionRow
-import com.example.homebankfront.designsystem.DatePicker
-import com.example.homebankfront.designsystem.TextField
-import com.example.homebankfront.designsystem.TextFieldWithDropdownMenu
-import java.time.Instant
-import java.time.ZoneId
+import com.example.homebankfront.data.bodies.TransactionRow
+import com.example.homebankfront.ui.components.DatePicker
+import com.example.homebankfront.ui.components.TextField
+import com.example.homebankfront.ui.components.TextFieldWithDropdownMenu
 
 @Composable
 fun EditTransactionRowRoute(
@@ -37,8 +39,20 @@ fun EditTransactionRowRoute(
 ) {
     val editTransactionRowUiState by viewModel.editTransactionRowUiState.collectAsStateWithLifecycle()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.snackbarState.collect { event ->
+            event.consume()?.let {
+                snackbarHostState.showSnackbar(message = it)
+            }
+        }
+    }
+
+
     EditTransactionRowScreen(
         editTransactionRowState = editTransactionRowUiState,
+        snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
         onBackClick = onBackClick
     )
@@ -47,7 +61,8 @@ fun EditTransactionRowRoute(
 @Composable
 fun EditTransactionRowScreen(
     editTransactionRowState: EditTransactionRowState,
-    onEvent: (EditTransactionRowEvent) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    onEvent: (EditTransactionRowUiEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
     when (editTransactionRowState) {
@@ -55,6 +70,7 @@ fun EditTransactionRowScreen(
         is EditTransactionRowState.Ready -> {
             EditTransactionRowScreen(
                 transactionRow = editTransactionRowState.transactionRow,
+                snackbarHostState = snackbarHostState,
                 onEvent = onEvent,
                 onBackClick = onBackClick
             )
@@ -63,10 +79,6 @@ fun EditTransactionRowScreen(
         is EditTransactionRowState.Saved -> {
             onBackClick()
         }
-
-        is EditTransactionRowState.Error -> {
-            //TODO
-        }
     }
 }
 
@@ -74,7 +86,8 @@ fun EditTransactionRowScreen(
 @Composable
 fun EditTransactionRowScreen(
     transactionRow: TransactionRow,
-    onEvent: (EditTransactionRowEvent) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    onEvent: (EditTransactionRowUiEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
     Scaffold(
@@ -92,7 +105,7 @@ fun EditTransactionRowScreen(
                     )
                 }
             }, actions = {
-                IconButton(onClick = { onEvent(EditTransactionRowEvent.Save(transactionRow)) }) {
+                IconButton(onClick = { onEvent(EditTransactionRowUiEvent.Save) }) {
                     Icon(
                         imageVector = Icons.Filled.Done, contentDescription = ""
                     )
@@ -106,6 +119,7 @@ fun EditTransactionRowScreen(
             )
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -114,48 +128,29 @@ fun EditTransactionRowScreen(
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.surface)
         ) {
-            TextField(label = "Titel", text = transactionRow.name, onValueChange = {
-                onEvent(
-                    EditTransactionRowEvent.Update(
-                        transactionRow = transactionRow.copy(
-                            name = it
-                        )
-                    )
-                )
-            })
+            TextField(
+                label = "Titel",
+                text = transactionRow.name,
+                onValueChange = {
+                    onEvent(EditTransactionRowUiEvent.onNameChange(name = it))
+                }
+            )
 
             TextField(
                 label = "Belopp",
                 text = transactionRow.amount.toString(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 onValueChange = {
-                    if (it.toIntOrNull() != null) {
-                        onEvent(
-                            EditTransactionRowEvent.Update(
-                                transactionRow = transactionRow.copy(
-                                    amount = it.toInt()
-                                )
-                            )
-                        )
-                    }
-                })
+                    onEvent(EditTransactionRowUiEvent.onAmountChange(amount = it))
+                }
+            )
 
             DatePicker(
                 label = "Datum",
                 date = transactionRow.paymentDate,
                 onDateSelected = {
-                    it?.let {
-                        onEvent(
-                            EditTransactionRowEvent.Update(
-                                transactionRow = transactionRow.copy(
-                                    paymentDate = Instant.ofEpochMilli(it)
-                                        .atZone(ZoneId.systemDefault()).toLocalDate()
-                                )
-                            )
-                        )
-
-                    }
-                },
+                    onEvent(EditTransactionRowUiEvent.onPaymentDateChange(paymentDate = it))
+                }
             )
 
             TextFieldWithDropdownMenu(
@@ -164,30 +159,20 @@ fun EditTransactionRowScreen(
                     ?: "",
                 selectedKey = transactionRow.typeOfTransactionCode?.name ?: "",
                 menuOptions = TransactionRow.Type.entries.associateBy({ it.name }, { it.value }),
-                onClick = { key, value ->
-                    onEvent(
-                        EditTransactionRowEvent.Update(
-                            transactionRow = transactionRow.copy(
-                                typeOfTransactionCode = TransactionRow.Type.valueOf(key),
-                                typeOfTransaction = value
-                            )
-                        )
-                    )
-                })
+                onClick = { typeOfTransactionCode, _ ->
+                    onEvent(EditTransactionRowUiEvent.onTypeOfTransactionChangeUi(typeOfTransactionCode = typeOfTransactionCode))
+                }
+            )
 
             TextField(
                 label = "Beskrivning",
                 text = transactionRow.description ?: "",
-                singleLine = false,
+                maxLines = 10,
                 onValueChange = {
-                    onEvent(
-                        EditTransactionRowEvent.Update(
-                            transactionRow = transactionRow.copy(
-                                description = it
-                            )
-                        )
-                    )
-                })
+                    onEvent(EditTransactionRowUiEvent.onDescriptionChange(description = it))
+                }
+            )
         }
     }
 }
+

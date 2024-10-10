@@ -1,8 +1,7 @@
 package com.example.homebankfront.feature.editTransactionRow.domain
 
-import com.example.homebankfront.dataAccess.bodies.TransactionRow
-import com.example.homebankfront.dataAccess.repositories.CustomerRepository
-import com.example.homebankfront.dataAccess.repositories.TransactionRowRepository
+import com.example.homebankfront.data.bodies.TransactionRow
+import com.example.homebankfront.data.repositories.TransactionRowRepository
 import javax.inject.Inject
 
 class SaveTransactionRowUseCase @Inject constructor(

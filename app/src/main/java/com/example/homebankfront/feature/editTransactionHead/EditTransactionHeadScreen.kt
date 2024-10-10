@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -13,33 +15,42 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.homebankfront.dataAccess.bodies.Customer
-import com.example.homebankfront.dataAccess.bodies.TransactionHead
-import com.example.homebankfront.designsystem.DatePicker
-import com.example.homebankfront.designsystem.TextField
-import com.example.homebankfront.designsystem.TextFieldWithDropdownMenu
-import java.time.Instant
-import java.time.ZoneId
+import com.example.homebankfront.data.bodies.Customer
+import com.example.homebankfront.data.bodies.TransactionHead
+import com.example.homebankfront.ui.components.DatePicker
+import com.example.homebankfront.ui.components.TextField
+import com.example.homebankfront.ui.components.TextFieldWithDropdownMenu
 
 @Composable
 fun EditTransactionHeadRoute(
-    viewModel: EditTransactionHeadViewModel = hiltViewModel(),
-    onBackClick: () -> Unit
+    viewModel: EditTransactionHeadViewModel = hiltViewModel(), onBackClick: () -> Unit
 ) {
     val editTransactionHeadState: EditTransactionHeadState by viewModel.editTransactionHeadState.collectAsStateWithLifecycle()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.snackbarState.collect { message ->
+            snackbarHostState.showSnackbar(message = message)
+        }
+    }
+
     EditTransactionHeadScreen(
         editTransactionHeadState = editTransactionHeadState,
+        snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
         onBackClick = onBackClick
     )
@@ -48,7 +59,8 @@ fun EditTransactionHeadRoute(
 @Composable
 fun EditTransactionHeadScreen(
     editTransactionHeadState: EditTransactionHeadState,
-    onEvent: (EditTransactionHeadEvent) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    onEvent: (EditTransactionHeadUiEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
     when (editTransactionHeadState) {
@@ -57,6 +69,7 @@ fun EditTransactionHeadScreen(
             EditTransactionHeadScreen(
                 transactionHead = editTransactionHeadState.transactionHead,
                 customers = editTransactionHeadState.customers,
+                snackbarHostState = snackbarHostState,
                 onEvent = onEvent,
                 onBackClick = onBackClick
             )
@@ -73,9 +86,16 @@ fun EditTransactionHeadScreen(
 fun EditTransactionHeadScreen(
     transactionHead: TransactionHead,
     customers: List<Customer>,
-    onEvent: (EditTransactionHeadEvent) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    onEvent: (EditTransactionHeadUiEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(transactionHead.description) {
+        scrollState.animateScrollTo(scrollState.maxValue)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -94,18 +114,10 @@ fun EditTransactionHeadScreen(
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            onEvent(
-                                EditTransactionHeadEvent.Save(
-                                    transactionHead
-                                )
-                            )
-                        }
+                    IconButton(onClick = { onEvent(EditTransactionHeadUiEvent.Save) }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = ""
+                            imageVector = Icons.Filled.Check, contentDescription = ""
                         )
                     }
                 },
@@ -118,72 +130,51 @@ fun EditTransactionHeadScreen(
                 )
             )
         },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
     ) { paddingValues ->
         Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier
-                .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.surface)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface).verticalScroll(scrollState)
         ) {
-            TextField(
-                label = "Titel",
+            TextField(label = "Titel",
                 text = transactionHead.transactionName ?: "",
                 onValueChange = {
+                    onEvent(EditTransactionHeadUiEvent.onTransactionNameChangeUi(transactionName = it))
+                })
+
+            TextFieldWithDropdownMenu(label = "Långivare",
+                text = transactionHead.lender ?: "",
+                selectedKey = transactionHead.lenderId.toString(),
+                menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
+                onClick = { lenderId, lender ->
                     onEvent(
-                        EditTransactionHeadEvent.Update(
-                            transactionHead = transactionHead.copy(transactionName = it)
+                        EditTransactionHeadUiEvent.onLenderChange(
+                            lenderId = lenderId,
+                            lender = lender
                         )
                     )
                 }
             )
 
-            TextFieldWithDropdownMenu(
-                label = "Långivare",
-                text = transactionHead.lender ?: "",
-                selectedKey = transactionHead.lenderId.toString(),
-                menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
-                onClick = { lenderId, lender ->
-                    if (lenderId.toLongOrNull() != null) {
-                        onEvent(
-                            EditTransactionHeadEvent.Update(
-                                transactionHead.copy(
-                                    lenderId = lenderId.toLong(),
-                                    lender = lender
-                                )
-                            )
-                        )
-                    }
-                }
-            )
 
-            TextFieldWithDropdownMenu(
-                label = "Låntagare",
+            TextFieldWithDropdownMenu(label = "Låntagare",
                 text = transactionHead.borrower ?: "",
                 selectedKey = transactionHead.borrowerId.toString(),
                 menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
                 onClick = { borrowerId, borrower ->
-                    if (borrowerId.toLongOrNull() != null) {
-                        onEvent(
-                            EditTransactionHeadEvent.Update(
-                                transactionHead.copy(
-                                    borrowerId = borrowerId.toLong(),
-                                    borrower = borrower
-                                )
-                            )
+                    onEvent(
+                        EditTransactionHeadUiEvent.onBorrowerChange(
+                            borrowerId = borrowerId,
+                            borrower = borrower
                         )
-                    }
+                    )
                 }
             )
-
-            /*
-            TextField(
-                label = "Saldo",
-                text = "456",
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                onValueChange = {}
-            )
-             */
 
             DatePicker(
                 label = "Startdatum",
@@ -191,16 +182,8 @@ fun EditTransactionHeadScreen(
                 onDateSelected = {
                     it?.let {
                         onEvent(
-                            EditTransactionHeadEvent.Update(
-                                transactionHead = transactionHead.copy(
-                                    startDate = Instant
-                                        .ofEpochMilli(it)
-                                        .atZone(ZoneId.systemDefault())
-                                        .toLocalDate()
-                                )
-                            )
+                            EditTransactionHeadUiEvent.onStartDateChange(startDate = it)
                         )
-
                     }
                 },
             )
@@ -211,14 +194,7 @@ fun EditTransactionHeadScreen(
                 onDateSelected = {
                     it?.let {
                         onEvent(
-                            EditTransactionHeadEvent.Update(
-                                transactionHead = transactionHead.copy(
-                                    prelEndDate = Instant
-                                        .ofEpochMilli(it)
-                                        .atZone(ZoneId.systemDefault())
-                                        .toLocalDate()
-                                )
-                            )
+                            EditTransactionHeadUiEvent.onPrelEndDateChange(prelEndDate = it)
                         )
                     }
                 },
@@ -230,14 +206,7 @@ fun EditTransactionHeadScreen(
                 onDateSelected = {
                     it?.let {
                         onEvent(
-                            EditTransactionHeadEvent.Update(
-                                transactionHead = transactionHead.copy(
-                                    endDate = Instant
-                                        .ofEpochMilli(it)
-                                        .atZone(ZoneId.systemDefault())
-                                        .toLocalDate()
-                                )
-                            )
+                            EditTransactionHeadUiEvent.onEndDateChange(endDate = it)
                         )
                     }
                 },
@@ -246,15 +215,16 @@ fun EditTransactionHeadScreen(
             TextField(
                 label = "Beskrivning",
                 text = transactionHead.description ?: "",
-                singleLine = false,
+                maxLines = 10,
                 onValueChange = {
                     onEvent(
-                        EditTransactionHeadEvent.Update(
-                            transactionHead = transactionHead.copy(description = it)
-                        )
+                        EditTransactionHeadUiEvent.onDescriptionChange(description = it)
                     )
-                }
+
+                },
             )
         }
     }
 }
+
+

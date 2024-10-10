@@ -1,8 +1,7 @@
-package com.example.homebankfront.dataAccess.repositories
+package com.example.homebankfront.data.repositories
 
-import com.example.homebankfront.dataAccess.ApiService
-import com.example.homebankfront.dataAccess.bodies.TransactionRow
-import retrofit2.HttpException
+import com.example.homebankfront.data.services.ApiService
+import com.example.homebankfront.data.bodies.TransactionRow
 import javax.inject.Inject
 
 class TransactionRowRepository @Inject constructor(

@@ -1,6 +1,8 @@
 package com.example.homebankfront.navigation
 
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.example.homebankfront.feature.transactionHeadsList.navigation.transactionHeadsListScreen
 import com.example.homebankfront.feature.transactionHeadsList.navigation.navigateToTransactionHeadsList
@@ -15,12 +17,15 @@ import com.example.homebankfront.feature.editTransactionRow.navigation.navigateT
 import com.example.homebankfront.ui.HomebankAppState
 
 @Composable
-fun HomeBankNavHost(appState: HomebankAppState) {
+fun HomeBankNavHost(
+    appState: HomebankAppState
+) {
     val navController = appState.navController
 
     NavHost(
         navController = navController,
-        startDestination = CUSTOMER_LIST_ROUTE
+        startDestination = CUSTOMER_LIST_ROUTE,
+        modifier = Modifier.imePadding()
     ) {
         customerListScreen(
             onCustomerClick = navController::navigateToTransactionHeadsList

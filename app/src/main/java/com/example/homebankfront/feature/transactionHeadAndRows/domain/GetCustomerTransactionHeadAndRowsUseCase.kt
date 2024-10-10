@@ -1,6 +1,6 @@
 package com.example.homebankfront.feature.transactionHeadAndRows.domain
 
-import com.example.homebankfront.dataAccess.repositories.CustomerRepository
+import com.example.homebankfront.data.repositories.CustomerRepository
 import javax.inject.Inject
 
 

@@ -1,8 +1,8 @@
 package com.example.homebankfront.feature.transactionHeadAndRows
 
-import com.example.homebankfront.dataAccess.bodies.Customer
-import com.example.homebankfront.dataAccess.bodies.TransactionHead
-import com.example.homebankfront.dataAccess.bodies.TransactionRow
+import com.example.homebankfront.data.bodies.Customer
+import com.example.homebankfront.data.bodies.TransactionHead
+import com.example.homebankfront.data.bodies.TransactionRow
 
 sealed interface TransactionHeadAndRowsState {
     data object Loading : TransactionHeadAndRowsState

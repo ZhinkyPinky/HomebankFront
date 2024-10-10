@@ -1,4 +1,4 @@
-package com.example.homebankfront.dataAccess.bodies
+package com.example.homebankfront.data.bodies
 
 data class CustomerAndTransactionHeadAndRows(
     val customer : Customer = Customer(),

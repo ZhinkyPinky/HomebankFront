@@ -1,8 +1,6 @@
 package com.example.homebankfront.feature.editTransactionHead.domain
 
-import com.example.homebankfront.dataAccess.bodies.CustomerAndTransactionHead
-import com.example.homebankfront.dataAccess.repositories.CustomerRepository
-import kotlinx.coroutines.flow.Flow
+import com.example.homebankfront.data.repositories.CustomerRepository
 import javax.inject.Inject
 
 class GetCustomerAndTransactionHeadUseCase @Inject constructor(

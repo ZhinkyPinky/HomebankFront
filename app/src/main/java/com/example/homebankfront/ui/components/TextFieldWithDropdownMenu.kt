@@ -1,4 +1,4 @@
-package com.example.homebankfront.designsystem
+package com.example.homebankfront.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth

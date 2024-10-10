@@ -1,6 +1,6 @@
 package com.example.homebankfront.feature.customerList
 
-import com.example.homebankfront.dataAccess.bodies.Customer
+import com.example.homebankfront.data.bodies.Customer
 
 sealed interface CustomerListState {
     data object Loading : CustomerListState

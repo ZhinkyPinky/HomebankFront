@@ -1,7 +1,7 @@
 package com.example.homebankfront.feature.transactionHeadAndRows.domain
 
-import com.example.homebankfront.dataAccess.bodies.TransactionHead
-import com.example.homebankfront.dataAccess.repositories.TransactionHeadRepository
+import com.example.homebankfront.data.bodies.TransactionHead
+import com.example.homebankfront.data.repositories.TransactionHeadRepository
 import javax.inject.Inject
 
 class DeleteTransactionHeadUseCase @Inject constructor(

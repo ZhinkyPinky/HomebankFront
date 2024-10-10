@@ -27,9 +27,9 @@ class TransactionHeadAndRowsViewModel @Inject constructor(
         MutableStateFlow(TransactionHeadAndRowsState.Loading)
     val transactionHeadAndRowsState = _transactionHeadAndRowsState.asStateFlow()
 
-    fun onEvent(event: TransactionHeadAndRowsEvent) {
+    fun onEvent(event: TransactionHeadAndRowsUiEvent) {
         when (event) {
-            is TransactionHeadAndRowsEvent.DeleteTransactionHead -> viewModelScope.launch {
+            is TransactionHeadAndRowsUiEvent.DeleteTransactionHeadUi -> viewModelScope.launch {
                 deleteTransactionHeadUseCase(event.transactionHead)
             }.invokeOnCompletion {
                 _transactionHeadAndRowsState.update {
@@ -37,7 +37,7 @@ class TransactionHeadAndRowsViewModel @Inject constructor(
                 }
             }
 
-            is TransactionHeadAndRowsEvent.DeleteRow -> viewModelScope.launch {
+            is TransactionHeadAndRowsUiEvent.DeleteRow -> viewModelScope.launch {
                 deleteTransactionRowUseCase(
                     event.transactionRow
                 )
