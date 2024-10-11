@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
@@ -24,12 +23,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.data.bodies.TransactionRow
 import com.example.homebankfront.ui.components.DatePicker
+import com.example.homebankfront.ui.components.IntegerTextField
 import com.example.homebankfront.ui.components.TextField
 import com.example.homebankfront.ui.components.TextFieldWithDropdownMenu
 
@@ -37,18 +36,17 @@ import com.example.homebankfront.ui.components.TextFieldWithDropdownMenu
 fun EditTransactionRowRoute(
     viewModel: EditTransactionRowViewModel = hiltViewModel(), onBackClick: () -> Unit
 ) {
-    val editTransactionRowUiState by viewModel.editTransactionRowUiState.collectAsStateWithLifecycle()
+    val editTransactionRowUiState by viewModel.state.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        viewModel.snackbarState.collect { event ->
-            event.consume()?.let {
-                snackbarHostState.showSnackbar(message = it)
+        viewModel.snackbarFlow.collect { event ->
+            event.consume()?.let { message ->
+                snackbarHostState.showSnackbar(message = message)
             }
         }
     }
-
 
     EditTransactionRowScreen(
         editTransactionRowState = editTransactionRowUiState,
@@ -131,26 +129,19 @@ fun EditTransactionRowScreen(
             TextField(
                 label = "Titel",
                 text = transactionRow.name,
-                onValueChange = {
-                    onEvent(EditTransactionRowUiEvent.onNameChange(name = it))
-                }
+                onValueChange = { changeName(onEvent, it) }
             )
 
-            TextField(
+            IntegerTextField (
                 label = "Belopp",
                 text = transactionRow.amount.toString(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                onValueChange = {
-                    onEvent(EditTransactionRowUiEvent.onAmountChange(amount = it))
-                }
+                onValueChange = { changeAmount(onEvent, it) }
             )
 
             DatePicker(
                 label = "Datum",
                 date = transactionRow.paymentDate,
-                onDateSelected = {
-                    onEvent(EditTransactionRowUiEvent.onPaymentDateChange(paymentDate = it))
-                }
+                onDateSelected = { changePaymentDate(onEvent, it) }
             )
 
             TextFieldWithDropdownMenu(
@@ -160,7 +151,7 @@ fun EditTransactionRowScreen(
                 selectedKey = transactionRow.typeOfTransactionCode?.name ?: "",
                 menuOptions = TransactionRow.Type.entries.associateBy({ it.name }, { it.value }),
                 onClick = { typeOfTransactionCode, _ ->
-                    onEvent(EditTransactionRowUiEvent.onTypeOfTransactionChangeUi(typeOfTransactionCode = typeOfTransactionCode))
+                    changeTypeOfTransaction(onEvent, typeOfTransactionCode)
                 }
             )
 
@@ -168,9 +159,7 @@ fun EditTransactionRowScreen(
                 label = "Beskrivning",
                 text = transactionRow.description ?: "",
                 maxLines = 10,
-                onValueChange = {
-                    onEvent(EditTransactionRowUiEvent.onDescriptionChange(description = it))
-                }
+                onValueChange = { changeDescription(onEvent, it) }
             )
         }
     }

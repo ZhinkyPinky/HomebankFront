@@ -38,13 +38,15 @@ import com.example.homebankfront.ui.components.TextFieldWithDropdownMenu
 fun EditTransactionHeadRoute(
     viewModel: EditTransactionHeadViewModel = hiltViewModel(), onBackClick: () -> Unit
 ) {
-    val editTransactionHeadState: EditTransactionHeadState by viewModel.editTransactionHeadState.collectAsStateWithLifecycle()
+    val editTransactionHeadState: EditTransactionHeadState by viewModel.state.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        viewModel.snackbarState.collect { message ->
-            snackbarHostState.showSnackbar(message = message)
+        viewModel.snackbarFlow.collect { event ->
+            event.consume()?.let { message ->
+                snackbarHostState.showSnackbar(message = message)
+            }
         }
     }
 
@@ -139,92 +141,54 @@ fun EditTransactionHeadScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface).verticalScroll(scrollState)
+                .background(MaterialTheme.colorScheme.surface)
+                .verticalScroll(scrollState)
         ) {
             TextField(label = "Titel",
                 text = transactionHead.transactionName ?: "",
-                onValueChange = {
-                    onEvent(EditTransactionHeadUiEvent.onTransactionNameChangeUi(transactionName = it))
-                })
+                onValueChange = { changeTransactionName(onEvent, it) })
 
             TextFieldWithDropdownMenu(label = "Långivare",
                 text = transactionHead.lender ?: "",
                 selectedKey = transactionHead.lenderId.toString(),
                 menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
-                onClick = { lenderId, lender ->
-                    onEvent(
-                        EditTransactionHeadUiEvent.onLenderChange(
-                            lenderId = lenderId,
-                            lender = lender
-                        )
-                    )
-                }
+                onClick = { lenderId, lender -> changeLender(onEvent, lenderId, lender) }
             )
-
 
             TextFieldWithDropdownMenu(label = "Låntagare",
                 text = transactionHead.borrower ?: "",
                 selectedKey = transactionHead.borrowerId.toString(),
                 menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
-                onClick = { borrowerId, borrower ->
-                    onEvent(
-                        EditTransactionHeadUiEvent.onBorrowerChange(
-                            borrowerId = borrowerId,
-                            borrower = borrower
-                        )
-                    )
-                }
+                onClick = { borrowerId, borrower -> changeBorrower(onEvent, borrowerId, borrower) }
             )
 
             DatePicker(
                 label = "Startdatum",
                 date = transactionHead.startDate,
-                onDateSelected = {
-                    it?.let {
-                        onEvent(
-                            EditTransactionHeadUiEvent.onStartDateChange(startDate = it)
-                        )
-                    }
-                },
+                onDateSelected = { it?.let { changeStartDate(onEvent, it) } },
             )
 
             DatePicker(
                 label = "Prel. Slutdatum",
                 date = transactionHead.prelEndDate,
-                onDateSelected = {
-                    it?.let {
-                        onEvent(
-                            EditTransactionHeadUiEvent.onPrelEndDateChange(prelEndDate = it)
-                        )
-                    }
-                },
+                onDateSelected = { it?.let { changePrelEndDate(onEvent, it) } },
             )
 
             DatePicker(
                 label = "Slutdatum",
                 date = transactionHead.endDate,
-                onDateSelected = {
-                    it?.let {
-                        onEvent(
-                            EditTransactionHeadUiEvent.onEndDateChange(endDate = it)
-                        )
-                    }
-                },
+                onDateSelected = { changeEndDate(onEvent, it) }
             )
 
             TextField(
                 label = "Beskrivning",
                 text = transactionHead.description ?: "",
                 maxLines = 10,
-                onValueChange = {
-                    onEvent(
-                        EditTransactionHeadUiEvent.onDescriptionChange(description = it)
-                    )
-
-                },
+                onValueChange = { changeDescription(onEvent, it) },
             )
         }
     }
 }
+
 
 

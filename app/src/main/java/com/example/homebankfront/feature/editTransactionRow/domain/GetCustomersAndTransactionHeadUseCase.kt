@@ -8,14 +8,14 @@ import javax.inject.Inject
 class GetCustomersAndTransactionHeadUseCase @Inject constructor(
     private val customerRepository: CustomerRepository
 ) {
-    suspend operator fun invoke(transactionHeadId: Long) : CustomersAndTransactionHead {
-        if (transactionHeadId == -1L) {
-            return CustomersAndTransactionHead(
+    suspend operator fun invoke(transactionHeadId: Long): CustomersAndTransactionHead {
+        return if (transactionHeadId == -1L) {
+            CustomersAndTransactionHead(
                 customers = customerRepository.getCustomers(),
                 transactionHead = TransactionHead()
             )
+        } else {
+            customerRepository.getCustomersAndTransactionHead(transactionHeadId)
         }
-
-       return  customerRepository.getCustomersAndTransactionHead(transactionHeadId)
     }
 }
