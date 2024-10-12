@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">HomebankFront</string>
+    <string name="title">Titel</string>
+    <string name="lender">Långivare</string>
+    <string name="borrower">Låntagare</string>
+    <string name="date">Datum</string>
+    <string name="start_date">Startdatum</string>
+    <string name="prel_end_date">Prel. Slutdatum</string>
+    <string name="end_date">Slutdatum</string>
+    <string name="to">Till</string>
+    <string name="from">Från</string>
+    <string name="balance">Saldo</string>
+    <string name="accounts">Konton</string>
+    <string name="add">Lägg till</string>
+    <string name="edit">Redigera</string>
+    <string name="save">Spara</string>
+    <string name="description">Beskrivning</string>
+    <string name="amount">Belopp</string>
+    <string name="type">Typ</string>
+    <string name="remove">Ta bort</string>
+    <string name="yes">Ja</string>
+    <string name="remove_transaction_row_confirmation">Är du säker på att du vill ta bort transaktions raden?</string>
+    <string name="rows">Rader</string>
+    <string name="transaction">Transaktion</string>
+    <string name="remove_transaction_head_confirmation">Är du säker på att du vill ta bort transaktions huvudet?</string>
 </resources>

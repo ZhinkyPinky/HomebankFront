@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.homebankfront.feature.customerList.CustomerListRoute
 
-const val CUSTOMER_LIST_ROUTE = "customer_list"
+const val CUSTOMER_LIST_ROUTE = "customers"
 
 fun NavController.navigateToCustomerList() = navigate(
     route = CUSTOMER_LIST_ROUTE,

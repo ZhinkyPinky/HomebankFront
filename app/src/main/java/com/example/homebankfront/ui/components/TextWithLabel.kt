@@ -20,7 +20,7 @@ fun TextWithLabel(
     label: String,
     labelColor: Color = MaterialTheme.colorScheme.onSurface,
     text: String,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     textSoftWrap: Boolean = false,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     backgroundColor: Color = Color.Transparent

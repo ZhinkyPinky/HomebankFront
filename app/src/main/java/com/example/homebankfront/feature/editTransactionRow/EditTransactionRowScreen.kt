@@ -23,9 +23,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.TransactionRow
 import com.example.homebankfront.ui.components.DatePicker
 import com.example.homebankfront.ui.components.IntegerTextField
@@ -91,7 +93,7 @@ fun EditTransactionRowScreen(
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                Text(text = "Redigera")
+                Text(text = stringResource(R.string.edit))
             }, navigationIcon = {
                 IconButton(
                     onClick = { onBackClick() },
@@ -127,25 +129,25 @@ fun EditTransactionRowScreen(
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             TextField(
-                label = "Titel",
+                label = stringResource(R.string.title),
                 text = transactionRow.name,
                 onValueChange = { changeName(onEvent, it) }
             )
 
             IntegerTextField (
-                label = "Belopp",
+                label = stringResource(R.string.amount),
                 text = transactionRow.amount.toString(),
                 onValueChange = { changeAmount(onEvent, it) }
             )
 
             DatePicker(
-                label = "Datum",
+                label = stringResource(R.string.date),
                 date = transactionRow.paymentDate,
                 onDateSelected = { changePaymentDate(onEvent, it) }
             )
 
             TextFieldWithDropdownMenu(
-                label = "Typ",
+                label = stringResource(R.string.type),
                 text = transactionRow.typeOfTransactionCode?.value
                     ?: "",
                 selectedKey = transactionRow.typeOfTransactionCode?.name ?: "",
@@ -156,7 +158,7 @@ fun EditTransactionRowScreen(
             )
 
             TextField(
-                label = "Beskrivning",
+                label = stringResource(R.string.description),
                 text = transactionRow.description ?: "",
                 maxLines = 10,
                 onValueChange = { changeDescription(onEvent, it) }

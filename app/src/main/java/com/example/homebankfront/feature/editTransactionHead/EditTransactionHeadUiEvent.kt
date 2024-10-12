@@ -26,7 +26,7 @@ sealed interface EditTransactionHeadField {
     ) : EditTransactionHeadField
 }
 
-fun changeTransactionName(
+fun updateTransactionName(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     transactionName: String
 ) = onEvent(
@@ -37,7 +37,7 @@ fun changeTransactionName(
     )
 )
 
-fun changeLender(
+fun updateLender(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     lenderId: String,
     lender: String
@@ -52,7 +52,7 @@ fun changeLender(
     )
 }
 
-fun changeBorrower(
+fun updateBorrower(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     borrowerId: String,
     borrower: String
@@ -67,7 +67,7 @@ fun changeBorrower(
     )
 }
 
-fun changeStartDate(
+fun updateStartDate(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     startDate: Long?
 ) = startDate?.let {
@@ -80,7 +80,7 @@ fun changeStartDate(
     )
 }
 
-fun changePrelEndDate(
+fun updatePrelEndDate(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     prelEndDate: Long?
 ) = prelEndDate?.let {
@@ -93,7 +93,7 @@ fun changePrelEndDate(
     )
 }
 
-fun changeEndDate(
+fun updateEndDate(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     endDate: Long?
 ) = endDate?.let {
@@ -106,7 +106,7 @@ fun changeEndDate(
     )
 }
 
-fun changeDescription(
+fun updateDescription(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     description: String
 ) = onEvent(

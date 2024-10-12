@@ -18,16 +18,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.ui.theme.HomeBankFrontTheme
 import com.example.homebankfront.ui.theme.ThemePreviews
 
 @Composable
 internal fun CustomerListRoute(
-    viewModel: CustomerListViewModel = hiltViewModel(),
-    onCustomerClick: (Long) -> Unit
+    viewModel: CustomerListViewModel = hiltViewModel(), onCustomerClick: (Long) -> Unit
 ) {
     val customerListState: CustomerListState by viewModel.customerListState.collectAsStateWithLifecycle()
 
@@ -64,17 +65,7 @@ fun CustomerListScreen(
     onCustomerClick: (Long) -> Unit,
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Konton") }, colors = TopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        },
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.accounts)) }) },
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -97,12 +88,7 @@ fun LazyListScope.customerList(
     itemsIndexed(
         items = customers
     ) { index, customer ->
-        TextButton(
-            onClick = { onCustomerClick(customer.id) },
-            colors = ButtonDefaults.textButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            )
+        TextButton(onClick = { onCustomerClick(customer.id) }
         ) {
             Text(text = customer.name)
         }

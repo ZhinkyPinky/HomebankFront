@@ -25,9 +25,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
 import com.example.homebankfront.ui.components.DatePicker
@@ -102,7 +104,12 @@ fun EditTransactionHeadScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = if (transactionHead.id == -1L) "Lägg till" else "Redigera")
+                    Text(
+                        text = when (transactionHead.id) {
+                            -1L -> stringResource(R.string.add)
+                            else -> stringResource(R.string.edit)
+                        }
+                    )
                 },
                 navigationIcon = {
                     IconButton(
@@ -119,7 +126,7 @@ fun EditTransactionHeadScreen(
                     IconButton(onClick = { onEvent(EditTransactionHeadUiEvent.Save) }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Check, contentDescription = ""
+                            imageVector = Icons.Filled.Check, contentDescription = stringResource(R.string.save)
                         )
                     }
                 },
@@ -144,47 +151,47 @@ fun EditTransactionHeadScreen(
                 .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(scrollState)
         ) {
-            TextField(label = "Titel",
+            TextField(label = stringResource(R.string.title),
                 text = transactionHead.transactionName ?: "",
-                onValueChange = { changeTransactionName(onEvent, it) })
+                onValueChange = { updateTransactionName(onEvent, it) })
 
-            TextFieldWithDropdownMenu(label = "Långivare",
+            TextFieldWithDropdownMenu(label = stringResource(R.string.lender),
                 text = transactionHead.lender ?: "",
                 selectedKey = transactionHead.lenderId.toString(),
                 menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
-                onClick = { lenderId, lender -> changeLender(onEvent, lenderId, lender) }
+                onClick = { lenderId, lender -> updateLender(onEvent, lenderId, lender) }
             )
 
-            TextFieldWithDropdownMenu(label = "Låntagare",
+            TextFieldWithDropdownMenu(label = stringResource(R.string.borrower),
                 text = transactionHead.borrower ?: "",
                 selectedKey = transactionHead.borrowerId.toString(),
                 menuOptions = customers.associateBy({ it.id.toString() }, { it.name }),
-                onClick = { borrowerId, borrower -> changeBorrower(onEvent, borrowerId, borrower) }
+                onClick = { borrowerId, borrower -> updateBorrower(onEvent, borrowerId, borrower) }
             )
 
             DatePicker(
-                label = "Startdatum",
+                label = stringResource(R.string.start_date),
                 date = transactionHead.startDate,
-                onDateSelected = { it?.let { changeStartDate(onEvent, it) } },
+                onDateSelected = { it?.let { updateStartDate(onEvent, it) } },
             )
 
             DatePicker(
-                label = "Prel. Slutdatum",
+                label = stringResource(R.string.prel_end_date),
                 date = transactionHead.prelEndDate,
-                onDateSelected = { it?.let { changePrelEndDate(onEvent, it) } },
+                onDateSelected = { it?.let { updatePrelEndDate(onEvent, it) } },
             )
 
             DatePicker(
-                label = "Slutdatum",
+                label = stringResource(R.string.end_date),
                 date = transactionHead.endDate,
-                onDateSelected = { changeEndDate(onEvent, it) }
+                onDateSelected = { updateEndDate(onEvent, it) }
             )
 
             TextField(
-                label = "Beskrivning",
+                label = stringResource(R.string.description),
                 text = transactionHead.description ?: "",
                 maxLines = 10,
-                onValueChange = { changeDescription(onEvent, it) },
+                onValueChange = { updateDescription(onEvent, it) },
             )
         }
     }

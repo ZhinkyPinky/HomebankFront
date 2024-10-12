@@ -29,7 +29,7 @@ class TransactionHeadAndRowsViewModel @Inject constructor(
 
     fun onEvent(event: TransactionHeadAndRowsUiEvent) {
         when (event) {
-            is TransactionHeadAndRowsUiEvent.DeleteTransactionHeadUi -> viewModelScope.launch {
+            is TransactionHeadAndRowsUiEvent.DeleteTransactionHead -> viewModelScope.launch {
                 deleteTransactionHeadUseCase(event.transactionHead)
             }.invokeOnCompletion {
                 _transactionHeadAndRowsState.update {

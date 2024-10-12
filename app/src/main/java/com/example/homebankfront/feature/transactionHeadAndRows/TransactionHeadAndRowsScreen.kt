@@ -8,10 +8,14 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -23,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -36,12 +41,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
 import com.example.homebankfront.data.bodies.TransactionRow
+import com.example.homebankfront.ui.components.ConfirmationDialog
 import com.example.homebankfront.ui.components.MoreDropDownMenu
 import com.example.homebankfront.ui.components.TextWithLabel
 import com.example.homebankfront.ui.theme.HomeBankFrontTheme
@@ -120,23 +129,13 @@ fun TransactionHeadAndRowsScreen(
             TopAppBar(
                 title = { Text(text = customer.name) },
                 navigationIcon = {
-                    IconButton(
-                        onClick = { onBackClick() },
-
-                        ) {
+                    IconButton(onClick = { onBackClick() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = ""
                         )
                     }
                 },
-                colors = TopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
-                ),
                 modifier = Modifier.padding(bottom = 1.dp)
             )
         },
@@ -176,105 +175,77 @@ fun TransactionHeadInfo(
         onEvent = onEvent
     )
 
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        Row {
-            Column(modifier = Modifier.weight(1f)) {
-                TextWithLabel(
-                    label = "Titel",
-                    text = transactionHead.transactionName ?: "",
-                    modifier = Modifier.padding(
-                        top = 6.dp,
-                        bottom = 3.dp,
-                        start = 6.dp,
-                    )
-                )
-
-                Row {
+    Surface {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row {
+                Column(modifier = Modifier.weight(1f)) {
                     TextWithLabel(
-                        label = "Långivare",
-                        text = transactionHead.lender ?: "",
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(
-                                top = 3.dp,
-                                bottom = 3.dp,
-                                start = 6.dp,
-                            )
+                        label = stringResource(R.string.title),
+                        text = transactionHead.transactionName ?: "",
                     )
 
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Row {
+                        TextWithLabel(
+                            label = stringResource(R.string.lender),
+                            text = transactionHead.lender ?: "",
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        TextWithLabel(
+                            label = stringResource(R.string.borrower),
+                            text = transactionHead.borrower ?: "",
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
                     TextWithLabel(
-                        label = "Låntagare",
-                        text = transactionHead.borrower ?: "",
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(
-                                top = 3.dp,
-                                bottom = 3.dp,
-                            )
+                        label = stringResource(R.string.balance),
+                        text = transactionHead.amount.toString(),
                     )
                 }
 
-                TextWithLabel(
-                    label = "Saldo",
-                    text = transactionHead.amount.toString(),
-                    modifier = Modifier.padding(
-                        top = 3.dp,
-                        bottom = 3.dp,
-                        start = 6.dp,
-                    )
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    transactionHead.startDate?.let {
+                        TextWithLabel(
+                            label = stringResource(R.string.start_date),
+                            text = it.toString(),
+                            horizontalAlignment = Alignment.End,
+                        )
+                    }
+
+                    transactionHead.prelEndDate?.let {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        TextWithLabel(
+                            label = stringResource(R.string.prel_end_date),
+                            text = it.toString(),
+                            horizontalAlignment = Alignment.End,
+                        )
+                    }
+
+                    transactionHead.endDate?.let {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        TextWithLabel(
+                            label = stringResource(R.string.end_date),
+                            text = it.toString(),
+                            horizontalAlignment = Alignment.End
+                        )
+                    }
+                }
             }
 
-            Column(modifier = Modifier.weight(1f)) {
+            transactionHead.description.takeIf { !it.isNullOrBlank() }?.let { description ->
+                Spacer(modifier = Modifier.height(6.dp))
                 TextWithLabel(
-                    label = "Startdatum",
-                    text = transactionHead.startDate?.toString() ?: "",
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.padding(
-                        top = 6.dp,
-                        bottom = 3.dp,
-                        end = 6.dp
-                    )
-                )
-
-                TextWithLabel(
-                    label = "Prel. Slutdatum",
-                    text = transactionHead.prelEndDate?.toString() ?: "",
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.padding(
-                        top = 3.dp,
-                        bottom = 3.dp,
-                        end = 6.dp
-                    )
-                )
-
-                TextWithLabel(
-                    label = "Slutdatum",
-                    text = transactionHead.endDate?.toString() ?: "",
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.padding(
-                        top = 3.dp,
-                        bottom = 3.dp,
-                        end = 6.dp
-                    )
+                    label = stringResource(R.string.description),
+                    text = description,
+                    textSoftWrap = true
                 )
             }
         }
-
-        TextWithLabel(
-            label = "Beskrivning",
-            text = transactionHead.description ?: "",
-            textSoftWrap = true,
-            modifier = Modifier.padding(
-                top = 3.dp,
-                bottom = 6.dp,
-                start = 6.dp,
-                end = 6.dp
-            )
-        )
     }
 }
 
@@ -285,36 +256,43 @@ fun TransactionHeadInfoTopBar(
     onEditTransactionHeadClick: (Long, Long) -> Unit,
     onEvent: (TransactionHeadAndRowsUiEvent) -> Unit
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
-            .fillMaxWidth()
-            .padding(start = 6.dp)
-    ) {
-        Text(
-            text = "Transaktion",
-            color = MaterialTheme.colorScheme.onSurface
-        )
+    val showDialog = rememberSaveable { mutableStateOf(false) }
 
-        MoreDropDownMenu(
-            map = mapOf(
-                "Redigera" to {
-                    onEditTransactionHeadClick(
-                        customer.id,
-                        transactionHead.id
-                    )
-                },
-                "Ta bort" to {
-                    onEvent(
-                        TransactionHeadAndRowsUiEvent.DeleteTransactionHeadUi(
-                            transactionHead = transactionHead
-                        )
-                    )
-                }
-            )
+    if (showDialog.value) {
+        ConfirmationDialog(
+            title = stringResource(R.string.remove),
+            text = stringResource(R.string.remove_transaction_head_confirmation),
+            confirmButtonText = stringResource(R.string.yes),
+            onConfirm = { delete(onEvent, transactionHead) },
+            onDismissRequest = { showDialog.value = false }
         )
+    }
+
+    Surface {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.transaction),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            MoreDropDownMenu(
+                map = mapOf(
+                    stringResource(R.string.edit) to {
+                        onEditTransactionHeadClick(
+                            customer.id,
+                            transactionHead.id
+                        )
+                    },
+                    stringResource(R.string.remove) to { showDialog.value = true }
+                )
+            )
+        }
     }
 }
 
@@ -325,34 +303,13 @@ fun TransactionRowList(
     onEditTransactionRowClick: (Long, Long) -> Unit,
     onEvent: (TransactionHeadAndRowsUiEvent) -> Unit
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
-            .fillMaxWidth()
-            .padding(start = 6.dp)
-    ) {
-        Text(text = "Rader", color = MaterialTheme.colorScheme.onSurface)
-
-        IconButton(
-            onClick = {
-                onEditTransactionRowClick(transactionHead.id, TransactionRow().id)
-            },
-            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = "",
-            )
-
-        }
-    }
+    TransactionRowListTopBar(
+        transactionHead = transactionHead,
+        onEditTransactionRowClick = onEditTransactionRowClick
+    )
 
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(1.dp),
-        modifier = Modifier
-            .fillMaxSize()
+        verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         itemsIndexed(
             items = transactionRows,
@@ -372,6 +329,36 @@ fun TransactionRowList(
     }
 }
 
+@Composable
+fun TransactionRowListTopBar(
+    transactionHead: TransactionHead,
+    onEditTransactionRowClick: (Long, Long) -> Unit
+) {
+    Surface(modifier = Modifier.wrapContentSize()) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.rows),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            IconButton(
+                onClick = { onEditTransactionRowClick(transactionHead.id, TransactionRow().id) }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "",
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun TransactionRowListItem(
@@ -382,119 +369,103 @@ fun TransactionRowListItem(
     onEditTransactionRowClick: (Long, Long) -> Unit,
     onEvent: (TransactionHeadAndRowsUiEvent) -> Unit
 ) {
-    Row(
+    val showDialog = rememberSaveable { mutableStateOf(false) }
+
+    if (showDialog.value) {
+        ConfirmationDialog(
+            title = stringResource(R.string.remove),
+            text = stringResource(R.string.remove_transaction_row_confirmation),
+            confirmButtonText = stringResource(R.string.yes),
+            onConfirm = { delete(onEvent, transactionRow) },
+            onDismissRequest = { showDialog.value = false }
+        )
+    }
+
+    Surface(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = LocalIndication.current
-            )
-            { toggleExpanded() }
+            .wrapContentSize()
+            .clickable { toggleExpanded() }
             .animateContentSize()
     ) {
-        Text(
-            text = "${transactionRow.transactionRowNo}",
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .align(Alignment.Top)
-                .padding(12.dp)
-        )
+        Row(modifier = Modifier.padding(12.dp)) {
+            Text(
+                text = "${transactionRow.transactionRowNo}",
+                modifier = Modifier.align(Alignment.Top)
+            )
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            Row {
-                Column(
-                    modifier = Modifier
-                        .weight(2f)
-                ) {
-                    TextWithLabel(
-                        label = "Titel",
-                        text = transactionRow.name,
-                        modifier = Modifier.padding(
-                            top = 6.dp,
-                            bottom = 3.dp,
-                            start = 0.dp,
-                            end = 0.dp
-                        )
-                    )
+            Spacer(modifier = Modifier.width(12.dp))
 
-                    TextWithLabel(
-                        label = "Typ",
-                        text = transactionRow.typeOfTransactionCode?.value ?: "",
-                        modifier = Modifier.padding(
-                            top = 3.dp,
-                            bottom = 6.dp,
-                            start = 0.dp,
-                            end = 0.dp
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                Row {
+                    Column(modifier = Modifier.weight(2f)) {
+                        TextWithLabel(
+                            label = stringResource(R.string.title),
+                            text = transactionRow.name,
                         )
-                    )
-                }
 
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    TextWithLabel(
-                        label = "Datum",
-                        text = "${transactionRow.paymentDate}",
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.padding(
-                            top = 6.dp,
-                            bottom = 3.dp,
-                            start = 0.dp,
-                            end = 6.dp
-                        )
-                    )
+                        Spacer(modifier = Modifier.height(6.dp))
 
-                    TextWithLabel(
-                        label = "Belopp",
-                        text = "${transactionRow.amount}",
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.padding(
-                            top = 3.dp,
-                            bottom = 6.dp,
-                            start = 0.dp,
-                            end = 6.dp
+                        TextWithLabel(
+                            label = stringResource(R.string.type),
+                            text = transactionRow.typeOfTransactionCode?.value ?: "",
                         )
-                    )
-                }
-            }
-
-            if (expanded) {
-                if (!transactionRow.description.isNullOrBlank()) {
-                    TextWithLabel(
-                        label = "Beskrivning",
-                        text = transactionRow.description ?: "",
-                        textSoftWrap = true,
-                        modifier = Modifier.padding(
-                            top = 0.dp,
-                            bottom = 0.dp,
-                            start = 0.dp,
-                            end = 6.dp
-                        )
-                    )
-                }
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = {
-                        onEditTransactionRowClick(
-                            transactionHead.id,
-                            transactionRow.id
-                        )
-                    }) {
-                        Text(text = "Redigera", color = MaterialTheme.colorScheme.onSurface)
                     }
 
-                    TextButton(onClick = {
-                        onEvent(TransactionHeadAndRowsUiEvent.DeleteRow(transactionRow = transactionRow))
-                    }) {
-                        Text(text = "Ta bort", color = MaterialTheme.colorScheme.onSurface)
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        TextWithLabel(
+                            label = stringResource(R.string.date),
+                            text = "${transactionRow.paymentDate}",
+                            horizontalAlignment = Alignment.End,
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        TextWithLabel(
+                            label = stringResource(R.string.amount),
+                            text = "${transactionRow.amount}",
+                            horizontalAlignment = Alignment.End,
+                        )
+                    }
+                }
+
+                if (expanded) {
+                    transactionRow.description.takeIf { !it.isNullOrBlank() }?.let { description ->
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        TextWithLabel(
+                            label = stringResource(R.string.description),
+                            text = description,
+                            textSoftWrap = true,
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextButton(onClick = {
+                            onEditTransactionRowClick(
+                                transactionHead.id,
+                                transactionRow.id
+                            )
+                        }) {
+                            Text(text = stringResource(R.string.edit))
+                        }
+
+                        TextButton(onClick = {
+                            showDialog.value = true
+                        }) {
+                            Text(text = stringResource(R.string.remove))
+                        }
                     }
                 }
             }
@@ -540,6 +511,33 @@ fun TransactionRowListItemPreview() {
     )
 
     var expanded by rememberSaveable { mutableStateOf(false) }
+
+    HomeBankFrontTheme {
+        TransactionRowListItem(
+            transactionHead = transactionHead,
+            transactionRow = transactionRow,
+            expanded = expanded,
+            toggleExpanded = { expanded = !expanded },
+            onEditTransactionRowClick = { _, _ -> },
+            onEvent = {}
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+fun TransactionRowListItemExpandedPreview() {
+    val transactionHead = TransactionHead()
+    val transactionRow = TransactionRow(
+        transactionRowNo = 1,
+        name = "TestTestTestTestTestTestTest",
+        typeOfTransactionCode = TransactionRow.Type.PAYBACK,
+        amount = 555,
+        paymentDate = LocalDate.now(),
+        description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    )
+
+    var expanded by rememberSaveable { mutableStateOf(true) }
 
     HomeBankFrontTheme {
         TransactionRowListItem(

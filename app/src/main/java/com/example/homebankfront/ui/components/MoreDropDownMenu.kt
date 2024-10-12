@@ -28,7 +28,10 @@ fun MoreDropDownMenu(
             map.forEach { (text, onClick) ->
                 DropdownMenuItem(
                     text = { Text(text = text) },
-                    onClick = onClick
+                    onClick = {
+                        expanded.value = false
+                        onClick()
+                    }
                 )
             }
         }

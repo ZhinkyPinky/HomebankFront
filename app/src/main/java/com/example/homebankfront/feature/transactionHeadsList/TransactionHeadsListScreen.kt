@@ -1,15 +1,15 @@
 package com.example.homebankfront.feature.transactionHeadsList
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -19,19 +19,20 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
 import com.example.homebankfront.ui.components.TextWithLabel
@@ -109,14 +110,7 @@ fun TransactionHeadsListScreen(
                             contentDescription = ""
                         )
                     }
-                },
-                colors = TopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
-                )
+                }
             )
         }
     ) { paddingValues ->
@@ -126,7 +120,6 @@ fun TransactionHeadsListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)
         ) {
             transactionHeadList(
                 customerId = customer.id,
@@ -146,54 +139,67 @@ fun LazyListScope.transactionHeadList(
         items = transactionHeads,
         key = { _, transactionHead -> transactionHead.id }
     ) { _, transactionHead ->
+        TransactionHeadsListItem(
+            customerId = customerId,
+            transactionHead = transactionHead,
+            onTransactionHeadClick = onTransactionHeadClick
+        )
+    }
+}
+
+@Composable
+fun TransactionHeadsListItem(
+    customerId: Long,
+    transactionHead: TransactionHead,
+    onTransactionHeadClick: (Long, Long) -> Unit
+) {
+    Surface(
+        modifier = Modifier.clickable {
+            onTransactionHeadClick(
+                customerId,
+                transactionHead.id
+            )
+        }
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
-                .background(MaterialTheme.colorScheme.surface)
-                .clickable {
-                    onTransactionHeadClick(
-                        customerId,
-                        transactionHead.id
-                    )
-                }
+                .padding(12.dp)
         ) {
-
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 TextWithLabel(
-                    label = if (customerId == transactionHead.lenderId) "Till" else "Från",
-                    text = if (customerId == transactionHead.lenderId) {
-                        transactionHead.borrower ?: ""
-                    } else {
-                        transactionHead.lender ?: ""
+                    label = when (customerId) {
+                        transactionHead.lenderId -> stringResource(R.string.to)
+                        transactionHead.borrowerId -> stringResource(R.string.from)
+                        else -> "Error: Fel id"
+                    },
+                    text = when (customerId) {
+                        transactionHead.lenderId -> transactionHead.borrower ?: ""
+                        transactionHead.borrowerId  ->transactionHead.lender ?: ""
+                        else -> "Error: Fel id"
                     }
                 )
 
+                Spacer(modifier = Modifier.height(6.dp))
+
                 TextWithLabel(
-                    label = "Titel",
+                    label = stringResource(R.string.title),
                     text = transactionHead.transactionName ?: ""
                 )
-
             }
 
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 TextWithLabel(
-                    label = "Startdatum",
+                    label = stringResource(R.string.start_date),
                     text = transactionHead.startDate.toString(),
                     horizontalAlignment = Alignment.End
                 )
 
+                Spacer(modifier = Modifier.height(6.dp))
+
                 TextWithLabel(
-                    label = "Saldo",
+                    label = stringResource(R.string.balance),
                     text = transactionHead.amount.toString(),
                     horizontalAlignment = Alignment.End
                 )
