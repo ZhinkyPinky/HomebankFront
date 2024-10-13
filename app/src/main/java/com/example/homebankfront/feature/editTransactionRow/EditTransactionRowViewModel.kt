@@ -3,7 +3,6 @@ package com.example.homebankfront.feature.editTransactionRow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.homebankfront.data.bodies.TransactionRow
 import com.example.homebankfront.feature.editTransactionRow.domain.GetTransactionRowUseCase
 import com.example.homebankfront.feature.editTransactionRow.domain.SaveTransactionRowUseCase
 import com.example.homebankfront.feature.utility.Event

@@ -18,15 +18,14 @@ class CustomerListViewModel @Inject constructor(
         MutableStateFlow(CustomerListState.Loading)
     val customerListState = _customerListState.asStateFlow()
 
-    fun getCustomers() {
+    fun getCustomers() = viewModelScope.launch {
         _customerListState.update { CustomerListState.Loading }
 
-        viewModelScope.launch {
-            _customerListState.update {
-                CustomerListState.Ready(
-                    customers = getCustomersUseCase()
-                )
-            }
+        _customerListState.update {
+            CustomerListState.Ready(
+                customers = getCustomersUseCase()
+            )
         }
     }
 }
+

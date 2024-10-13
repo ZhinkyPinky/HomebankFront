@@ -9,8 +9,8 @@ import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun rememberHomebankAppState(
-    navController : NavHostController = rememberNavController(),
-    context : Context = LocalContext.current
+    navController: NavHostController = rememberNavController(),
+    context: Context = LocalContext.current
 ) = remember(
     navController,
     context
@@ -22,10 +22,14 @@ fun rememberHomebankAppState(
 }
 
 class HomebankAppState(
-    val navController : NavHostController,
-    val context : Context
+    val navController: NavHostController,
+    val context: Context
 ) {
     fun navigateBack() {
-        navController.popBackStack()
+        when (!navController.popBackStack()) {
+            true -> navController.popBackStack()
+            false -> {
+            }
+        }
     }
 }

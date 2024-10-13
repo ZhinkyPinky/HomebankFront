@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,7 +19,6 @@ import com.example.homebankfront.ui.theme.ThemePreviews
 fun TextWithLabel(
     modifier: Modifier = Modifier,
     label: String,
-    labelColor: Color = MaterialTheme.colorScheme.onSurface,
     text: String,
     textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     textSoftWrap: Boolean = false,
@@ -34,8 +34,7 @@ fun TextWithLabel(
     ) {
         Text(
             text = label,
-            color = labelColor,
-            fontSize = 12.sp
+            style = MaterialTheme.typography.labelSmall,
         )
 
         Text(
@@ -51,9 +50,11 @@ fun TextWithLabel(
 @Composable
 fun TextWithLabelPreview() {
     HomeBankFrontTheme {
-        TextWithLabel(
-            label = "Label",
-            text = "Text"
-        )
+        Surface {
+            TextWithLabel(
+                label = "Label",
+                text = "Text"
+            )
+        }
     }
 }

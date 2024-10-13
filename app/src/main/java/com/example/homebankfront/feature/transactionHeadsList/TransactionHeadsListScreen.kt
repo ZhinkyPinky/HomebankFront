@@ -121,29 +121,17 @@ fun TransactionHeadsListScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            transactionHeadList(
-                customerId = customer.id,
-                transactionHeads = transactionHeads,
-                onTransactionHeadClick = onTransactionHeadClick,
-            )
+            itemsIndexed(
+                items = transactionHeads,
+                key = { _, transactionHead -> transactionHead.id }
+            ) { _, transactionHead ->
+                TransactionHeadsListItem(
+                    customerId = customer.id,
+                    transactionHead = transactionHead,
+                    onTransactionHeadClick = onTransactionHeadClick
+                )
+            }
         }
-    }
-}
-
-fun LazyListScope.transactionHeadList(
-    customerId: Long,
-    transactionHeads: List<TransactionHead>,
-    onTransactionHeadClick: (Long, Long) -> Unit,
-) {
-    itemsIndexed(
-        items = transactionHeads,
-        key = { _, transactionHead -> transactionHead.id }
-    ) { _, transactionHead ->
-        TransactionHeadsListItem(
-            customerId = customerId,
-            transactionHead = transactionHead,
-            onTransactionHeadClick = onTransactionHeadClick
-        )
     }
 }
 
@@ -169,6 +157,13 @@ fun TransactionHeadsListItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 TextWithLabel(
+                    label = stringResource(R.string.title),
+                    text = transactionHead.transactionName ?: ""
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                TextWithLabel(
                     label = when (customerId) {
                         transactionHead.lenderId -> stringResource(R.string.to)
                         transactionHead.borrowerId -> stringResource(R.string.from)
@@ -176,16 +171,9 @@ fun TransactionHeadsListItem(
                     },
                     text = when (customerId) {
                         transactionHead.lenderId -> transactionHead.borrower ?: ""
-                        transactionHead.borrowerId  ->transactionHead.lender ?: ""
+                        transactionHead.borrowerId -> transactionHead.lender ?: ""
                         else -> "Error: Fel id"
                     }
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                TextWithLabel(
-                    label = stringResource(R.string.title),
-                    text = transactionHead.transactionName ?: ""
                 )
             }
 

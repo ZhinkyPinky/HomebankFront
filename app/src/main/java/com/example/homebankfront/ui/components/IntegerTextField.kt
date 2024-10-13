@@ -41,21 +41,15 @@ fun IntegerTextField(
             val bigIntegerValue = newText.toBigIntegerOrNull()
 
             textFieldValue = when {
-                newText.isBlank() -> {
+                newText.isBlank() || ((newText.length == 1) && (bigIntegerValue == null)) -> {
                     it.copy(text = "0", selection = TextRange(1))
                 }
 
-                newText.last().digitToIntOrNull() == null -> {
-                    textFieldValue
-                }
+                bigIntegerValue != null && bigIntegerValue <= Int.MAX_VALUE.toBigInteger() -> {
+                    val intValue = newText.toInt().toString()
+                    onValueChange(intValue)
+                    it.copy(text = intValue)
 
-                bigIntegerValue == null -> {
-                    it.copy(text = "0", selection = TextRange(1))
-                }
-
-                bigIntegerValue <= Int.MAX_VALUE.toBigInteger() -> {
-                    val intValue = newText.toIntOrNull() ?: 0
-                    it.copy(text = intValue.toString(), selection = TextRange(it.selection.end))
                 }
 
                 else -> {
@@ -63,7 +57,7 @@ fun IntegerTextField(
                 }
             }
 
-            onValueChange(textFieldValue.text)
+
         },
         label = { Text(text = label) },
         singleLine = maxLines == 1,

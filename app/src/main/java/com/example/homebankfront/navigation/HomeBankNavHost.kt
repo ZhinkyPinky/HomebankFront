@@ -34,17 +34,17 @@ fun HomeBankNavHost(
         transactionHeadsListScreen(
             onNewTransactionHeadClick = navController::navigateToEditTransactionHead,
             onTransactionHeadClick = navController::navigateToTransactionHeadAndRows,
-            onBackClick = navController::popBackStack
+            onBackClick = navController::navigateUp
         )
 
         transactionHeadAndRowsScreen(
-            onBackClick = navController::popBackStack,
+            onBackClick = navController::navigateUp,
             onEditTransactionHeadClick = navController::navigateToEditTransactionHead,
             onEditTransactionRowClick = navController::navigateToEditTransactionRow
         )
 
-        editTransactionHeadScreen(onBackClick = navController::popBackStack)
+        editTransactionHeadScreen(onBackClick = navController::navigateUp)
 
-        editTransactionRowScreen(onBackClick = navController::popBackStack)
+        editTransactionRowScreen(onBackClick = navController::navigateUp)
     }
 }

@@ -93,7 +93,10 @@ fun EditTransactionRowScreen(
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                Text(text = stringResource(R.string.edit))
+                Text(text = when(transactionRow.id) {
+                    -1L -> ""
+                    else -> stringResource(R.string.edit)
+                })
             }, navigationIcon = {
                 IconButton(
                     onClick = { onBackClick() },

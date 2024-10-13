@@ -390,6 +390,7 @@ fun TransactionRowListItem(
         Row(modifier = Modifier.padding(12.dp)) {
             Text(
                 text = "${transactionRow.transactionRowNo}",
+                style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.align(Alignment.Top)
             )
 
