@@ -4,19 +4,18 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.homebankfront.feature.customerList.CustomerListRoute
+import kotlinx.serialization.Serializable
 
-const val CUSTOMER_LIST_ROUTE = "customers"
+@Serializable
+data object CustomerList
 
-fun NavController.navigateToCustomerList() = navigate(
-    route = CUSTOMER_LIST_ROUTE,
-)
+
+fun NavController.navigateToCustomerList() = navigate(route = CustomerList)
 
 fun NavGraphBuilder.customerListScreen(
-    onCustomerClick : (Long) -> Unit
+    onCustomerClick: (Long) -> Unit
 ) {
-    composable(route = CUSTOMER_LIST_ROUTE) {
-        CustomerListRoute(
-            onCustomerClick = onCustomerClick
-        )
+    composable<CustomerList> {
+        CustomerListRoute(onCustomerClick = onCustomerClick)
     }
 }

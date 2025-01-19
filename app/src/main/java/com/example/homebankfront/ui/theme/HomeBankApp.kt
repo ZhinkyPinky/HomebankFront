@@ -1,13 +1,12 @@
 package com.example.homebankfront.ui.theme
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import com.example.homebankfront.ui.components.HomeBankBackground
 import com.example.homebankfront.navigation.HomeBankNavHost
 import com.example.homebankfront.ui.HomebankAppState
+import com.example.homebankfront.ui.components.HomeBankBackground
 import com.example.homebankfront.ui.rememberHomebankAppState
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
 @Composable
 fun HomeBankApp(appState: HomebankAppState = rememberHomebankAppState()) {
     HomeBankBackground {

@@ -55,7 +55,6 @@ class EditTransactionHeadViewModel @Inject constructor(
         is EditTransactionHeadUiEvent.Save -> save()
     }
 
-
     private fun update(field: EditTransactionHeadField) = _state.update { currentState ->
         if (currentState is EditTransactionHeadState.Ready) {
             var transactionHead = currentState.transactionHead

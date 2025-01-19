@@ -94,7 +94,19 @@ fun TransactionHeadsListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = customer.name) },
+                title = {
+                    Row {
+                        Text(
+                            text = customer.name,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Text(
+                            text = customer.customerAmount.toString(),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(

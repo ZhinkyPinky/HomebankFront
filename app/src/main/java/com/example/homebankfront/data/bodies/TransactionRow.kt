@@ -10,7 +10,7 @@ data class TransactionRow(
     val typeOfTransactionCode: Type? = null,
     val name: String = "",
     val description: String? = null,
-    val paymentDate: LocalDate? = null,
+    val paymentDate: LocalDate? = LocalDate.now(),
     val amount: Int = 0,
     val transactionName: String? = null,
     val typeOfTransaction: String? = null,

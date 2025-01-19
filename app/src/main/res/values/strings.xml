@@ -23,4 +23,10 @@
     <string name="rows">Rader</string>
     <string name="transaction">Transaktion</string>
     <string name="remove_transaction_head_confirmation">Är du säker på att du vill ta bort transaktions huvudet?</string>
+    <string name="password">Lösenord</string>
+    <string name="sign_in">Logga in</string>
+    <string name="registration">Registrering</string>
+    <string name="username">Användarnamn</string>
+    <string name="register">Registrera</string>
+    <string name="email">Email</string>
 </resources>

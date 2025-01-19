@@ -29,7 +29,8 @@ sealed interface EditTransactionHeadField {
 fun updateTransactionName(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     transactionName: String
-) = onEvent(
+) =
+    onEvent(
     EditTransactionHeadUiEvent.UpdateField(
         EditTransactionHeadField.TransactionName(
             transactionName = transactionName

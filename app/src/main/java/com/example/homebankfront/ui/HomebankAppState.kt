@@ -24,12 +24,4 @@ fun rememberHomebankAppState(
 class HomebankAppState(
     val navController: NavHostController,
     val context: Context
-) {
-    fun navigateBack() {
-        when (!navController.popBackStack()) {
-            true -> navController.popBackStack()
-            false -> {
-            }
-        }
-    }
-}
+)

@@ -27,7 +27,8 @@ import com.example.homebankfront.ui.theme.ThemePreviews
 
 @Composable
 internal fun CustomerListRoute(
-    viewModel: CustomerListViewModel = hiltViewModel(), onCustomerClick: (Long) -> Unit
+    viewModel: CustomerListViewModel = hiltViewModel(),
+    onCustomerClick: (Long) -> Unit
 ) {
     val customerListState: CustomerListState by viewModel.customerListState.collectAsStateWithLifecycle()
 
@@ -92,7 +93,7 @@ fun LazyListScope.customerList(
 ) {
     itemsIndexed(
         items = customers
-    ) { index, customer ->
+    ) { _, customer ->
         TextButton(onClick = { onCustomerClick(customer.id) }) {
             Text(
                 text = customer.name,

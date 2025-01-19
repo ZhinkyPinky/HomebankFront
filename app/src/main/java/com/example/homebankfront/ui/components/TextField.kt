@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 fun TextField(
     modifier: Modifier = Modifier,
     label: String,
-    text: String,
+    text: String = "",
     maxLines: Int = 1,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onValueChange: (String) -> Unit,

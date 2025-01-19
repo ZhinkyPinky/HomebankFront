@@ -178,7 +178,7 @@ fun TransactionHeadInfo(
     Surface {
         Column(modifier = Modifier.padding(12.dp)) {
             Row {
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.weight(2f)) {
                     TextWithLabel(
                         label = stringResource(R.string.title),
                         text = transactionHead.transactionName ?: "",
@@ -186,7 +186,7 @@ fun TransactionHeadInfo(
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    Row {
+                    Row(horizontalArrangement = Arrangement.Start) {
                         TextWithLabel(
                             label = stringResource(R.string.lender),
                             text = transactionHead.lender ?: "",
@@ -196,7 +196,7 @@ fun TransactionHeadInfo(
                         TextWithLabel(
                             label = stringResource(R.string.borrower),
                             text = transactionHead.borrower ?: "",
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(2f)
                         )
                     }
 
@@ -479,7 +479,7 @@ fun TransactionRowListItem(
 fun TransactionHeadInfoPreview() {
     val customer = Customer()
     val transactionHead = TransactionHead(
-        transactionName = "Test",
+        transactionName = "TestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTest",
         lender = "Test",
         borrower = "Test",
         startDate = LocalDate.now(),
