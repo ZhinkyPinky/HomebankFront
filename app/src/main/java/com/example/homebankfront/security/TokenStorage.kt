@@ -8,4 +8,5 @@ interface TokenStorage {
     fun getAccessToken(): String?
     fun saveRefreshToken(refreshToken: String)
     fun getRefreshToken(): String?
+    fun clearTokens()
 }

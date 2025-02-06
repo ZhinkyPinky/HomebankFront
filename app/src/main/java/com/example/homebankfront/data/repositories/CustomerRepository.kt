@@ -1,27 +1,27 @@
 package com.example.homebankfront.data.repositories
 
-import com.example.homebankfront.data.services.ApiService
+import com.example.homebankfront.data.remote.services.CustomerService
 import javax.inject.Inject
 
 class CustomerRepository @Inject constructor(
-    private val apiService: ApiService
+    private val customerService: CustomerService
 ) {
-    suspend fun getCustomers() = apiService.getCustomers()
+    suspend fun getCustomers() = customerService.getCustomers()
 
     suspend fun getCustomersAndTransactionHead(transactionHeadId: Long) =
-        apiService.getCustomersAndTransactionHead(transactionHeadId = transactionHeadId)
+        customerService.getCustomersAndTransactionHead(transactionHeadId = transactionHeadId)
 
     suspend fun getCustomerAndTransactionHead(customerId: Long, transactionHeadId: Long) =
-        apiService.getCustomerAndTransactionHead(
+        customerService.getCustomerAndTransactionHead(
             customerId = customerId,
             transactionHeadId = transactionHeadId
         )
 
     suspend fun getCustomerAndTransactionHeads(customerId: Long) =
-        apiService.getCustomerAndTransactionHeads(customerId = customerId)
+        customerService.getCustomerAndTransactionHeads(customerId = customerId)
 
     suspend fun getCustomerAndTransactionHeadAndRows(customerId: Long, transactionHeadId: Long) =
-        apiService.getCustomerAndTransactionHeadAndRows(
+        customerService.getCustomerTransactionHeadAndRows(
             customerId = customerId,
             transactionHeadId = transactionHeadId
         )

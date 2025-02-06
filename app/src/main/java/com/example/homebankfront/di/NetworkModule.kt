@@ -1,12 +1,14 @@
-package com.example.homebankfront.hilt
+package com.example.homebankfront.di
 
-import com.example.homebankfront.data.AuthInterceptor
-import com.example.homebankfront.data.services.ApiService
+import com.example.homebankfront.network.HTTPErrorHandlerContext
+import com.example.homebankfront.network.RequestInterceptor
 import com.example.homebankfront.data.LocalDateAdapter
 import com.example.homebankfront.data.LocalDateTimeAdapter
-import com.example.homebankfront.data.repositories.AuthRepository
-import com.example.homebankfront.data.services.AuthService
-import com.example.homebankfront.data.services.TransactionHeadService
+import com.example.homebankfront.network.RequestHandler
+import com.example.homebankfront.data.remote.services.CustomerService
+import com.example.homebankfront.data.remote.services.AuthService
+import com.example.homebankfront.data.remote.services.TransactionHeadService
+import com.example.homebankfront.data.remote.services.TransactionRowService
 import com.example.homebankfront.security.TokenStorage
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -21,6 +23,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Singleton
 
+private const val LOCAL_URL = "http://192.168.68.87:8080"
+private const val AZURE_URL =
+    "https://homebank-api.livelyhill-daa2c63f.northeurope.azurecontainerapps.io"
+
+private const val BASE_URL = AZURE_URL
+
 @Module
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
@@ -28,7 +36,7 @@ class NetworkModule {
     @Singleton
     fun provideRetroFit(client: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://192.168.68.87:8080/")
+            .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
@@ -52,14 +60,14 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
-        return OkHttpClient.Builder().addInterceptor(authInterceptor).build()
+    fun provideOkHttpClient(requestInterceptor: RequestInterceptor): OkHttpClient {
+        return OkHttpClient.Builder().addInterceptor(requestInterceptor).build()
     }
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): ApiService {
-        return retrofit.create(ApiService::class.java)
+    fun provideApiService(retrofit: Retrofit): CustomerService {
+        return retrofit.create(CustomerService::class.java)
     }
 
     @Provides
@@ -76,10 +84,22 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAuthInterceptor(
+    fun provideTransactionRowService(retrofit: Retrofit): TransactionRowService {
+        return retrofit.create(TransactionRowService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRequestInterceptor(requestHandler: RequestHandler): RequestInterceptor {
+        return RequestInterceptor(requestHandler)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRequestHandler(
         tokenStorage: TokenStorage,
-        authService: AuthService
-    ): AuthInterceptor {
-        return AuthInterceptor(tokenStorage, authService)
+        errorHandlerContext: HTTPErrorHandlerContext
+    ): RequestHandler {
+        return RequestHandler(tokenStorage, errorHandlerContext)
     }
 }

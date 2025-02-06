@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.homebankfront.feature.transactionHeadsList.TransactionHeadsListRoute
+import com.example.homebankfront.feature.transactionHeadsList.TransactionHeadsScreen
 
 fun NavController.navigateToTransactionHeadsList(
     customerId: Long,
@@ -22,7 +22,7 @@ fun NavGraphBuilder.transactionHeadsListScreen(
         route = "customers/{customerId}/transactionHeads",
         arguments = listOf(navArgument("customerId") { type = NavType.LongType })
     ) {
-        TransactionHeadsListRoute(
+        TransactionHeadsScreen(
             onNewTransactionHeadClick = onNewTransactionHeadClick,
             onTransactionHeadClick = onTransactionHeadClick,
             onBackClick = onBackClick

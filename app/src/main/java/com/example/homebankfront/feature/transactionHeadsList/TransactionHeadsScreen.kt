@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -39,7 +38,7 @@ import com.example.homebankfront.ui.components.TextWithLabel
 
 
 @Composable
-internal fun TransactionHeadsListRoute(
+internal fun TransactionHeadsScreen(
     viewModel: TransactionHeadsListViewModel = hiltViewModel(),
     onNewTransactionHeadClick: (Long, Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
@@ -51,7 +50,7 @@ internal fun TransactionHeadsListRoute(
         viewModel.getCustomerAndTransactionHeads()
     }
 
-    TransactionHeadsListScreen(
+    TransactionHeadsScreen(
         transactionHeadsListState = transactionHeadsListState,
         onNewTransactionHeadClick = onNewTransactionHeadClick,
         onTransactionHeadClick = onTransactionHeadClick,
@@ -60,7 +59,7 @@ internal fun TransactionHeadsListRoute(
 }
 
 @Composable
-fun TransactionHeadsListScreen(
+fun TransactionHeadsScreen(
     transactionHeadsListState: TransactionHeadsListState,
     onNewTransactionHeadClick: (Long, Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
@@ -70,7 +69,7 @@ fun TransactionHeadsListScreen(
         is TransactionHeadsListState.Loading -> {}
 
         is TransactionHeadsListState.Ready -> {
-            TransactionHeadsListScreen(
+            TransactionHeadsScreen(
                 customer = transactionHeadsListState.customer,
                 transactionHeads = transactionHeadsListState.transactionHeads,
                 onNewTransactionHeadClick = onNewTransactionHeadClick,
@@ -84,7 +83,7 @@ fun TransactionHeadsListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionHeadsListScreen(
+fun TransactionHeadsScreen(
     customer: Customer,
     transactionHeads: List<TransactionHead>,
     onNewTransactionHeadClick: (Long, Long) -> Unit,
@@ -94,19 +93,7 @@ fun TransactionHeadsListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Row {
-                        Text(
-                            text = customer.name,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        Text(
-                            text = customer.customerAmount.toString(),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                },
+                title = { Row { Text(text = "${customer.name} (${customer.customerAmount} kr)") } },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(
@@ -137,7 +124,7 @@ fun TransactionHeadsListScreen(
                 items = transactionHeads,
                 key = { _, transactionHead -> transactionHead.id }
             ) { _, transactionHead ->
-                TransactionHeadsListItem(
+                TransactionHeadItem(
                     customerId = customer.id,
                     transactionHead = transactionHead,
                     onTransactionHeadClick = onTransactionHeadClick
@@ -148,7 +135,7 @@ fun TransactionHeadsListScreen(
 }
 
 @Composable
-fun TransactionHeadsListItem(
+fun TransactionHeadItem(
     customerId: Long,
     transactionHead: TransactionHead,
     onTransactionHeadClick: (Long, Long) -> Unit

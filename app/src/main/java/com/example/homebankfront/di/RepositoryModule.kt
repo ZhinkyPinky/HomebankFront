@@ -1,13 +1,14 @@
-package com.example.homebankfront.hilt
+package com.example.homebankfront.di
 
 import com.example.homebankfront.data.repositories.AccountRepository
 import com.example.homebankfront.data.repositories.AuthRepository
-import com.example.homebankfront.data.services.ApiService
+import com.example.homebankfront.data.remote.services.CustomerService
 import com.example.homebankfront.data.repositories.CustomerRepository
 import com.example.homebankfront.data.repositories.TransactionHeadRepository
 import com.example.homebankfront.data.repositories.TransactionRowRepository
-import com.example.homebankfront.data.services.AuthService
-import com.example.homebankfront.security.SecureStorage
+import com.example.homebankfront.data.remote.services.AuthService
+import com.example.homebankfront.data.remote.services.TransactionHeadService
+import com.example.homebankfront.data.remote.services.TransactionRowService
 import com.example.homebankfront.security.TokenStorage
 import dagger.Module
 import dagger.Provides
@@ -20,18 +21,18 @@ import javax.inject.Singleton
 class RepositoryModule {
     @Provides
     @Singleton
-    fun provideCustomerRepository(apiService: ApiService): CustomerRepository =
-        CustomerRepository(apiService)
+    fun provideCustomerRepository(customerService: CustomerService): CustomerRepository =
+        CustomerRepository(customerService)
 
     @Provides
     @Singleton
-    fun provideTransactionHeadRepository(apiService: ApiService): TransactionHeadRepository =
-        TransactionHeadRepository(apiService)
+    fun provideTransactionHeadRepository(transactionHeadService: TransactionHeadService): TransactionHeadRepository =
+        TransactionHeadRepository(transactionHeadService)
 
     @Provides
     @Singleton
-    fun provideTransactionRowRepository(apiService: ApiService): TransactionRowRepository =
-        TransactionRowRepository(apiService)
+    fun provideTransactionRowRepository(transactionRowService: TransactionRowService): TransactionRowRepository =
+        TransactionRowRepository(transactionRowService)
 
     @Provides
     @Singleton

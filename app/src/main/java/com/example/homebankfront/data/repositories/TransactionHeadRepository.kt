@@ -1,15 +1,15 @@
 package com.example.homebankfront.data.repositories
 
-import com.example.homebankfront.data.services.ApiService
 import com.example.homebankfront.data.bodies.TransactionHead
+import com.example.homebankfront.data.remote.services.TransactionHeadService
 import javax.inject.Inject
 
 class TransactionHeadRepository @Inject constructor(
-    private val apiService: ApiService
+    private val transactionHeadService: TransactionHeadService
 ) {
     suspend fun saveTransactionHead(transactionHead: TransactionHead) =
-        apiService.saveTransactionHead(transactionHead)
+        transactionHeadService.saveTransactionHead(transactionHead)
 
     suspend fun deleteTransactionHead(transactionHead: TransactionHead) =
-        apiService.deleteTransactionHead(transactionHead)
+        transactionHeadService.deleteTransactionHead(transactionHead)
 }

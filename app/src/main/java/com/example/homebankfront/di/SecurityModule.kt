@@ -1,4 +1,4 @@
-package com.example.homebankfront.hilt
+package com.example.homebankfront.di
 
 import android.content.Context
 import com.example.homebankfront.security.SecureStorage

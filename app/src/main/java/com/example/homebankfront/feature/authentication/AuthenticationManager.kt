@@ -10,6 +10,8 @@ import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.exceptions.GetCredentialException
 import com.example.homebankfront.data.bodies.AuthenticationRequest
+import com.example.homebankfront.security.SecureTokenStorage
+import com.example.homebankfront.security.TokenStorage
 import javax.inject.Inject
 
 class AuthenticationManager @Inject constructor(
@@ -30,7 +32,7 @@ class AuthenticationManager @Inject constructor(
     }
 
     suspend fun signIn(): AuthenticationRequest {
-        var authenticationRequest: AuthenticationRequest = AuthenticationRequest("", "")
+        var authenticationRequest = AuthenticationRequest("", "")
 
         try {
             val request = GetCredentialRequest(credentialOptions = listOf(GetPasswordOption()))
@@ -59,9 +61,7 @@ class AuthenticationManager @Inject constructor(
     }
 
     fun handleSignIn(result: GetCredentialResponse): AuthenticationRequest {
-        val credential = result.credential
-
-        when (credential) {
+        when (val credential = result.credential) {
             is PasswordCredential -> {
                 val username: String = credential.id
                 val password: String = credential.password

@@ -18,4 +18,6 @@ class SecureTokenStorage @Inject constructor(private val secureStorage: SecureSt
         secureStorage.saveString(REFRESH_TOKEN_KEY, refreshToken)
 
     override fun getRefreshToken(): String? = secureStorage.getString(REFRESH_TOKEN_KEY)
+
+    override fun clearTokens() = secureStorage.clear()
 }

@@ -3,7 +3,7 @@ package com.example.homebankfront.data.repositories
 import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.data.bodies.Registration
 import com.example.homebankfront.data.bodies.AuthenticationResponse
-import com.example.homebankfront.data.services.AuthService
+import com.example.homebankfront.data.remote.services.AuthService
 import com.example.homebankfront.feature.utility.Result
 import com.example.homebankfront.security.TokenStorage
 import retrofit2.Response
@@ -31,6 +31,11 @@ class AuthRepository @Inject constructor(
             tokenStorage.saveAccessToken(body.accessToken)
             tokenStorage.saveRefreshToken(body.refreshToken)
         }
+    }
+
+    suspend fun logout(){
+        tokenStorage.clearTokens()
+        authService.logout()
     }
 
     private fun handleResponse(

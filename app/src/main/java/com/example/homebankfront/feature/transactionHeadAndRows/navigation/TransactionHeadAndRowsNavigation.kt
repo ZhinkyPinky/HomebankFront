@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.homebankfront.feature.transactionHeadAndRows.TransactionHeadAndRowsRoute
+import com.example.homebankfront.feature.transactionHeadAndRows.TransactionHeadAndRowsScreen
 
 fun NavController.navigateToTransactionHeadAndRows(
     customerId : Long,
@@ -25,7 +25,7 @@ fun NavGraphBuilder.transactionHeadAndRowsScreen(
             navArgument("customerId") { type = NavType.LongType },
             navArgument("transactionHeadId") { type = NavType.LongType })
     ) {
-        TransactionHeadAndRowsRoute(
+        TransactionHeadAndRowsScreen(
             onBackClick = onBackClick,
             onEditTransactionHeadClick = onEditTransactionHeadClick,
             onEditTransactionRowClick = onEditTransactionRowClick

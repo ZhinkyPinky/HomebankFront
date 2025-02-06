@@ -1,4 +1,4 @@
-package com.example.homebankfront.data.services
+package com.example.homebankfront.data.remote.services
 
 import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.data.bodies.RefreshRequest
@@ -9,12 +9,15 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AuthService {
-    @POST("auth/login")
+    @POST(ApiPaths.LOGIN)
     suspend fun authenticate(@Body authenticationRequest: AuthenticationRequest): Response<AuthenticationResponse>
 
-    @POST("auth/register")
+    @POST(ApiPaths.REGISTER)
     suspend fun register(@Body registration: Registration): Response<AuthenticationResponse>
 
-    @POST("auth/refresh")
-    fun refresh(@Body refreshRequest: RefreshRequest) : Response<AuthenticationResponse>
+    @POST(ApiPaths.REFRESH)
+    suspend fun refresh(@Body refreshRequest: RefreshRequest): Response<AuthenticationResponse>
+
+    @POST(ApiPaths.LOGOUT)
+    suspend fun logout()
 }
