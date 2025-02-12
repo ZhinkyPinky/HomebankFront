@@ -10,8 +10,10 @@ import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.exceptions.GetCredentialException
 import com.example.homebankfront.data.bodies.AuthenticationRequest
+import com.example.homebankfront.feature.utility.Logger
 import com.example.homebankfront.security.SecureTokenStorage
 import com.example.homebankfront.security.TokenStorage
+import kotlinx.coroutines.flow.merge
 import javax.inject.Inject
 
 class AuthenticationManager @Inject constructor(
@@ -20,6 +22,8 @@ class AuthenticationManager @Inject constructor(
     private val credentialManager = CredentialManager.create(activityContext)
 
     suspend fun register(username: String, password: String) {
+        Logger.d(message = "Trying to register $username")
+
         val createPasswordRequest = CreatePasswordRequest(
             id = username,
             password = password

@@ -1,19 +1,25 @@
 package com.example.homebankfront.feature.authentication.navigation
 
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
 import com.example.homebankfront.feature.authentication.AuthenticationScreen
+import com.example.homebankfront.feature.registration.navigation.Registration
 import kotlinx.serialization.Serializable
 
 @Serializable
 data object Authentication
+
+fun NavController.navigateToAuthentication(builder: NavOptionsBuilder.() -> Unit) =
+    navigate(route = Authentication)
 
 fun NavGraphBuilder.authentication(
     onAuthentication: () -> Unit,
     navigateToRegistration: () -> Unit
 ) {
     composable<Authentication> {
-        AuthenticationScreen (
+        AuthenticationScreen(
             onAuthentication = onAuthentication,
             navigateToRegistration = navigateToRegistration
         )

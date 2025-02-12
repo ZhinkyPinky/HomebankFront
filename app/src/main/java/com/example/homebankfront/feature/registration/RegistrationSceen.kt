@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
 import com.example.homebankfront.feature.authentication.AuthenticationManager
 import com.example.homebankfront.feature.registration.RegistrationEvent.Register
@@ -35,6 +36,15 @@ fun RegistrationScreen(
     val state: RegistrationState by viewModel.registrationState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val authenticationManager = remember { AuthenticationManager(context as ComponentActivity) }
+    val snackbarHostState = LocalSnackHostState.current
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect {
+            it.consume()?.let { message ->
+                snackbarHostState.showSnackbar(message)
+            }
+        }
+    }
 
     RegistrationScreen(
         state = state,
@@ -64,10 +74,11 @@ fun RegistrationScreen(
         )
 
         is Success -> LaunchedEffect(Unit) {
-            coroutineScope.launch {
-                register(state.username, state.password)
-                onRegistration()
-            }
+            // coroutineScope.launch {
+            //   register(state.username, state.password)
+            //}.invokeOnCompletion {
+            onRegistration()
+            //}
         }
     }
 }

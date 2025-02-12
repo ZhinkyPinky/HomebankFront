@@ -3,6 +3,7 @@ package com.example.homebankfront.feature.registration.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.example.homebankfront.feature.authentication.navigation.navigateToAuthentication
 import com.example.homebankfront.feature.registration.RegistrationScreen
 import kotlinx.serialization.Serializable
 
@@ -12,9 +13,11 @@ data object Registration
 fun NavController.navigateToRegistration() = navigate(route = Registration)
 
 fun NavGraphBuilder.registration(
-    onRegistration: () -> Unit
+    navController: NavController
 ) {
     composable<Registration> {
-        RegistrationScreen(onRegistration = onRegistration)
+        RegistrationScreen(onRegistration = {
+            navController.navigateToAuthentication { popUpTo(0) }
+        })
     }
 }

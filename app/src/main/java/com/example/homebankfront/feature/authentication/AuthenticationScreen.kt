@@ -1,6 +1,5 @@
 package com.example.homebankfront.feature.authentication
 
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,9 +18,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.feature.authentication.AuthenticationState.*
+import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
 import kotlinx.coroutines.launch
 import kotlin.reflect.KSuspendFunction0
@@ -32,9 +33,18 @@ fun AuthenticationScreen(
     onAuthentication: () -> Unit,
     navigateToRegistration: () -> Unit
 ) {
-    val state: AuthenticationState by viewModel.authenticationState.collectAsStateWithLifecycle()
+    val state: AuthenticationState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val authenticationManager = remember { AuthenticationManager(context as ComponentActivity) }
+    val snackbarHostState = LocalSnackHostState.current
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect {
+            it.consume()?.let { message ->
+                snackbarHostState.showSnackbar(message)
+            }
+        }
+    }
 
     AuthenticationScreen(
         state = state,
@@ -66,9 +76,12 @@ fun AuthenticationScreen(
             AuthenticationScreen(
                 username = state.username,
                 password = state.password,
+                isWaiting = state.isWaiting,
                 onEvent = onEvent,
                 navigateToRegistration = navigateToRegistration
             )
+
+            LoadingOverlay(isLoading = state.isWaiting)
         }
 
         is Authenticated -> onAuthenticated()
@@ -79,6 +92,7 @@ fun AuthenticationScreen(
 fun AuthenticationScreen(
     username: String,
     password: String,
+    isWaiting: Boolean,
     onEvent: (AuthenticationEvent) -> Unit,
     navigateToRegistration: () -> Unit
 ) {
@@ -88,20 +102,26 @@ fun AuthenticationScreen(
                 TextField(
                     label = stringResource(R.string.username),
                     text = username,
+                    enabled = !isWaiting,
                     onValueChange = { onEvent(AuthenticationEvent.UpdateUsername(it)) }
                 )
 
                 TextField(
                     label = stringResource(R.string.password),
                     text = password,
+                    enabled = !isWaiting,
                     onValueChange = { onEvent(AuthenticationEvent.UpdatePassword(it)) }
                 )
 
-                TextButton(onClick = { onEvent(AuthenticationEvent.Authenticate) }) {
+                TextButton(
+                    onClick = { onEvent(AuthenticationEvent.Authenticate) }
+                ) {
                     Text(text = stringResource(R.string.sign_in))
                 }
 
-                TextButton(onClick = navigateToRegistration) {
+                TextButton(
+                    onClick = navigateToRegistration
+                ) {
                     Text(text = stringResource(R.string.registration))
                 }
 

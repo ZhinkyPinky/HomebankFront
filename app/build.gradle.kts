@@ -26,11 +26,16 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
+        }
+
+        debug {
+            isDebuggable = true
         }
     }
     compileOptions {
@@ -50,6 +55,32 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    flavorDimensions += listOf("env")
+    productFlavors {
+        create("production") {
+            dimension = "env"
+            manifestPlaceholders["appName"] = "Homebank"
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                "\"https://homebank-api.livelyhill-daa2c63f.northeurope.azurecontainerapps.io\""
+            )
+        }
+
+        create("development") {
+            dimension = "env"
+            manifestPlaceholders["appName"] = "DevHomebank"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                "\"http://192.168.68.87:8080\""
+            )
         }
     }
 }

@@ -22,6 +22,7 @@ fun TextField(
     label: String,
     text: String = "",
     maxLines: Int = 1,
+    enabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onValueChange: (String) -> Unit,
 ) {
@@ -31,6 +32,7 @@ fun TextField(
         label = { Text(text = label) },
         singleLine = maxLines == 1,
         maxLines = maxLines,
+        enabled = enabled,
         keyboardOptions = keyboardOptions,
         modifier = modifier.then(
             Modifier

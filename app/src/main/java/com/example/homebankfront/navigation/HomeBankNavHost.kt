@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.navigation
 import com.example.homebankfront.feature.authentication.navigation.Authentication
 import com.example.homebankfront.feature.authentication.navigation.authentication
+import com.example.homebankfront.feature.authentication.navigation.navigateToAuthentication
 import com.example.homebankfront.feature.transactionHeadsList.navigation.transactionHeadsListScreen
 import com.example.homebankfront.feature.transactionHeadsList.navigation.navigateToTransactionHeadsList
 import com.example.homebankfront.feature.customerList.navigation.CustomerList
@@ -20,6 +22,13 @@ import com.example.homebankfront.feature.editTransactionRow.navigation.navigateT
 import com.example.homebankfront.feature.registration.navigation.navigateToRegistration
 import com.example.homebankfront.feature.registration.navigation.registration
 import com.example.homebankfront.ui.HomebankAppState
+import kotlinx.serialization.Serializable
+
+@Serializable
+object AuthenticationRoute
+
+@Serializable
+object AuthenticatedRoute
 
 @Composable
 fun HomeBankNavHost(
@@ -29,32 +38,36 @@ fun HomeBankNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Authentication,
+        startDestination = AuthenticationRoute,
         modifier = Modifier.imePadding()
     ) {
-        authentication(
-            onAuthentication = navController::navigateToCustomerList,
-            navigateToRegistration = navController::navigateToRegistration
-        )
+        navigation<AuthenticationRoute>(startDestination = Authentication) {
+            authentication(
+                onAuthentication = navController::navigateToCustomerList,
+                navigateToRegistration = navController::navigateToRegistration
+            )
 
-        registration(onRegistration = navController::navigateToCustomerList)
+            registration(navController)
+        }
 
-        customerListScreen(onCustomerClick = navController::navigateToTransactionHeadsList)
+        navigation<AuthenticatedRoute>(startDestination = CustomerList) {
+            customerListScreen(onCustomerClick = navController::navigateToTransactionHeadsList)
 
-        transactionHeadsListScreen(
-            onNewTransactionHeadClick = navController::navigateToEditTransactionHead,
-            onTransactionHeadClick = navController::navigateToTransactionHeadAndRows,
-            onBackClick = navController::navigateUp
-        )
+            transactionHeadsListScreen(
+                onNewTransactionHeadClick = navController::navigateToEditTransactionHead,
+                onTransactionHeadClick = navController::navigateToTransactionHeadAndRows,
+                onBackClick = navController::navigateUp
+            )
 
-        transactionHeadAndRowsScreen(
-            onBackClick = navController::navigateUp,
-            onEditTransactionHeadClick = navController::navigateToEditTransactionHead,
-            onEditTransactionRowClick = navController::navigateToEditTransactionRow
-        )
+            transactionHeadAndRowsScreen(
+                onBackClick = navController::navigateUp,
+                onEditTransactionHeadClick = navController::navigateToEditTransactionHead,
+                onEditTransactionRowClick = navController::navigateToEditTransactionRow
+            )
 
-        editTransactionHeadScreen(onBackClick = navController::navigateUp)
+            editTransactionHeadScreen(onBackClick = navController::navigateUp)
 
-        editTransactionRowScreen(onBackClick = navController::navigateUp)
+            editTransactionRowScreen(onBackClick = navController::navigateUp)
+        }
     }
 }

@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
+import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextWithLabel
 
 
@@ -66,7 +67,7 @@ fun TransactionHeadsScreen(
     onBackClick: () -> Unit
 ) {
     when (transactionHeadsListState) {
-        is TransactionHeadsListState.Loading -> {}
+        is TransactionHeadsListState.Loading -> LoadingOverlay()
 
         is TransactionHeadsListState.Ready -> {
             TransactionHeadsScreen(

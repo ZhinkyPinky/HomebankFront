@@ -4,6 +4,7 @@ sealed interface AuthenticationState {
     data object Authenticated : AuthenticationState
     data class NotSignedIn(
         val username: String = "",
-        val password: String = ""
+        val password: String = "",
+        val isWaiting: Boolean = false
     ) : AuthenticationState
 }

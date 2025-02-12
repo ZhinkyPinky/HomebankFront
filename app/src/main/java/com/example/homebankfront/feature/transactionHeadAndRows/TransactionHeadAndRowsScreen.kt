@@ -43,6 +43,7 @@ import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
 import com.example.homebankfront.data.bodies.TransactionRow
 import com.example.homebankfront.ui.components.ConfirmationDialog
+import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.MoreDropDownMenu
 import com.example.homebankfront.ui.components.TextWithLabel
 import com.example.homebankfront.ui.theme.HomeBankFrontTheme
@@ -81,7 +82,7 @@ fun TransactionHeadAndRowsScreen(
     onEvent: (TransactionHeadAndRowsUiEvent) -> Unit
 ) {
     when (transactionHeadAndRowsState) {
-        is TransactionHeadAndRowsState.Loading -> {}
+        is TransactionHeadAndRowsState.Loading -> LoadingOverlay()
         is TransactionHeadAndRowsState.Ready -> {
             TransactionHeadAndRowsScreen(
                 customer = transactionHeadAndRowsState.customer,

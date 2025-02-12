@@ -31,6 +31,7 @@ import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.TransactionRow
 import com.example.homebankfront.ui.components.DatePicker
 import com.example.homebankfront.ui.components.IntegerTextField
+import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
 import com.example.homebankfront.ui.components.TextFieldWithDropdownMenu
 
@@ -66,7 +67,7 @@ fun EditTransactionRowScreen(
     onBackClick: () -> Unit
 ) {
     when (editTransactionRowState) {
-        is EditTransactionRowState.Loading -> {}
+        is EditTransactionRowState.Loading -> LoadingOverlay()
         is EditTransactionRowState.Ready -> {
             EditTransactionRowScreen(
                 transactionRow = editTransactionRowState.transactionRow,

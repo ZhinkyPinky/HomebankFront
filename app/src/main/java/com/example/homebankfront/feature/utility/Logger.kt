@@ -1,4 +1,4 @@
-package com.example.homebankfront
+package com.example.homebankfront.feature.utility
 
 import android.util.Log
 import com.example.homebankfront.BuildConfig

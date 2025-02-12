@@ -1,6 +1,7 @@
 package com.example.homebankfront.network
 
-import com.example.homebankfront.Logger
+import com.example.homebankfront.feature.utility.EventEmitter
+import com.example.homebankfront.feature.utility.Logger
 import com.example.homebankfront.security.TokenStorage
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor.Chain
@@ -12,6 +13,7 @@ import javax.inject.Inject
 
 class RequestHandler @Inject constructor(
     private val tokenStorage: TokenStorage,
+    private val eventEmitter: EventEmitter<NetworkEvent>,
     private val errorHandler: HTTPErrorHandlerContext
 ) {
     private val excludedEndpoints = setOf(
@@ -46,7 +48,7 @@ class RequestHandler @Inject constructor(
             try {
                 val response = chain.proceed(modifiedRequest)
                 return if (!response.isSuccessful) {
-                    Logger.e(message = "Request to: ${modifiedRequest.url()} failed with error code ${response.code()}.")
+                    Logger.e(message = "Request to: ${modifiedRequest.url()} failed with message code ${response.code()}.")
                     runBlocking {
                         errorHandler.handleError(originalRequest, chain, response.use { it.code() })
                     }
@@ -56,6 +58,12 @@ class RequestHandler @Inject constructor(
                 }
             } catch (e: SocketTimeoutException) {
                 Logger.e(message = "Request to: ${modifiedRequest.url()} timed out. Attempt ${i + 1} out of $retryCount.")
+                if (i < retryCount - 1) {
+                    runBlocking {
+                        eventEmitter.emitEvent(NetworkEvent.SocketTimeOut("Connection timed out. Retrying... (${i + 1}/$retryCount)"))
+                    }
+                }
+
                 lastException = e
             } catch (e: IOException) {
                 Logger.e(message = "Request to: ${modifiedRequest.url()} failed with ${e.message}. Attempt ${i + 1} out of $retryCount.")

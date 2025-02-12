@@ -1,10 +1,8 @@
 package com.example.homebankfront.network
 
-import com.example.homebankfront.Logger
-import com.example.homebankfront.security.TokenStorage
+import com.example.homebankfront.feature.utility.Logger
 import okhttp3.Interceptor
 import okhttp3.Interceptor.Chain
-import okhttp3.Request
 import okhttp3.Response
 import javax.inject.Inject
 

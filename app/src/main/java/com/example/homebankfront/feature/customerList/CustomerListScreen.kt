@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
+import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.theme.HomeBankFrontTheme
 import com.example.homebankfront.ui.theme.ThemePreviews
 
@@ -48,7 +49,7 @@ fun CustomerListScreen(
     onCustomerClick: (Long) -> Unit,
 ) {
     when (customerListState) {
-        is CustomerListState.Loading -> {}
+        is CustomerListState.Loading -> LoadingOverlay()
         is CustomerListState.Ready -> {
             CustomerListScreen(
                 customers = customerListState.customers,

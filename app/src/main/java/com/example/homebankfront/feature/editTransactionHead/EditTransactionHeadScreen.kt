@@ -33,6 +33,7 @@ import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
 import com.example.homebankfront.ui.components.DatePicker
+import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
 import com.example.homebankfront.ui.components.TextFieldWithDropdownMenu
 
@@ -68,7 +69,7 @@ fun EditTransactionHeadScreen(
     onBackClick: () -> Unit
 ) {
     when (editTransactionHeadState) {
-        is EditTransactionHeadState.Loading -> {}
+        is EditTransactionHeadState.Loading -> LoadingOverlay()
         is EditTransactionHeadState.Ready -> {
             EditTransactionHeadScreen(
                 transactionHead = editTransactionHeadState.transactionHead,
