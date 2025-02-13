@@ -7,28 +7,31 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import com.example.homebankfront.feature.authentication.navigation.Authentication
 import com.example.homebankfront.feature.authentication.navigation.authentication
-import com.example.homebankfront.feature.authentication.navigation.navigateToAuthentication
-import com.example.homebankfront.feature.transactionHeadsList.navigation.transactionHeadsListScreen
-import com.example.homebankfront.feature.transactionHeadsList.navigation.navigateToTransactionHeadsList
 import com.example.homebankfront.feature.customerList.navigation.CustomerList
 import com.example.homebankfront.feature.customerList.navigation.customerListScreen
 import com.example.homebankfront.feature.customerList.navigation.navigateToCustomerList
-import com.example.homebankfront.feature.transactionHeadAndRows.navigation.transactionHeadAndRowsScreen
-import com.example.homebankfront.feature.transactionHeadAndRows.navigation.navigateToTransactionHeadAndRows
 import com.example.homebankfront.feature.editTransactionHead.navigation.editTransactionHeadScreen
 import com.example.homebankfront.feature.editTransactionHead.navigation.navigateToEditTransactionHead
 import com.example.homebankfront.feature.editTransactionRow.navigation.editTransactionRowScreen
 import com.example.homebankfront.feature.editTransactionRow.navigation.navigateToEditTransactionRow
 import com.example.homebankfront.feature.registration.navigation.navigateToRegistration
 import com.example.homebankfront.feature.registration.navigation.registration
+import com.example.homebankfront.feature.transactionHeadAndRows.navigation.navigateToTransactionHeadAndRows
+import com.example.homebankfront.feature.transactionHeadAndRows.navigation.transactionHeadAndRowsScreen
+import com.example.homebankfront.feature.transactionHeadsList.navigation.navigateToTransactionHeadsList
+import com.example.homebankfront.feature.transactionHeadsList.navigation.transactionHeadsListScreen
+import com.example.homebankfront.navigation.TopLevelDestination.AuthenticatedRoute
+import com.example.homebankfront.navigation.TopLevelDestination.AuthenticationRoute
 import com.example.homebankfront.ui.HomebankAppState
 import kotlinx.serialization.Serializable
 
-@Serializable
-object AuthenticationRoute
+sealed interface TopLevelDestination {
+    @Serializable
+    object AuthenticationRoute
 
-@Serializable
-object AuthenticatedRoute
+    @Serializable
+    object AuthenticatedRoute
+}
 
 @Composable
 fun HomeBankNavHost(
@@ -71,3 +74,4 @@ fun HomeBankNavHost(
         }
     }
 }
+

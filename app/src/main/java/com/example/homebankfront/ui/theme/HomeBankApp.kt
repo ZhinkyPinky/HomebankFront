@@ -10,8 +10,6 @@ import com.example.homebankfront.ui.rememberHomebankAppState
 @Composable
 fun HomeBankApp(appState: HomebankAppState = rememberHomebankAppState()) {
     HomeBankBackground {
-            HomeBankNavHost(
-                appState = appState
-            )
+        HomeBankNavHost(appState = appState)
     }
 }
