@@ -2,62 +2,110 @@ package com.example.homebankfront.feature.registration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.homebankfront.data.bodies.Registration
 import com.example.homebankfront.data.repositories.AuthRepository
-import com.example.homebankfront.feature.registration.RegistrationEvent.*
-import com.example.homebankfront.feature.registration.RegistrationState.*
+import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError.InvalidEmail
+import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError.MissingEmail
+import com.example.homebankfront.feature.registration.RegistrationError.PasswordFieldError.MissingPassword
+import com.example.homebankfront.feature.registration.RegistrationError.UsernameFieldError.MissingUsername
+import com.example.homebankfront.feature.registration.RegistrationEvent.Register
+import com.example.homebankfront.feature.registration.RegistrationEvent.UpdateField
+import com.example.homebankfront.feature.registration.RegistrationField.EmailField
+import com.example.homebankfront.feature.registration.RegistrationField.PasswordField
+import com.example.homebankfront.feature.registration.RegistrationField.UsernameField
+import com.example.homebankfront.feature.registration.RegistrationState.InProgress
+import com.example.homebankfront.feature.registration.RegistrationState.Success
 import com.example.homebankfront.feature.registration.domain.RegistrationUseCase
-import com.example.homebankfront.feature.utility.Event
-import com.example.homebankfront.feature.utility.Result
+import com.example.homebankfront.feature.utility.Either
+import com.example.homebankfront.feature.utility.Either.Left
+import com.example.homebankfront.feature.utility.Either.Right
+import com.example.homebankfront.feature.utility.Error
+import com.example.homebankfront.feature.utility.Error.UnknownError
+import com.example.homebankfront.feature.utility.EventEmitter
+import com.example.homebankfront.feature.utility.Logger
+import com.example.homebankfront.feature.utility.NetworkError
+import com.example.homebankfront.feature.utility.ResultGeneric
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
+    private val networkErrorEmitter: EventEmitter<NetworkError>,
     private val registrationUseCase: RegistrationUseCase,
     private val authRepository: AuthRepository
 ) : ViewModel() {
-    private val _registrationState: MutableStateFlow<RegistrationState> =
+    private val _state: MutableStateFlow<RegistrationState> =
         MutableStateFlow(InProgress())
-    val registrationState = _registrationState.asStateFlow()
+    val state = _state.asStateFlow()
 
-    private val _eventFlow = MutableSharedFlow<Event<String>>()
-    val eventFlow = _eventFlow.asSharedFlow()
+    private val _errorFlow = MutableSharedFlow<Either<RegistrationError, Error>>(
+        extraBufferCapacity = 10
+    )
+    val errorFlow = _errorFlow.asSharedFlow()
+
+    init {
+        observeNetworkEvents()
+    }
+
+    private fun observeNetworkEvents() = networkErrorEmitter.event.map {
+        Right(it)
+    }.buffer(10).onEach {
+        _errorFlow.emit(it)
+    }.catch { e ->
+        e.message?.let { Logger.e(message = it) }
+    }.launchIn(viewModelScope)
 
     fun onEvent(event: RegistrationEvent) {
+        Logger.d(message = "Received event: $event")
         when (event) {
             is Register -> register()
-            is Update -> updateRegistrationDetails(event.field)
+            is UpdateField -> updateField(event.field)
         }
     }
 
-    private fun register() = viewModelScope.launch {
-        _registrationState.value.let { state ->
-            if (state is InProgress) {
-                val result = registrationUseCase(
-                    Registration(
-                        username = state.username,
-                        password = state.password,
-                        email = state.email
-                    )
-                )
+    private fun toggleLoading() = _state.update { currentState ->
+        if (currentState is InProgress) currentState.copy(isLoading = !currentState.isLoading) else currentState
+    }
 
-                when (result) {
-                    is Result.Failure -> showSnackbar(result.message)
-                    is Result.Success -> {
-                        _registrationState.update {
-                            Success(
-                                state.username,
-                                state.password,
-                                state.email
-                            )
+    private fun register() {
+        if (validateRegistrationDetails()) {
+            toggleLoading()
+            viewModelScope.launch {
+                Logger.d(message = "Launched coroutine for registration event.")
+                _state.value.let { currentState ->
+                    if (currentState is InProgress) {
+                        when (val result = authRepository.register(currentState.toRequest())) {
+                            is ResultGeneric.Failure -> when (val error = result.error) {
+                                is Left -> when (error.value) {
+                                    is InvalidEmail -> updateField(
+                                        currentState.emailField.copy(
+                                            error = error.value
+                                        )
+                                    )
+
+                                    else -> _errorFlow.emit(Right(UnknownError))
+                                }
+
+                                is Right -> _errorFlow.emit(error)
+                            }
+
+                            ResultGeneric.Success -> _state.update {
+                                Success(
+                                    currentState.usernameField.username,
+                                    currentState.passwordField.password,
+                                    currentState.emailField.email
+                                )
+                            }
                         }
                     }
                 }
@@ -65,55 +113,58 @@ class RegistrationViewModel @Inject constructor(
         }
     }
 
-    private fun updateRegistrationDetails(field: RegistrationField) {
-        _registrationState.update { currentState ->
+    private fun validateRegistrationDetails(): Boolean {
+        var result = true
+
+        _state.update { currentState ->
             if (currentState is InProgress) {
-                when (field) {
-                    is RegistrationField.Email -> currentState.copy(email = field.email)
-                    is RegistrationField.Password -> currentState.copy(password = field.password)
-                    is RegistrationField.Username -> currentState.copy(username = field.username)
-                }
+                val usernameField = currentState.usernameField
+                val passwordField = currentState.passwordField
+                val emailField = currentState.emailField
+
+                currentState.copy(
+                    usernameField = usernameField.copy(
+                        error = if (usernameField.username.isBlank()) {
+                            result = false
+                            MissingUsername
+                        } else {
+                            null
+                        },
+                    ),
+                    passwordField = passwordField.copy(
+                        error = if (passwordField.password.isBlank()) {
+                            result = false
+                            MissingPassword
+                        } else {
+                            null
+                        }
+                    ),
+                    emailField = emailField.copy(
+                        error = if (emailField.email.isBlank()) {
+                            result = false
+                            MissingEmail
+                        } else {
+                            null
+                        }
+                    )
+                )
             } else {
                 currentState
             }
         }
+
+        return result
     }
 
-    private fun showSnackbar(message: String) = viewModelScope.launch {
-        _eventFlow.emit(Event(message))
+    private fun updateField(field: RegistrationField) = _state.update { currentState ->
+        if (currentState is InProgress) {
+            when (field) {
+                is EmailField -> currentState.copy(emailField = field)
+                is PasswordField -> currentState.copy(passwordField = field)
+                is UsernameField -> currentState.copy(usernameField = field)
+            }
+        } else {
+            currentState
+        }
     }
 }
-
-sealed interface RegistrationState {
-    data class InProgress(
-        val username: String = "",
-        val password: String = "",
-        val email: String = ""
-    ) : RegistrationState
-
-    data class Success(
-        val username: String = "",
-        val password: String = "",
-        val email: String = ""
-    ) : RegistrationState
-
-    data object Failure : RegistrationState
-}
-
-sealed interface RegistrationEvent {
-    data class Update(val field: RegistrationField) : RegistrationEvent
-    data object Register : RegistrationEvent
-}
-
-sealed interface RegistrationField {
-    data class Username(
-        val username: String
-        //val error: String?
-    ) : RegistrationField
-
-    data class Password(val password: String) : RegistrationField
-    data class Email(val email: String) : RegistrationField
-}
-
-fun RegistrationField.update(onEvent: (RegistrationEvent) -> Unit) =
-    onEvent(Update(this))

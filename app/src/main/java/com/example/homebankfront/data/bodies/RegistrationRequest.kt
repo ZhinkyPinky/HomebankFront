@@ -1,6 +1,6 @@
 package com.example.homebankfront.data.bodies
 
-data class Registration (
+data class RegistrationRequest (
     val username: String,
     val password: String,
     val email: String

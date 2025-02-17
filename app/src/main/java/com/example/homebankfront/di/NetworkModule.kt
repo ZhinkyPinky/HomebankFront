@@ -1,17 +1,17 @@
 package com.example.homebankfront.di
 
 import com.example.homebankfront.BuildConfig
-import com.example.homebankfront.network.HTTPErrorHandlerContext
-import com.example.homebankfront.network.RequestInterceptor
 import com.example.homebankfront.data.LocalDateAdapter
 import com.example.homebankfront.data.LocalDateTimeAdapter
-import com.example.homebankfront.network.RequestHandler
-import com.example.homebankfront.data.remote.services.CustomerService
 import com.example.homebankfront.data.remote.services.AuthService
+import com.example.homebankfront.data.remote.services.CustomerService
 import com.example.homebankfront.data.remote.services.TransactionHeadService
 import com.example.homebankfront.data.remote.services.TransactionRowService
 import com.example.homebankfront.feature.utility.EventEmitter
-import com.example.homebankfront.network.NetworkEvent
+import com.example.homebankfront.feature.utility.NetworkError
+import com.example.homebankfront.network.HTTPErrorHandlerContext
+import com.example.homebankfront.network.RequestHandler
+import com.example.homebankfront.network.RequestInterceptor
 import com.example.homebankfront.security.TokenStorage
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -95,7 +95,7 @@ class NetworkModule {
     @Singleton
     fun provideRequestHandler(
         tokenStorage: TokenStorage,
-        eventEmitter: EventEmitter<NetworkEvent>,
+        eventEmitter: EventEmitter<NetworkError>,
         errorHandlerContext: HTTPErrorHandlerContext
     ): RequestHandler {
         return RequestHandler(tokenStorage, eventEmitter, errorHandlerContext)

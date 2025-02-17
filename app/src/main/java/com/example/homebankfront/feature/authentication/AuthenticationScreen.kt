@@ -21,7 +21,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.AuthenticationRequest
+import com.example.homebankfront.feature.authentication.AuthenticationEvent.*
+import com.example.homebankfront.feature.authentication.AuthenticationField.*
 import com.example.homebankfront.feature.authentication.AuthenticationState.*
+import com.example.homebankfront.feature.utility.Either
+import com.example.homebankfront.feature.utility.getStringResourceFromContext
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
 import kotlinx.coroutines.launch
@@ -33,16 +37,19 @@ fun AuthenticationScreen(
     onAuthentication: () -> Unit,
     navigateToRegistration: () -> Unit
 ) {
-    val state: AuthenticationState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state: AuthenticationState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val authenticationManager = remember { AuthenticationManager(context as ComponentActivity) }
     val snackbarHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
-        viewModel.eventFlow.collect {
-            it.consume()?.let { message ->
-                snackbarHostState.showSnackbar(message)
+        viewModel.errorFlow.collect { error ->
+            val errorMessage = when (error) {
+                is Either.Left -> error.value.getStringResourceFromContext(context)
+                is Either.Right -> error.value.getStringResourceFromContext(context)
             }
+
+            snackbarHostState.showSnackbar(errorMessage)
         }
     }
 
@@ -74,14 +81,14 @@ fun AuthenticationScreen(
             }
 
             AuthenticationScreen(
-                username = state.username,
-                password = state.password,
-                isWaiting = state.isWaiting,
+                usernameField = state.usernameField,
+                passwordField = state.passwordField,
+                isLoading = state.isLoading,
                 onEvent = onEvent,
                 navigateToRegistration = navigateToRegistration
             )
 
-            LoadingOverlay(isLoading = state.isWaiting)
+            LoadingOverlay(isLoading = state.isLoading)
         }
 
         is Authenticated -> onAuthenticated()
@@ -90,9 +97,9 @@ fun AuthenticationScreen(
 
 @Composable
 fun AuthenticationScreen(
-    username: String,
-    password: String,
-    isWaiting: Boolean,
+    usernameField: UsernameField,
+    passwordField: PasswordField,
+    isLoading: Boolean,
     onEvent: (AuthenticationEvent) -> Unit,
     navigateToRegistration: () -> Unit
 ) {
@@ -101,30 +108,33 @@ fun AuthenticationScreen(
             Column(modifier = Modifier.padding(paddingValues)) {
                 TextField(
                     label = stringResource(R.string.username),
-                    text = username,
-                    enabled = !isWaiting,
-                    onValueChange = { onEvent(AuthenticationEvent.UpdateUsername(it)) }
+                    text = usernameField.username,
+                    supportingText = usernameField.error?.toStringResource(),
+                    isError = usernameField.error != null,
+                    enabled = !isLoading,
+                    onValueChange = {
+                        onEvent(UpdateField(usernameField.copy(username = it, error = null)))
+                    }
                 )
 
                 TextField(
                     label = stringResource(R.string.password),
-                    text = password,
-                    enabled = !isWaiting,
-                    onValueChange = { onEvent(AuthenticationEvent.UpdatePassword(it)) }
+                    text = passwordField.password,
+                    supportingText = passwordField.error?.toStringResource(),
+                    isError = passwordField.error != null,
+                    enabled = !isLoading,
+                    onValueChange = {
+                        onEvent(UpdateField(passwordField.copy(password = it, error = null)))
+                    }
                 )
 
-                TextButton(
-                    onClick = { onEvent(AuthenticationEvent.Authenticate) }
-                ) {
+                TextButton(onClick = { onEvent(Authenticate) }) {
                     Text(text = stringResource(R.string.sign_in))
                 }
 
-                TextButton(
-                    onClick = navigateToRegistration
-                ) {
+                TextButton(onClick = navigateToRegistration) {
                     Text(text = stringResource(R.string.registration))
                 }
-
             }
         }
     }

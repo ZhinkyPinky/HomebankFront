@@ -20,11 +20,14 @@ import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
 import com.example.homebankfront.feature.authentication.AuthenticationManager
 import com.example.homebankfront.feature.registration.RegistrationEvent.Register
+import com.example.homebankfront.feature.registration.RegistrationField.*
 import com.example.homebankfront.feature.registration.RegistrationState.Failure
 import com.example.homebankfront.feature.registration.RegistrationState.InProgress
 import com.example.homebankfront.feature.registration.RegistrationState.Success
+import com.example.homebankfront.feature.utility.Either
+import com.example.homebankfront.feature.utility.getStringResourceFromContext
+import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
-import kotlinx.coroutines.launch
 import kotlin.reflect.KSuspendFunction2
 
 
@@ -33,16 +36,19 @@ fun RegistrationScreen(
     viewModel: RegistrationViewModel = hiltViewModel(),
     onRegistration: () -> Unit
 ) {
-    val state: RegistrationState by viewModel.registrationState.collectAsStateWithLifecycle()
+    val state: RegistrationState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val authenticationManager = remember { AuthenticationManager(context as ComponentActivity) }
     val snackbarHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
-        viewModel.eventFlow.collect {
-            it.consume()?.let { message ->
-                snackbarHostState.showSnackbar(message)
+        viewModel.errorFlow.collect { error ->
+            val errorMessage = when (error) {
+                is Either.Left -> error.value.getStringResourceFromContext(context)
+                is Either.Right -> error.value.getStringResourceFromContext(context)
             }
+
+            snackbarHostState.showSnackbar(errorMessage)
         }
     }
 
@@ -66,16 +72,21 @@ fun RegistrationScreen(
     when (state) {
         is Failure -> {}
 
-        is InProgress -> RegistrationScreen(
-            username = state.username,
-            password = state.password,
-            email = state.email,
-            onEvent = onEvent,
-        )
+        is InProgress -> {
+            RegistrationScreen(
+                usernameField = state.usernameField,
+                passwordField = state.passwordField,
+                emailField = state.emailField,
+                isLoading = state.isLoading,
+                onEvent = onEvent,
+            )
+
+            LoadingOverlay(isLoading = state.isLoading)
+        }
 
         is Success -> LaunchedEffect(Unit) {
             // coroutineScope.launch {
-            //   register(state.username, state.password)
+            //   register(state.value, state.value)
             //}.invokeOnCompletion {
             onRegistration()
             //}
@@ -85,28 +96,39 @@ fun RegistrationScreen(
 
 @Composable
 fun RegistrationScreen(
-    username: String,
-    password: String,
-    email: String,
+    usernameField: UsernameField,
+    passwordField: PasswordField,
+    emailField: EmailField,
+    isLoading: Boolean,
     onEvent: (RegistrationEvent) -> Unit,
 ) {
     Scaffold { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
             TextField(
                 label = stringResource(R.string.username),
-                text = username,
-                onValueChange = { RegistrationField.Username(it).update(onEvent) })
+                text = usernameField.username,
+                supportingText = usernameField.error?.toStringResource(),
+                isError = usernameField.error != null,
+                enabled = !isLoading,
+                onValueChange = { usernameField.copy(username = it, error = null).update(onEvent) }
+            )
 
             TextField(
                 label = stringResource(R.string.password),
-                text = password,
-                onValueChange = { RegistrationField.Password(it).update(onEvent) }
+                text = passwordField.password,
+                supportingText = passwordField.error?.toStringResource(),
+                isError = passwordField.error != null,
+                enabled = !isLoading,
+                onValueChange = { passwordField.copy(password = it, error = null).update(onEvent) }
             )
 
             TextField(
                 label = stringResource(R.string.email),
-                text = email,
-                onValueChange = { RegistrationField.Email(it).update(onEvent) }
+                text = emailField.email,
+                supportingText = emailField.error?.toStringResource(),
+                isError = emailField.error != null,
+                enabled = !isLoading,
+                onValueChange = { emailField.copy(email = it, error = null).update(onEvent) }
             )
 
             TextButton(onClick = { onEvent(Register) }) {

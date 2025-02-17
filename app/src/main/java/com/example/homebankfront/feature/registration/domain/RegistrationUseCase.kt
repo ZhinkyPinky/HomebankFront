@@ -1,31 +1,36 @@
 package com.example.homebankfront.feature.registration.domain
 
-import com.example.homebankfront.data.bodies.Registration
+import com.example.homebankfront.data.bodies.RegistrationRequest
 import com.example.homebankfront.data.repositories.AuthRepository
 import com.example.homebankfront.feature.utility.Result
 import com.example.homebankfront.feature.utility.Result.*
+import com.example.homebankfront.feature.utility.ResultGeneric
 import javax.inject.Inject
 
 class RegistrationUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
-    suspend operator fun invoke(registration: Registration): Result {
-        return when (val result = validateRegistrationDetails(registration)) {
+    suspend operator fun invoke(registrationRequest: RegistrationRequest): Result {
+        return when (val result = validateRegistrationDetails(registrationRequest)) {
             is Failure -> result
-            is Success -> authRepository.register(registration)
+            is Success -> when (authRepository.register(registrationRequest)) {
+                //TODO: FIX
+                is ResultGeneric.Failure -> Result.Failure("")
+                is ResultGeneric.Success -> Success
+            }
         }
     }
 
-    private fun validateRegistrationDetails(registration: Registration): Result {
-        if (registration.username.isBlank()) {
+    private fun validateRegistrationDetails(registrationRequest: RegistrationRequest): Result {
+        if (registrationRequest.username.isBlank()) {
             return Failure("Användarnamn saknas")
         }
 
-        if (registration.password.isBlank()) {
+        if (registrationRequest.password.isBlank()) {
             return Failure("Lösenord saknas")
         }
 
-        if (registration.email.isBlank()) {
+        if (registrationRequest.email.isBlank()) {
             return Failure("E-mail saknas")
         }
 

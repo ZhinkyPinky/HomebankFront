@@ -1,7 +1,7 @@
 package com.example.homebankfront.di
 
 import com.example.homebankfront.feature.utility.EventEmitter
-import com.example.homebankfront.network.NetworkEvent
+import com.example.homebankfront.feature.utility.NetworkError
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,5 +13,5 @@ import javax.inject.Singleton
 class EmitterModule {
     @Provides
     @Singleton
-    fun provideNetworkEventEmitter(): EventEmitter<NetworkEvent> = EventEmitter()
+    fun provideNetworkErrorEmitter(): EventEmitter<NetworkError> = EventEmitter()
 }

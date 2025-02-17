@@ -10,8 +10,8 @@ import javax.inject.Inject
 class HTTPErrorHandlerContext @Inject constructor(
     private val errorHandlers: Map<Int, ErrorHandler>
 ) {
-    suspend fun handleError(request: Request, chain: Chain, errorCode: Int): Response {
-        Logger.d(message = "Handling message for request to: ${request.url()} with message code $errorCode")
+    suspend operator fun invoke(request: Request, chain: Chain, errorCode: Int): Response {
+        Logger.d(message = "Handling request to: ${request.url()} with code $errorCode")
         return errorHandlers[errorCode]?.handleError(request, chain) ?: chain.proceed(request)
     }
 }
