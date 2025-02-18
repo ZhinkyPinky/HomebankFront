@@ -6,7 +6,7 @@ sealed interface Result {
 }
 
 
-sealed interface ResultGeneric<out T> {
-    data object Success : ResultGeneric<Nothing>
-    data class Failure<out T>(val error: T) : ResultGeneric<T>
+sealed interface ResultGeneric<out S, out F> {
+    data class Success<out S>(val data: S) : ResultGeneric<S, Nothing>
+    data class Failure<out F>(val error: F) : ResultGeneric<Nothing, F>
 }

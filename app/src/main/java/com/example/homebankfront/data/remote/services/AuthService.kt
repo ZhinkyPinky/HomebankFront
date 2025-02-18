@@ -19,5 +19,5 @@ interface AuthService {
     suspend fun refresh(@Body refreshRequest: RefreshRequest): Response<AuthenticationResponse>
 
     @POST(ApiPaths.LOGOUT)
-    suspend fun logout()
+    suspend fun logout(): Response<String>
 }

@@ -4,9 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.homebankfront.R
-import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.data.bodies.RegistrationRequest
-import com.example.homebankfront.feature.authentication.AuthenticationState
 import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError
 import com.example.homebankfront.feature.registration.RegistrationError.PasswordFieldError
 import com.example.homebankfront.feature.registration.RegistrationError.UsernameFieldError

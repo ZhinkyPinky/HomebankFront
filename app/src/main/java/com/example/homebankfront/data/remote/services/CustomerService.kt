@@ -5,13 +5,14 @@ import com.example.homebankfront.data.bodies.CustomerAndTransactionHead
 import com.example.homebankfront.data.bodies.CustomerAndTransactionHeads
 import com.example.homebankfront.data.bodies.CustomerAndTransactionHeadAndRows
 import com.example.homebankfront.data.bodies.CustomersAndTransactionHead
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 
 
 interface CustomerService {
     @GET(ApiPaths.CUSTOMERS)
-    suspend fun getCustomers(): List<Customer>
+    suspend fun getCustomers(): Response<List<Customer>>
 
     @GET(ApiPaths.CUSTOMERS_AND_TRANSACTION_HEAD)
     suspend fun getCustomersAndTransactionHead(@Path("transactionHeadId") transactionHeadId: Long): CustomersAndTransactionHead

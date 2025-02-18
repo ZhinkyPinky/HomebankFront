@@ -25,6 +25,7 @@ import com.example.homebankfront.feature.authentication.AuthenticationEvent.*
 import com.example.homebankfront.feature.authentication.AuthenticationField.*
 import com.example.homebankfront.feature.authentication.AuthenticationState.*
 import com.example.homebankfront.feature.utility.Either
+import com.example.homebankfront.feature.utility.Either.*
 import com.example.homebankfront.feature.utility.getStringResourceFromContext
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
@@ -45,8 +46,8 @@ fun AuthenticationScreen(
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
             val errorMessage = when (error) {
-                is Either.Left -> error.value.getStringResourceFromContext(context)
-                is Either.Right -> error.value.getStringResourceFromContext(context)
+                is Left -> error.value.getStringResourceFromContext(context)
+                is Right -> error.value.getStringResourceFromContext(context)
             }
 
             snackbarHostState.showSnackbar(errorMessage)

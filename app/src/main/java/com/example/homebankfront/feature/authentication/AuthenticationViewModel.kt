@@ -24,6 +24,7 @@ import com.example.homebankfront.feature.utility.Logger
 import com.example.homebankfront.feature.utility.NetworkError
 import com.example.homebankfront.feature.utility.ResultGeneric.Failure
 import com.example.homebankfront.feature.utility.ResultGeneric.Success
+import com.example.homebankfront.security.TokenStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,6 +42,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthenticationViewModel @Inject constructor(
     private val networkErrorEmitter: EventEmitter<NetworkError>,
+    private val tokenStorage: TokenStorage,
     private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _state: MutableStateFlow<AuthenticationState> =
@@ -104,16 +106,14 @@ class AuthenticationViewModel @Inject constructor(
                 _state.update { currentState ->
                     if (currentState is NotSignedIn) {
                         when (val result = authRepository.authenticate(currentState.toRequest())) {
-                            is Success -> Authenticated
-                            is Failure -> {
-                                when (val error = result.error) {
-                                    is Left -> when (error.value) {
-                                        BadCredentials -> _errorFlow.emit(error)
-                                        else -> _errorFlow.emit(Right(UnknownError))
-                                    }
+                            is Success -> {
+                                tokenStorage.saveAccessToken(result.data.accessToken)
+                                tokenStorage.saveRefreshToken(result.data.refreshToken)
+                                Authenticated
+                            }
 
-                                    is Right -> _errorFlow.emit(error)
-                                }
+                            is Failure -> {
+                                handleError(result.error)
                                 currentState.copy(isLoading = false)
                             }
                         }
@@ -157,5 +157,14 @@ class AuthenticationViewModel @Inject constructor(
         }
 
         return result
+    }
+
+    private suspend fun handleError(error: Either<AuthenticationError, Error>) = when (error) {
+        is Left -> when (error.value) {
+            BadCredentials -> _errorFlow.emit(error)
+            else -> _errorFlow.emit(Right(UnknownError))
+        }
+
+        is Right -> _errorFlow.emit(error)
     }
 }

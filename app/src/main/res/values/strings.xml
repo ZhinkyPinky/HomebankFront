@@ -47,4 +47,5 @@
 
     <!-- Auth errors -->
     <string name="bad_credentials">Felaktiga inloggninguppifter</string>
+    <string name="missing_transaction_name">Ange ett namn</string>
 </resources>

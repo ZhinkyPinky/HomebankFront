@@ -3,6 +3,8 @@ package com.example.homebankfront.feature.registration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.data.repositories.AuthRepository
+import com.example.homebankfront.feature.authentication.AuthenticationError
+import com.example.homebankfront.feature.authentication.AuthenticationError.BadCredentials
 import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError.InvalidEmail
 import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError.MissingEmail
 import com.example.homebankfront.feature.registration.RegistrationError.PasswordFieldError.MissingPassword
@@ -14,7 +16,6 @@ import com.example.homebankfront.feature.registration.RegistrationField.Password
 import com.example.homebankfront.feature.registration.RegistrationField.UsernameField
 import com.example.homebankfront.feature.registration.RegistrationState.InProgress
 import com.example.homebankfront.feature.registration.RegistrationState.Success
-import com.example.homebankfront.feature.registration.domain.RegistrationUseCase
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
@@ -24,6 +25,7 @@ import com.example.homebankfront.feature.utility.EventEmitter
 import com.example.homebankfront.feature.utility.Logger
 import com.example.homebankfront.feature.utility.NetworkError
 import com.example.homebankfront.feature.utility.ResultGeneric
+import com.example.homebankfront.security.TokenStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +43,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val networkErrorEmitter: EventEmitter<NetworkError>,
-    private val registrationUseCase: RegistrationUseCase,
+    private val tokenStorage: TokenStorage,
     private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _state: MutableStateFlow<RegistrationState> =
@@ -85,26 +87,21 @@ class RegistrationViewModel @Inject constructor(
                 _state.value.let { currentState ->
                     if (currentState is InProgress) {
                         when (val result = authRepository.register(currentState.toRequest())) {
-                            is ResultGeneric.Failure -> when (val error = result.error) {
-                                is Left -> when (error.value) {
-                                    is InvalidEmail -> updateField(
-                                        currentState.emailField.copy(
-                                            error = error.value
-                                        )
-                                    )
-
-                                    else -> _errorFlow.emit(Right(UnknownError))
-                                }
-
-                                is Right -> _errorFlow.emit(error)
+                            is ResultGeneric.Failure -> {
+                                handleError(result.error)
+                                toggleLoading()
                             }
 
-                            ResultGeneric.Success -> _state.update {
-                                Success(
-                                    currentState.usernameField.username,
-                                    currentState.passwordField.password,
-                                    currentState.emailField.email
-                                )
+                            is ResultGeneric.Success -> {
+                                tokenStorage.saveAccessToken(result.data.accessToken)
+                                tokenStorage.saveRefreshToken(result.data.refreshToken)
+                                _state.update {
+                                    Success(
+                                        currentState.usernameField.username,
+                                        currentState.passwordField.password,
+                                        currentState.emailField.email
+                                    )
+                                }
                             }
                         }
                     }
@@ -166,5 +163,19 @@ class RegistrationViewModel @Inject constructor(
         } else {
             currentState
         }
+    }
+
+    private suspend fun handleError(error: Either<RegistrationError, Error>) = when (error) {
+        is Left -> when (error.value) {
+            is InvalidEmail -> _state.value.let { currentState ->
+                if (currentState is InProgress) {
+                    updateField(currentState.emailField.copy(error = error.value))
+                }
+            }
+
+            else -> _errorFlow.emit(Right(UnknownError))
+        }
+
+        is Right -> _errorFlow.emit(error)
     }
 }

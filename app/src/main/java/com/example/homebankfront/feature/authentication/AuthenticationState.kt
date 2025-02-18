@@ -5,11 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.AuthenticationRequest
-import com.example.homebankfront.feature.authentication.AuthenticationError.*
-import com.example.homebankfront.feature.authentication.AuthenticationField.*
+import com.example.homebankfront.feature.authentication.AuthenticationError.BadCredentials
+import com.example.homebankfront.feature.authentication.AuthenticationError.PasswordFieldError
+import com.example.homebankfront.feature.authentication.AuthenticationError.UsernameFieldError
+import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
+import com.example.homebankfront.feature.authentication.AuthenticationField.UsernameField
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Error
-import com.example.homebankfront.feature.utility.NetworkError
 
 sealed interface AuthenticationState {
     data object Authenticated : AuthenticationState

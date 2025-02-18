@@ -7,6 +7,7 @@ import com.example.homebankfront.feature.editTransactionHead.domain.SaveTransact
 import com.example.homebankfront.feature.editTransactionRow.domain.GetCustomersAndTransactionHeadUseCase
 import com.example.homebankfront.feature.utility.Event
 import com.example.homebankfront.feature.utility.Result
+import com.example.homebankfront.feature.utility.ResultGeneric
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,11 +37,12 @@ class EditTransactionHeadViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             try {
-                getData(transactionHeadId).let { customersAndTransactionHead ->
-                    _state.update {
+                when (val result = getData(transactionHeadId)) {
+                    is ResultGeneric.Failure -> TODO()
+                    is ResultGeneric.Success -> _state.update {
                         EditTransactionHeadState.Ready(
-                            transactionHead = customersAndTransactionHead.transactionHead,
-                            customers = customersAndTransactionHead.customers
+                            transactionHead = result.data.transactionHead,
+                            customers = result.data.customers
                         )
                     }
                 }

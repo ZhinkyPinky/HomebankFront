@@ -7,6 +7,7 @@ import com.example.homebankfront.data.remote.services.AuthService
 import com.example.homebankfront.data.remote.services.CustomerService
 import com.example.homebankfront.data.remote.services.TransactionHeadService
 import com.example.homebankfront.data.remote.services.TransactionRowService
+import com.example.homebankfront.data.repositories.ResponseHandler
 import com.example.homebankfront.feature.utility.EventEmitter
 import com.example.homebankfront.feature.utility.NetworkError
 import com.example.homebankfront.network.HTTPErrorHandlerContext
@@ -31,65 +32,62 @@ import javax.inject.Singleton
 class NetworkModule {
     @Provides
     @Singleton
-    fun provideRetroFit(client: OkHttpClient, gson: Gson): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(BuildConfig.API_BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-    }
+    fun provideRetroFit(client: OkHttpClient, gson: Gson): Retrofit = Retrofit.Builder()
+        .baseUrl(BuildConfig.API_BASE_URL)
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .build()
+
 
     @Provides
     @Singleton
-    fun provideGson(): Gson {
-        return GsonBuilder()
-            .registerTypeAdapter(
-                LocalDateTime::class.java,
-                LocalDateTimeAdapter()
-            )
-            .registerTypeAdapter(
-                LocalDate::class.java,
-                LocalDateAdapter()
-            )
-            .setLenient()
-            .create()
-    }
+    fun provideGson(): Gson = GsonBuilder()
+        .registerTypeAdapter(
+            LocalDateTime::class.java,
+            LocalDateTimeAdapter()
+        )
+        .registerTypeAdapter(
+            LocalDate::class.java,
+            LocalDateAdapter()
+        )
+        .setLenient()
+        .create()
+
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(requestInterceptor: RequestInterceptor): OkHttpClient {
-        return OkHttpClient.Builder().addInterceptor(requestInterceptor).build()
-    }
+    fun provideOkHttpClient(requestInterceptor: RequestInterceptor): OkHttpClient =
+        OkHttpClient.Builder().addInterceptor(requestInterceptor).build()
+
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): CustomerService {
-        return retrofit.create(CustomerService::class.java)
-    }
+    fun provideApiService(retrofit: Retrofit): CustomerService =
+        retrofit.create(CustomerService::class.java)
+
 
     @Provides
     @Singleton
-    fun provideAuthService(retrofit: Retrofit): AuthService {
-        return retrofit.create(AuthService::class.java)
-    }
+    fun provideAuthService(retrofit: Retrofit): AuthService =
+        retrofit.create(AuthService::class.java)
+
 
     @Provides
     @Singleton
-    fun provideTransactionHeadService(retrofit: Retrofit): TransactionHeadService {
-        return retrofit.create(TransactionHeadService::class.java)
-    }
+    fun provideTransactionHeadService(retrofit: Retrofit): TransactionHeadService =
+        retrofit.create(TransactionHeadService::class.java)
+
 
     @Provides
     @Singleton
-    fun provideTransactionRowService(retrofit: Retrofit): TransactionRowService {
-        return retrofit.create(TransactionRowService::class.java)
-    }
+    fun provideTransactionRowService(retrofit: Retrofit): TransactionRowService =
+        retrofit.create(TransactionRowService::class.java)
+
 
     @Provides
     @Singleton
-    fun provideRequestInterceptor(requestHandler: RequestHandler): RequestInterceptor {
-        return RequestInterceptor(requestHandler)
-    }
+    fun provideRequestInterceptor(requestHandler: RequestHandler): RequestInterceptor =
+        RequestInterceptor(requestHandler)
 
     @Provides
     @Singleton
@@ -97,7 +95,10 @@ class NetworkModule {
         tokenStorage: TokenStorage,
         eventEmitter: EventEmitter<NetworkError>,
         errorHandlerContext: HTTPErrorHandlerContext
-    ): RequestHandler {
-        return RequestHandler(tokenStorage, eventEmitter, errorHandlerContext)
-    }
+    ): RequestHandler = RequestHandler(tokenStorage, eventEmitter, errorHandlerContext)
+
+
+    @Provides
+    @Singleton
+    fun provideResponseHandler(): ResponseHandler = ResponseHandler()
 }

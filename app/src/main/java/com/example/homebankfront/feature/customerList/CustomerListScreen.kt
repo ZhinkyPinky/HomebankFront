@@ -31,32 +31,29 @@ internal fun CustomerListRoute(
     viewModel: CustomerListViewModel = hiltViewModel(),
     onCustomerClick: (Long) -> Unit
 ) {
-    val customerListState: CustomerListState by viewModel.customerListState.collectAsStateWithLifecycle()
+    val customerListState: CustomerListState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getCustomers()
     }
 
     CustomerListScreen(
-        customerListState = customerListState,
+        state = customerListState,
         onCustomerClick = onCustomerClick,
     )
 }
 
 @Composable
 fun CustomerListScreen(
-    customerListState: CustomerListState,
+    state: CustomerListState,
     onCustomerClick: (Long) -> Unit,
 ) {
-    when (customerListState) {
-        is CustomerListState.Loading -> LoadingOverlay()
-        is CustomerListState.Ready -> {
-            CustomerListScreen(
-                customers = customerListState.customers,
-                onCustomerClick = onCustomerClick,
-            )
-        }
-    }
+    CustomerListScreen(
+        customers = state.customers,
+        onCustomerClick = onCustomerClick,
+    )
+
+    LoadingOverlay(isLoading = state.isLoading)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

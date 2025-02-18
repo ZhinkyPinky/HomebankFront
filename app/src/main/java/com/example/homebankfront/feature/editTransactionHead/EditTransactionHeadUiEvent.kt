@@ -9,22 +9,6 @@ sealed interface EditTransactionHeadUiEvent {
     data object Save : EditTransactionHeadUiEvent
 }
 
-sealed interface EditTransactionHeadField {
-    data class TransactionName(val transactionName: String) : EditTransactionHeadField
-    data class Description(val description: String) : EditTransactionHeadField
-    data class StartDate(val startDate: LocalDate) : EditTransactionHeadField
-    data class PrelEndDate(val prelEndDate: LocalDate) : EditTransactionHeadField
-    data class EndDate(val endDate: LocalDate) : EditTransactionHeadField
-    data class Lender(
-        val lenderId: Long,
-        val lender: String
-    ) : EditTransactionHeadField
-
-    data class Borrower(
-        val borrowerId: Long,
-        val borrower: String
-    ) : EditTransactionHeadField
-}
 
 fun updateTransactionName(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
