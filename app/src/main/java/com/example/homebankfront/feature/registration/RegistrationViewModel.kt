@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.data.repositories.AuthRepository
 import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError.InvalidEmail
+import com.example.homebankfront.feature.registration.RegistrationError.UsernameFieldError
+import com.example.homebankfront.feature.registration.RegistrationError.UsernameFieldError.*
 import com.example.homebankfront.feature.registration.RegistrationEvent.Register
 import com.example.homebankfront.feature.registration.RegistrationEvent.UpdateField
 import com.example.homebankfront.feature.registration.RegistrationField.EmailField
@@ -118,6 +120,12 @@ class RegistrationViewModel @Inject constructor(
 
     private suspend fun handleError(error: Either<RegistrationError, Error>) = when (error) {
         is Left -> when (error.value) {
+            is TakenUsername -> _state.value.let { currentState ->
+                if (currentState is Registering) {
+                    updateField(currentState.usernameField.copy(error = error.value))
+                }
+            }
+
             is InvalidEmail -> _state.value.let { currentState ->
                 if (currentState is Registering) {
                     updateField(currentState.emailField.copy(error = error.value))

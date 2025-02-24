@@ -87,40 +87,6 @@ sealed interface RegistrationField {
     }
 }
 
-sealed class RegistrationError(val stringResourceId: Int) {
-    sealed class UsernameFieldError(stringResourceId: Int) : RegistrationError(stringResourceId) {
-        data object MissingUsername : UsernameFieldError(R.string.missing_username)
-    }
-
-    sealed class PasswordFieldError(stringResourceId: Int) : RegistrationError(stringResourceId) {
-        data object MissingPassword : PasswordFieldError(R.string.missing_password)
-    }
-
-    sealed class EmailFieldError(stringResourceId: Int) : RegistrationError(stringResourceId) {
-        data object MissingEmail : EmailFieldError(R.string.missing_email)
-        data object InvalidEmail : EmailFieldError(R.string.invalid_email)
-    }
-}
-
-fun String?.toRegistrationError(): Either<RegistrationError, Error> = when (this) {
-    "Invalid email" -> Either.Left(InvalidEmail)
-    else -> Either.Right(Error.UnknownError)
-}
-
-fun RegistrationError.getStringResourceFromContext(context: Context) = when (this) {
-    InvalidEmail -> context.getString(stringResourceId)
-    MissingEmail -> context.getString(stringResourceId)
-    MissingPassword -> context.getString(stringResourceId)
-    MissingUsername -> context.getString(stringResourceId)
-}
-
-@Composable
-fun RegistrationError.toStringResource(): String = when (this) {
-    InvalidEmail -> stringResource(stringResourceId)
-    MissingEmail -> stringResource(stringResourceId)
-    MissingPassword -> stringResource(stringResourceId)
-    MissingUsername -> stringResource(stringResourceId)
-}
 
 fun RegistrationField.update(onEvent: (RegistrationEvent) -> Unit) =
     onEvent(RegistrationEvent.UpdateField(this))

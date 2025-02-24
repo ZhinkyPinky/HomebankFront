@@ -40,6 +40,7 @@
     <string name="empty_response_body">Svarskroppen saknas</string>
 
     <string name="missing_username">Ange ett användarnamn</string>
+    <string name="taken_username">Användarnamnet är redan taget</string>
     <string name="missing_password">Ange ett lösenord</string>
     <string name="missing_email">Ange ett email</string>
     <string name="invalid_email">Ogilitigt email</string>
