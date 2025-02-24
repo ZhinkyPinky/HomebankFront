@@ -36,8 +36,11 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideTransactionRowRepository(transactionRowService: TransactionRowService): TransactionRowRepository =
-        TransactionRowRepository(transactionRowService)
+    fun provideTransactionRowRepository(
+        transactionRowService: TransactionRowService,
+        responseHandler: ResponseHandler,
+    ): TransactionRowRepository =
+        TransactionRowRepository(transactionRowService, responseHandler)
 
     @Provides
     @Singleton

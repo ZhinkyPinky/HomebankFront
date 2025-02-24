@@ -11,7 +11,7 @@ sealed class EditTransactionHeadError(val stringResourceId: Int) {
     sealed class TransactionNameFieldError(stringResourceId: Int) :
         EditTransactionHeadError(stringResourceId) {
         data object MissingTransactionNameError :
-            TransactionNameFieldError(R.string.missing_transaction_name)
+            TransactionNameFieldError(R.string.missing_name)
     }
 
     sealed class StartDateFieldError(stringResourceId: Int) :

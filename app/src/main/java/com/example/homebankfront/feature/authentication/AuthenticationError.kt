@@ -28,11 +28,7 @@ fun String?.toAuthenticationError(): Either<AuthenticationError, Error> = when (
     else -> Either.Right(UnknownError)
 }
 
-fun AuthenticationError.getStringResourceFromContext(context: Context) = when (this) {
-    BadCredentials -> context.getString(stringResourceId)
-    MissingPassword -> context.getString(stringResourceId)
-    MissingUsername -> context.getString(stringResourceId)
-}
+fun AuthenticationError.getStringResourceFromContext(context: Context) = context.getString(stringResourceId)
 
 @Composable
 fun AuthenticationError.toStringResource(): String = when (this) {

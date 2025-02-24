@@ -21,38 +21,51 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.TransactionRow
+import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.*
+import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowUiEvent.*
+import com.example.homebankfront.feature.editTransactionRow.navigation.getStringResourceFromContext
+import com.example.homebankfront.feature.editTransactionRow.navigation.toStringResource
+import com.example.homebankfront.feature.utility.Either.*
+import com.example.homebankfront.feature.utility.getStringResourceFromContext
 import com.example.homebankfront.ui.components.DatePicker
 import com.example.homebankfront.ui.components.IntegerTextField
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
 import com.example.homebankfront.ui.components.TextFieldWithDropdownMenu
+import java.time.Instant
+import java.time.ZoneId
 
 @Composable
 fun EditTransactionRowRoute(
-    viewModel: EditTransactionRowViewModel = hiltViewModel(), onBackClick: () -> Unit
+    viewModel: EditTransactionRowViewModel = hiltViewModel(),
+    onBackClick: () -> Unit
 ) {
-    val editTransactionRowUiState by viewModel.state.collectAsStateWithLifecycle()
-
-    val snackbarHostState = remember { SnackbarHostState() }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val snackbarHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
-        viewModel.snackbarFlow.collect { event ->
-            event.consume()?.let { message ->
-                snackbarHostState.showSnackbar(message = message)
+        viewModel.errorFlow.collect { error ->
+            val errorMessage = when (error) {
+                is Left -> error.value.getStringResourceFromContext(context)
+                is Right -> error.value.getStringResourceFromContext(context)
             }
+
+            snackbarHostState.showSnackbar(errorMessage)
         }
     }
 
     EditTransactionRowScreen(
-        editTransactionRowState = editTransactionRowUiState,
+        state = state,
         snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
         onBackClick = onBackClick
@@ -61,16 +74,21 @@ fun EditTransactionRowRoute(
 
 @Composable
 fun EditTransactionRowScreen(
-    editTransactionRowState: EditTransactionRowState,
+    state: EditTransactionRowState,
     snackbarHostState: SnackbarHostState,
     onEvent: (EditTransactionRowUiEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
-    when (editTransactionRowState) {
+    when (state) {
         is EditTransactionRowState.Loading -> LoadingOverlay()
         is EditTransactionRowState.Ready -> {
             EditTransactionRowScreen(
-                transactionRow = editTransactionRowState.transactionRow,
+                transactionRowId = state.transactionRowId,
+                nameField = state.nameField,
+                amountField = state.amountField,
+                paymentDateField = state.paymentDateField,
+                typeOfTransactionField = state.typeOfTransactionField,
+                descriptionField = state.descriptionField,
                 snackbarHostState = snackbarHostState,
                 onEvent = onEvent,
                 onBackClick = onBackClick
@@ -86,7 +104,12 @@ fun EditTransactionRowScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTransactionRowScreen(
-    transactionRow: TransactionRow,
+    transactionRowId: Long,
+    nameField: NameField,
+    amountField: AmountField,
+    paymentDateField: PaymentDateField,
+    typeOfTransactionField: TypeOfTransactionField,
+    descriptionField: DescriptionField,
     snackbarHostState: SnackbarHostState,
     onEvent: (EditTransactionRowUiEvent) -> Unit,
     onBackClick: () -> Unit
@@ -94,24 +117,24 @@ fun EditTransactionRowScreen(
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                Text(text = when(transactionRow.id) {
-                    -1L -> ""
-                    else -> stringResource(R.string.edit)
-                })
+                Text(
+                    text = when (transactionRowId) {
+                        -1L -> ""
+                        else -> stringResource(R.string.edit)
+                    }
+                )
             }, navigationIcon = {
-                IconButton(
-                    onClick = { onBackClick() },
-
-                    ) {
+                IconButton(onClick = { onBackClick() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = ""
+                        contentDescription = stringResource(R.string.go_back)
                     )
                 }
             }, actions = {
-                IconButton(onClick = { onEvent(EditTransactionRowUiEvent.Save) }) {
+                IconButton(onClick = { onEvent(Save) }) {
                     Icon(
-                        imageVector = Icons.Filled.Done, contentDescription = ""
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = stringResource(R.string.save)
                     )
                 }
             }, colors = TopAppBarColors(
@@ -133,39 +156,67 @@ fun EditTransactionRowScreen(
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             TextField(
-                label = stringResource(R.string.title),
-                text = transactionRow.name,
-                onValueChange = { changeName(onEvent, it) }
+                label = stringResource(R.string.name),
+                text = nameField.name,
+                supportingText = nameField.error?.toStringResource(),
+                isError = nameField.error != null,
+                onValueChange = { onEvent(UpdateField(nameField.copy(name = it, error = null))) }
             )
 
-            IntegerTextField (
+            IntegerTextField(
                 label = stringResource(R.string.amount),
-                text = transactionRow.amount.toString(),
-                onValueChange = { changeAmount(onEvent, it) }
+                text = amountField.amount.toString(),
+                onValueChange = {
+                    onEvent(
+                        UpdateField(
+                            amountField.copy(
+                                amount = it.toIntOrNull() ?: 0
+                            )
+                        )
+                    )
+                }
             )
 
             DatePicker(
                 label = stringResource(R.string.date),
-                date = transactionRow.paymentDate,
-                onDateSelected = { changePaymentDate(onEvent, it) }
+                date = paymentDateField.paymentDate,
+                onDateSelected = {
+                    it?.let {
+                        onEvent(
+                            UpdateField(
+                                paymentDateField.copy(
+                                    paymentDate = Instant.ofEpochMilli(it)
+                                        .atZone(ZoneId.systemDefault()).toLocalDate()
+                                )
+                            )
+                        )
+                    }
+                }
             )
 
             TextFieldWithDropdownMenu(
                 label = stringResource(R.string.type),
-                text = transactionRow.typeOfTransactionCode?.value
-                    ?: "",
-                selectedKey = transactionRow.typeOfTransactionCode?.name ?: "",
+                text = typeOfTransactionField.typeOfTransactionCode.value,
+                selectedKey = typeOfTransactionField.typeOfTransactionCode.name,
                 menuOptions = TransactionRow.Type.entries.associateBy({ it.name }, { it.value }),
                 onClick = { typeOfTransactionCode, _ ->
-                    changeTypeOfTransaction(onEvent, typeOfTransactionCode)
+                    onEvent(
+                        UpdateField(
+                            typeOfTransactionField.copy(
+                                typeOfTransactionCode = TransactionRow.Type.valueOf(
+                                    typeOfTransactionCode
+                                )
+                            )
+                        )
+                    )
                 }
             )
 
             TextField(
                 label = stringResource(R.string.description),
-                text = transactionRow.description ?: "",
+                text = descriptionField.description ?: "",
                 maxLines = 10,
-                onValueChange = { changeDescription(onEvent, it) }
+                onValueChange = { onEvent(UpdateField(descriptionField.copy(description = it))) }
             )
         }
     }

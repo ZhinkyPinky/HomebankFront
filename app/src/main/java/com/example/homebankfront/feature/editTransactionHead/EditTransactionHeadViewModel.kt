@@ -22,6 +22,7 @@ import com.example.homebankfront.feature.utility.Error
 import com.example.homebankfront.feature.utility.Logger
 import com.example.homebankfront.feature.utility.ResultGeneric.Failure
 import com.example.homebankfront.feature.utility.ResultGeneric.Success
+import com.example.homebankfront.feature.utility.logError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,7 +63,7 @@ class EditTransactionHeadViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.message?.let { Logger.e(message = it) }
+                e.message?.let { logError(it) }
             }
         }
     }
@@ -94,8 +95,7 @@ class EditTransactionHeadViewModel @Inject constructor(
                 is Failure -> _state.update { validationResult.error }
                 is Success -> viewModelScope.launch {
                     val transactionHead = currentState.toTransactionHead()
-                    when (val result =
-                        transactionHeadRepository.saveTransactionHead(transactionHead)) {
+                    when (val result = transactionHeadRepository.saveTransactionHead(transactionHead)) {
                         is Failure -> handleError(result.error)
                         is Success -> _state.update { Saved }
                     }

@@ -31,29 +31,26 @@
     <string name="email">Email</string>
 
 
-    <!-- Error -->
+    <!-- Errors -->
     <string name="unknown_error">Något gick fel</string>
 
-    <!-- Network errorFlow -->
+    <!-- Network error -->
     <string name="connection_timed_out">Uppkopplingen misslyckades</string>
     <string name="retry_connection">Uppkopplingen misslyckades. Försöker igen… (%d/%d)</string>
     <string name="empty_response_body">Svarskroppen saknas</string>
 
-    <!-- Auth errors -->
     <string name="missing_username">Ange ett användarnamn</string>
     <string name="missing_password">Ange ett lösenord</string>
     <string name="missing_email">Ange ett email</string>
     <string name="invalid_email">Ogilitigt email</string>
-
-    <!-- Auth errors -->
     <string name="bad_credentials">Felaktiga inloggninguppifter</string>
 
-    <!-- Edit transaction name errors -->
-    <string name="missing_transaction_name">Ange ett namn</string>
+    <string name="missing_name">Ange ett namn</string>
     <string name="missing_borrower">Långtagare saknas</string>
     <string name="missing_lender">Långivare saknas</string>
     <string name="missing_start_date">Startdatum saknas</string>
     <string name="go_back">Gå tillbaka</string>
     <string name="new_transaction_head">Nytt transaktionshuvud</string>
     <string name="error_wrong_id">Error: Fel id</string>
+    <string name="name">Namn</string>
 </resources>
