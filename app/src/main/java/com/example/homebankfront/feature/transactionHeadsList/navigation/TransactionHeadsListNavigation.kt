@@ -2,26 +2,22 @@ package com.example.homebankfront.feature.transactionHeadsList.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.example.homebankfront.feature.transactionHeadsList.TransactionHeadsScreen
+import kotlinx.serialization.Serializable
 
-fun NavController.navigateToTransactionHeadsList(
-    customerId: Long,
-) = navigate(
-    route = "customers/$customerId/transactionHeads"
-)
+@Serializable
+data class TransactionHeadsList(val customerId: Long)
+
+fun NavController.navigateToTransactionHeadsList(customerId: Long) =
+    navigate(TransactionHeadsList(customerId))
 
 fun NavGraphBuilder.transactionHeadsListScreen(
-    onNewTransactionHeadClick: (Long, Long) -> Unit,
+    onNewTransactionHeadClick: (Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
-    composable(
-        route = "customers/{customerId}/transactionHeads",
-        arguments = listOf(navArgument("customerId") { type = NavType.LongType })
-    ) {
+    composable<TransactionHeadsList> {
         TransactionHeadsScreen(
             onNewTransactionHeadClick = onNewTransactionHeadClick,
             onTransactionHeadClick = onTransactionHeadClick,

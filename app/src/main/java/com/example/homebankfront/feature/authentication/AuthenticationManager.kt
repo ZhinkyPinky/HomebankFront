@@ -11,13 +11,10 @@ import androidx.credentials.PasswordCredential
 import androidx.credentials.exceptions.GetCredentialException
 import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.feature.utility.Logger
-import com.example.homebankfront.security.SecureTokenStorage
-import com.example.homebankfront.security.TokenStorage
-import kotlinx.coroutines.flow.merge
 import javax.inject.Inject
 
 class AuthenticationManager @Inject constructor(
-    private val activityContext: Context,
+    private val activityContext: Context
 ) {
     private val credentialManager = CredentialManager.create(activityContext)
 

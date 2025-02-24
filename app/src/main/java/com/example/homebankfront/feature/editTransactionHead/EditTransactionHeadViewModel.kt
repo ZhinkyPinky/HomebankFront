@@ -3,11 +3,25 @@ package com.example.homebankfront.feature.editTransactionHead
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.homebankfront.feature.editTransactionHead.domain.SaveTransactionHeadUseCase
+import com.example.homebankfront.data.repositories.TransactionHeadRepository
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.BorrowerField
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.DescriptionField
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.EndDateField
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.LenderField
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.PrelEndDateField
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.StartDateField
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.TransactionNameField
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.Loading
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.Ready
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.Saved
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadUiEvent.Save
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadUiEvent.UpdateField
 import com.example.homebankfront.feature.editTransactionRow.domain.GetCustomersAndTransactionHeadUseCase
-import com.example.homebankfront.feature.utility.Event
-import com.example.homebankfront.feature.utility.Result
-import com.example.homebankfront.feature.utility.ResultGeneric
+import com.example.homebankfront.feature.utility.Either
+import com.example.homebankfront.feature.utility.Error
+import com.example.homebankfront.feature.utility.Logger
+import com.example.homebankfront.feature.utility.ResultGeneric.Failure
+import com.example.homebankfront.feature.utility.ResultGeneric.Success
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,91 +35,78 @@ import javax.inject.Inject
 @HiltViewModel
 class EditTransactionHeadViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getData: GetCustomersAndTransactionHeadUseCase,
-    private val save: SaveTransactionHeadUseCase
+    private val transactionHeadRepository: TransactionHeadRepository,
+    private val getCustomersAndTransactionHead: GetCustomersAndTransactionHeadUseCase,
 ) : ViewModel() {
-    private val customerId: Long = checkNotNull(savedStateHandle["customerId"])
     private val transactionHeadId: Long = checkNotNull(savedStateHandle["transactionHeadId"])
 
     private val _state: MutableStateFlow<EditTransactionHeadState> =
-        MutableStateFlow(EditTransactionHeadState.Loading)
+        MutableStateFlow(Loading)
     val state = _state.asStateFlow()
 
-    private val _snackbarFlow = MutableSharedFlow<Event<String>>()
-    val snackbarFlow = _snackbarFlow.asSharedFlow()
+    private val _errorFlow = MutableSharedFlow<Either<EditTransactionHeadError, Error>>(
+        extraBufferCapacity = 10
+    )
+    val errorFlow = _errorFlow.asSharedFlow()
 
     init {
         viewModelScope.launch {
             try {
-                when (val result = getData(transactionHeadId)) {
-                    is ResultGeneric.Failure -> TODO()
-                    is ResultGeneric.Success -> _state.update {
-                        EditTransactionHeadState.Ready(
-                            transactionHead = result.data.transactionHead,
-                            customers = result.data.customers
-                        )
+                when (val result = getCustomersAndTransactionHead(transactionHeadId)) {
+                    is Failure -> TODO()
+                    is Success -> _state.update {
+                        val customers = result.data.customers
+                        val transactionHead = result.data.transactionHead
+
+                        transactionHead.toReady(customers = customers)
                     }
                 }
             } catch (e: Exception) {
-                e.message?.let { showSnackbar(it) }
+                e.message?.let { Logger.e(message = it) }
             }
         }
     }
 
     fun onEvent(event: EditTransactionHeadUiEvent): Any = when (event) {
-        is EditTransactionHeadUiEvent.UpdateField -> update(event.field)
-        is EditTransactionHeadUiEvent.Save -> save()
+        is UpdateField -> updateField(event.field)
+        is Save -> save()
     }
 
-    private fun update(field: EditTransactionHeadField) = _state.update { currentState ->
-        if (currentState is EditTransactionHeadState.Ready) {
-            var transactionHead = currentState.transactionHead
-
-            transactionHead = when (field) {
-                is EditTransactionHeadField.TransactionName -> transactionHead.copy(transactionName = field.transactionName)
-                is EditTransactionHeadField.Lender -> transactionHead.copy(
-                    lenderId = field.lenderId,
-                    lender = field.lender
-                )
-
-                is EditTransactionHeadField.Borrower -> transactionHead.copy(
-                    borrowerId = field.borrowerId,
-                    borrower = field.borrower
-                )
-
-                is EditTransactionHeadField.StartDate -> transactionHead.copy(startDate = field.startDate)
-                is EditTransactionHeadField.PrelEndDate -> transactionHead.copy(prelEndDate = field.prelEndDate)
-                is EditTransactionHeadField.EndDate -> transactionHead.copy(endDate = field.endDate)
-                is EditTransactionHeadField.Description -> transactionHead.copy(description = field.description)
+    private fun updateField(field: EditTransactionHeadField) = _state.value.let { currentState ->
+        if (currentState is Ready) {
+            _state.update {
+                when (field) {
+                    is TransactionNameField -> currentState.copy(transactionNameField = field)
+                    is BorrowerField -> currentState.copy(borrowerField = field)
+                    is DescriptionField -> currentState.copy(descriptionField = field)
+                    is EndDateField -> currentState.copy(endDateField = field)
+                    is LenderField -> currentState.copy(lenderField = field)
+                    is PrelEndDateField -> currentState.copy(prelEndDateField = field)
+                    is StartDateField -> currentState.copy(startDateField = field)
+                }
             }
-
-            currentState.copy(transactionHead = transactionHead)
-        } else {
-            currentState
         }
     }
 
-    private fun save() = viewModelScope.launch {
-        try {
-            _state.value.let { currentState ->
-                if (currentState is EditTransactionHeadState.Ready) {
-                    val transactionHead = currentState.transactionHead
-
-                    when (val result = save(transactionHead)) {
-                        is Result.Failure -> showSnackbar(result.message)
-                        is Result.Success -> _state.update { EditTransactionHeadState.Saved }
+    private fun save() = _state.value.let { currentState ->
+        if (currentState is Ready) {
+            when (val validationResult = currentState.validate()) {
+                is Failure -> _state.update { validationResult.error }
+                is Success -> viewModelScope.launch {
+                    val transactionHead = currentState.toTransactionHead()
+                    when (val result =
+                        transactionHeadRepository.saveTransactionHead(transactionHead)) {
+                        is Failure -> handleError(result.error)
+                        is Success -> _state.update { Saved }
                     }
                 }
             }
-        } catch (e: Exception) {
-            e.message?.let { message ->
-                showSnackbar(message)
-            }
         }
     }
 
-    private fun showSnackbar(message: String) = viewModelScope.launch {
-        _snackbarFlow.emit(Event(message))
+    private suspend fun handleError(error: Either<EditTransactionHeadError, Error>) = when (error) {
+        is Either.Left -> TODO()
+        is Either.Right -> _errorFlow.emit(error)
     }
 }
 

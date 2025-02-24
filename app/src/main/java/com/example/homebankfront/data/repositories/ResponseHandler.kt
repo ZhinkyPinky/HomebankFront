@@ -12,11 +12,11 @@ import com.google.gson.Gson
 import retrofit2.Response
 
 class ResponseHandler {
-    inline operator fun <T, L> invoke(
+    inline operator fun <T, S, L> invoke(
         response: Response<T>,
-        onSuccess: (T) -> Success<T>,
+        onSuccess: (T) -> Success<S>,
         onFailure: (String?) -> Failure<Either<L, Error>>
-    ): ResultGeneric<T, Either<L, Error>> = when {
+    ): ResultGeneric<S, Either<L, Error>> = when {
         response.isSuccessful -> response.body()?.let { body ->
             onSuccess(body)
         } ?: Failure(Right(EmptyResponseBody))

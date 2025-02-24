@@ -1,7 +1,6 @@
 package com.example.homebankfront.feature.editTransactionHead
 
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 
 sealed interface EditTransactionHeadUiEvent {
@@ -13,10 +12,9 @@ sealed interface EditTransactionHeadUiEvent {
 fun updateTransactionName(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     transactionName: String
-) =
-    onEvent(
+) = onEvent(
     EditTransactionHeadUiEvent.UpdateField(
-        EditTransactionHeadField.TransactionName(
+        EditTransactionHeadField.TransactionNameField(
             transactionName = transactionName
         )
     )
@@ -24,33 +22,13 @@ fun updateTransactionName(
 
 fun updateLender(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
-    lenderId: String,
-    lender: String
-) = lenderId.toLongOrNull()?.let {
-    onEvent(
-        EditTransactionHeadUiEvent.UpdateField(
-            EditTransactionHeadField.Lender(
-                lenderId = it,
-                lender = lender
-            )
-        )
-    )
-}
+    lenderField: EditTransactionHeadField.LenderField
+) = onEvent(EditTransactionHeadUiEvent.UpdateField(lenderField))
 
 fun updateBorrower(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
-    borrowerId: String,
-    borrower: String
-) = borrowerId.toLongOrNull()?.let {
-    onEvent(
-        EditTransactionHeadUiEvent.UpdateField(
-            EditTransactionHeadField.Borrower(
-                borrowerId = it,
-                borrower = borrower
-            )
-        )
-    )
-}
+    borrowerField: EditTransactionHeadField.BorrowerField
+) = onEvent(EditTransactionHeadUiEvent.UpdateField(borrowerField))
 
 fun updateStartDate(
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
@@ -58,7 +36,7 @@ fun updateStartDate(
 ) = startDate?.let {
     onEvent(
         EditTransactionHeadUiEvent.UpdateField(
-            EditTransactionHeadField.StartDate(
+            EditTransactionHeadField.StartDateField(
                 startDate = Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
             )
         )
@@ -71,7 +49,7 @@ fun updatePrelEndDate(
 ) = prelEndDate?.let {
     onEvent(
         EditTransactionHeadUiEvent.UpdateField(
-            EditTransactionHeadField.PrelEndDate(
+            EditTransactionHeadField.PrelEndDateField(
                 prelEndDate = Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
             )
         )
@@ -84,7 +62,7 @@ fun updateEndDate(
 ) = endDate?.let {
     onEvent(
         EditTransactionHeadUiEvent.UpdateField(
-            EditTransactionHeadField.EndDate(
+            EditTransactionHeadField.EndDateField(
                 endDate = Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
             )
         )
@@ -96,7 +74,7 @@ fun updateDescription(
     description: String
 ) = onEvent(
     EditTransactionHeadUiEvent.UpdateField(
-        EditTransactionHeadField.Description(description = description)
+        EditTransactionHeadField.DescriptionField(description = description)
     )
 )
 

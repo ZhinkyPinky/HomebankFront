@@ -24,7 +24,6 @@ import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.*
 import com.example.homebankfront.feature.authentication.AuthenticationField.*
 import com.example.homebankfront.feature.authentication.AuthenticationState.*
-import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.*
 import com.example.homebankfront.feature.utility.getStringResourceFromContext
 import com.example.homebankfront.ui.components.LoadingOverlay
@@ -74,7 +73,7 @@ fun AuthenticationScreen(
     val coroutineScope = rememberCoroutineScope()
 
     when (state) {
-        is NotSignedIn -> {
+        is Authenticating -> {
             LaunchedEffect(Unit) {
                 coroutineScope.launch {
                     signIn()

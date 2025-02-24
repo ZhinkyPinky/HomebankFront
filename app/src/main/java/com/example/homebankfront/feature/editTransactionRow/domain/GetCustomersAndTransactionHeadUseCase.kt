@@ -1,6 +1,5 @@
 package com.example.homebankfront.feature.editTransactionRow.domain
 
-import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.CustomersAndTransactionHead
 import com.example.homebankfront.data.bodies.TransactionHead
 import com.example.homebankfront.data.repositories.CustomerRepository
@@ -28,9 +27,7 @@ class GetCustomersAndTransactionHeadUseCase @Inject constructor(
         } else {
             //TODO: Complete.
             ResultGeneric.Success(
-                customerRepository.getCustomersAndTransactionHead(
-                    transactionHeadId
-                )
+                customerRepository.getCustomersAndTransactionHead(transactionHeadId)
             )
         }
     }

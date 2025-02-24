@@ -53,7 +53,7 @@ import java.time.LocalDate
 @Composable
 internal fun TransactionHeadAndRowsScreen(
     viewModel: TransactionHeadAndRowsViewModel = hiltViewModel(),
-    onEditTransactionHeadClick: (Long, Long) -> Unit,
+    onEditTransactionHeadClick: (Long) -> Unit,
     onEditTransactionRowClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -76,7 +76,7 @@ internal fun TransactionHeadAndRowsScreen(
 @Composable
 fun TransactionHeadAndRowsScreen(
     transactionHeadAndRowsState: TransactionHeadAndRowsState,
-    onEditTransactionClick: (Long, Long) -> Unit,
+    onEditTransactionClick: (Long) -> Unit,
     onEditTransactionRowClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit,
     onEvent: (TransactionHeadAndRowsUiEvent) -> Unit
@@ -112,7 +112,7 @@ fun TransactionHeadAndRowsScreen(
     customer: Customer,
     transactionHead: TransactionHead,
     transactionRows: List<TransactionRow>,
-    onEditTransactionHeadClick: (Long, Long) -> Unit,
+    onEditTransactionHeadClick: (Long) -> Unit,
     onEditTransactionRowClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit,
     onEvent: (TransactionHeadAndRowsUiEvent) -> Unit
@@ -138,7 +138,6 @@ fun TransactionHeadAndRowsScreen(
             modifier = Modifier.padding(paddingValues)
         ) {
             TransactionHeadInfo(
-                customer = customer,
                 transactionHead = transactionHead,
                 onEditTransactionHeadClick = onEditTransactionHeadClick,
                 onEvent = onEvent
@@ -156,13 +155,11 @@ fun TransactionHeadAndRowsScreen(
 
 @Composable
 fun TransactionHeadInfo(
-    customer: Customer,
     transactionHead: TransactionHead,
-    onEditTransactionHeadClick: (Long, Long) -> Unit,
+    onEditTransactionHeadClick: (Long) -> Unit,
     onEvent: (TransactionHeadAndRowsUiEvent) -> Unit
 ) {
     TransactionHeadInfoTopBar(
-        customer = customer,
         transactionHead = transactionHead,
         onEditTransactionHeadClick = onEditTransactionHeadClick,
         onEvent = onEvent
@@ -174,7 +171,7 @@ fun TransactionHeadInfo(
                 Column(modifier = Modifier.weight(2f)) {
                     TextWithLabel(
                         label = stringResource(R.string.title),
-                        text = transactionHead.transactionName ?: "",
+                        text = transactionHead.transactionName,
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -182,13 +179,13 @@ fun TransactionHeadInfo(
                     Row(horizontalArrangement = Arrangement.Start) {
                         TextWithLabel(
                             label = stringResource(R.string.lender),
-                            text = transactionHead.lender ?: "",
+                            text = transactionHead.lender,
                             modifier = Modifier.weight(1f)
                         )
 
                         TextWithLabel(
                             label = stringResource(R.string.borrower),
-                            text = transactionHead.borrower ?: "",
+                            text = transactionHead.borrower,
                             modifier = Modifier.weight(2f)
                         )
                     }
@@ -202,13 +199,11 @@ fun TransactionHeadInfo(
                 }
 
                 Column(modifier = Modifier.weight(1f)) {
-                    transactionHead.startDate?.let {
-                        TextWithLabel(
-                            label = stringResource(R.string.start_date),
-                            text = it.toString(),
-                            horizontalAlignment = Alignment.End,
-                        )
-                    }
+                    TextWithLabel(
+                        label = stringResource(R.string.start_date),
+                        text = transactionHead.startDate.toString(),
+                        horizontalAlignment = Alignment.End,
+                    )
 
                     transactionHead.prelEndDate?.let {
                         Spacer(modifier = Modifier.height(6.dp))
@@ -244,20 +239,19 @@ fun TransactionHeadInfo(
 
 @Composable
 fun TransactionHeadInfoTopBar(
-    customer: Customer,
     transactionHead: TransactionHead,
-    onEditTransactionHeadClick: (Long, Long) -> Unit,
+    onEditTransactionHeadClick: (Long) -> Unit,
     onEvent: (TransactionHeadAndRowsUiEvent) -> Unit
 ) {
-    val showDialog = rememberSaveable { mutableStateOf(false) }
+    val showDeleteDialog = rememberSaveable { mutableStateOf(false) }
 
-    if (showDialog.value) {
+    if (showDeleteDialog.value) {
         ConfirmationDialog(
             title = stringResource(R.string.remove),
             text = stringResource(R.string.remove_transaction_head_confirmation),
             confirmButtonText = stringResource(R.string.yes),
             onConfirm = { delete(onEvent, transactionHead) },
-            onDismissRequest = { showDialog.value = false }
+            onDismissRequest = { showDeleteDialog.value = false }
         )
     }
 
@@ -276,13 +270,8 @@ fun TransactionHeadInfoTopBar(
 
             MoreDropDownMenu(
                 map = mapOf(
-                    stringResource(R.string.edit) to {
-                        onEditTransactionHeadClick(
-                            customer.id,
-                            transactionHead.id
-                        )
-                    },
-                    stringResource(R.string.remove) to { showDialog.value = true }
+                    stringResource(R.string.edit) to { onEditTransactionHeadClick(transactionHead.id) },
+                    stringResource(R.string.remove) to { showDeleteDialog.value = true }
                 )
             )
         }
@@ -470,11 +459,12 @@ fun TransactionRowListItem(
 @ThemePreviews
 @Composable
 fun TransactionHeadInfoPreview() {
-    val customer = Customer()
     val transactionHead = TransactionHead(
         transactionName = "TestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTest",
         lender = "Test",
+        lenderId = -1L,
         borrower = "Test",
+        borrowerId = -1L,
         startDate = LocalDate.now(),
         prelEndDate = LocalDate.now(),
         endDate = LocalDate.now(),
@@ -483,9 +473,8 @@ fun TransactionHeadInfoPreview() {
 
     HomeBankFrontTheme {
         TransactionHeadInfo(
-            customer = customer,
             transactionHead = transactionHead,
-            onEditTransactionHeadClick = { _, _ -> },
+            onEditTransactionHeadClick = { _ -> },
             onEvent = {}
         )
     }
@@ -494,7 +483,13 @@ fun TransactionHeadInfoPreview() {
 @ThemePreviews
 @Composable
 fun TransactionRowListItemPreview() {
-    val transactionHead = TransactionHead()
+    val transactionHead = TransactionHead(
+        transactionName = "",
+        lender = "Test",
+        lenderId = -1L,
+        borrower = "Test",
+        borrowerId = -1L,
+    )
     val transactionRow = TransactionRow(
         transactionRowNo = 1,
         name = "TestTestTestTestTestTestTest",
@@ -521,7 +516,13 @@ fun TransactionRowListItemPreview() {
 @ThemePreviews
 @Composable
 fun TransactionRowListItemExpandedPreview() {
-    val transactionHead = TransactionHead()
+    val transactionHead = TransactionHead(
+        transactionName = "",
+        lender = "Test",
+        lenderId = -1L,
+        borrower = "Test",
+        borrowerId = -1L,
+    )
     val transactionRow = TransactionRow(
         transactionRowNo = 1,
         name = "TestTestTestTestTestTestTest",

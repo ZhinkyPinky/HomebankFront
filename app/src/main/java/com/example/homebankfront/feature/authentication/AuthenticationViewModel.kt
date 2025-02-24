@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.data.repositories.AuthRepository
 import com.example.homebankfront.feature.authentication.AuthenticationError.BadCredentials
-import com.example.homebankfront.feature.authentication.AuthenticationError.PasswordFieldError.MissingPassword
-import com.example.homebankfront.feature.authentication.AuthenticationError.UsernameFieldError.MissingUsername
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.Authenticate
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.NoCredentials
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.TogglePasswordVisibility
@@ -13,18 +11,18 @@ import com.example.homebankfront.feature.authentication.AuthenticationEvent.Upda
 import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
 import com.example.homebankfront.feature.authentication.AuthenticationField.UsernameField
 import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticated
-import com.example.homebankfront.feature.authentication.AuthenticationState.NotSignedIn
+import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticating
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.Error
 import com.example.homebankfront.feature.utility.Error.UnknownError
 import com.example.homebankfront.feature.utility.EventEmitter
-import com.example.homebankfront.feature.utility.Logger
 import com.example.homebankfront.feature.utility.NetworkError
 import com.example.homebankfront.feature.utility.ResultGeneric.Failure
 import com.example.homebankfront.feature.utility.ResultGeneric.Success
-import com.example.homebankfront.security.TokenStorage
+import com.example.homebankfront.feature.utility.logDebug
+import com.example.homebankfront.feature.utility.logError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,11 +40,10 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthenticationViewModel @Inject constructor(
     private val networkErrorEmitter: EventEmitter<NetworkError>,
-    private val tokenStorage: TokenStorage,
     private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _state: MutableStateFlow<AuthenticationState> =
-        MutableStateFlow(NotSignedIn())
+        MutableStateFlow(Authenticating())
     val state = _state.asStateFlow()
 
     private val _errorFlow = MutableSharedFlow<Either<AuthenticationError, Error>>(
@@ -55,21 +52,21 @@ class AuthenticationViewModel @Inject constructor(
     val errorFlow = _errorFlow.asSharedFlow()
 
     init {
-        observeNetworkEvents()
+        observeNetworkErrors()
     }
 
-    private fun observeNetworkEvents() = networkErrorEmitter.event.map {
+    private fun observeNetworkErrors() = networkErrorEmitter.event.map {
         Right(it)
     }.buffer(10).onEach {
         _errorFlow.emit(it)
     }.catch { e ->
-        e.message?.let { Logger.e(message = it) }
+        e.message?.let { logError(it) }
     }.launchIn(viewModelScope)
 
     fun onEvent(event: AuthenticationEvent) {
-        Logger.d(message = "Received event: $event")
+        logDebug("Received event: $event")
         when (event) {
-            is NoCredentials -> _state.update { NotSignedIn() }
+            is NoCredentials -> _state.update { Authenticating() }
             is Authenticate -> authenticate()
             is TogglePasswordVisibility -> togglePasswordVisibility()
             is UpdateField -> updateField(event.field)
@@ -77,7 +74,7 @@ class AuthenticationViewModel @Inject constructor(
     }
 
     private fun updateField(field: AuthenticationField) = _state.update { currentState ->
-        if (currentState is NotSignedIn) {
+        if (currentState is Authenticating) {
             when (field) {
                 is PasswordField -> currentState.copy(passwordField = field)
                 is UsernameField -> currentState.copy(usernameField = field)
@@ -88,76 +85,36 @@ class AuthenticationViewModel @Inject constructor(
     }
 
     private fun togglePasswordVisibility() = _state.value.let { currentState ->
-        if (currentState is NotSignedIn) {
+        if (currentState is Authenticating) {
             val passwordField = currentState.passwordField
             updateField(passwordField.copy(showPassword = !passwordField.showPassword))
         }
     }
 
     private fun toggleLoading() = _state.update { currentState ->
-        if (currentState is NotSignedIn) currentState.copy(isLoading = !currentState.isLoading) else currentState
+        if (currentState is Authenticating) currentState.copy(isLoading = !currentState.isLoading) else currentState
     }
 
-    private fun authenticate() {
-        if (validateAuthenticationDetails()) {
-            toggleLoading()
-            viewModelScope.launch {
-                Logger.d(message = "Launched coroutine for authentication event.")
-                _state.update { currentState ->
-                    if (currentState is NotSignedIn) {
+    private fun authenticate() = _state.value.let { currentState ->
+        if (currentState is Authenticating) {
+            when (val validationResult = currentState.validate()) {
+                is Failure -> _state.update { validationResult.error }
+                is Success -> {
+                    toggleLoading()
+                    viewModelScope.launch {
                         when (val result = authRepository.authenticate(currentState.toRequest())) {
-                            is Success -> {
-                                tokenStorage.saveAccessToken(result.data.accessToken)
-                                tokenStorage.saveRefreshToken(result.data.refreshToken)
-                                Authenticated
-                            }
-
+                            is Success -> _state.update { Authenticated }
                             is Failure -> {
                                 handleError(result.error)
-                                currentState.copy(isLoading = false)
+                                toggleLoading()
                             }
                         }
-                    } else {
-                        currentState
                     }
                 }
             }
         }
     }
 
-    private fun validateAuthenticationDetails(): Boolean {
-        var result = true
-
-        _state.update { currentState ->
-            if (currentState is NotSignedIn) {
-                val usernameField = currentState.usernameField
-                val passwordField = currentState.passwordField
-
-                currentState.copy(
-                    usernameField = usernameField.copy(
-                        error = if (usernameField.username.isBlank()) {
-                            result = false
-                            MissingUsername
-                        } else {
-                            null
-                        },
-                    ),
-                    passwordField = passwordField.copy(
-                        error = if (passwordField.password.isBlank()) {
-                            result = false
-                            MissingPassword
-                        } else {
-                            null
-                        }
-                    )
-                )
-            } else {
-                currentState
-            }
-        }
-
-        return result
-    }
 
     private suspend fun handleError(error: Either<AuthenticationError, Error>) = when (error) {
         is Left -> when (error.value) {

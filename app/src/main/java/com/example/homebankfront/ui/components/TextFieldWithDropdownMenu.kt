@@ -24,12 +24,14 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TextFieldWithDropdownMenu(
+fun <T> TextFieldWithDropdownMenu(
     label: String = "",
     text: String = "",
+    supportingText: String? = null,
+    isError: Boolean = false,
     selectedKey: String,
-    menuOptions: Map<String, String>,
-    onClick: (String, String) -> Unit,
+    menuOptions: Map<T, String>,
+    onClick: (T, String) -> Unit,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -41,6 +43,8 @@ fun TextFieldWithDropdownMenu(
         OutlinedTextField(
             value = text,
             onValueChange = {},
+            supportingText = { supportingText?.let { Text(text = it) } },
+            isError = isError,
             readOnly = true,
             singleLine = true,
             label = { Text(label) },
@@ -61,7 +65,12 @@ fun TextFieldWithDropdownMenu(
                     text = {
                         Text(text = value)
                     },
-                    leadingIcon = { if (selected) Icon(imageVector = Icons.Filled.Check, contentDescription = "")},
+                    leadingIcon = {
+                        if (selected) Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = ""
+                        )
+                    },
                     onClick = {
                         onClick(key, value)
                         expanded = false

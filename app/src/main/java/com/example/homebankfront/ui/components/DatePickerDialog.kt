@@ -31,6 +31,8 @@ import java.time.ZoneId
 @Composable
 fun DatePicker(
     label: String, date: LocalDate?,
+    supportingText: String? = null,
+    isError: Boolean = false,
     onDateSelected: (Long?) -> Unit
 ) {
     val showDialog = rememberSaveable { mutableStateOf(false) }
@@ -50,6 +52,8 @@ fun DatePicker(
     OutlinedTextField(
         value = date?.toString() ?: "",
         onValueChange = { },
+        supportingText = { supportingText?.let { Text(supportingText) } },
+        isError = isError,
         readOnly = true,
         label = { Text(text = label) },
         trailingIcon = {
@@ -85,9 +89,8 @@ fun DatePickerDialog(
     onDateSelected: (Long?) -> Unit, onDismiss: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = currentDate?.let {
-            it.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        }
+        initialSelectedDateMillis = currentDate?.plusDays(1)?.atStartOfDay(ZoneId.systemDefault())
+            ?.toInstant()?.toEpochMilli()
     )
 
     DatePickerDialog(onDismissRequest = onDismiss, confirmButton = {

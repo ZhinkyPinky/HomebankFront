@@ -2,29 +2,20 @@ package com.example.homebankfront.feature.editTransactionHead.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadRoute
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadScreen
+import kotlinx.serialization.Serializable
 
-fun NavController.navigateToEditTransactionHead(
-    customerId : Long,
-    transactionHeadId : Long
-) = navigate(
-    route = "customers/$customerId/transactionHeads/$transactionHeadId/edit"
-)
+@Serializable
+data class EditTransactionHead(val transactionHeadId: Long)
+
+fun NavController.navigateToEditTransactionHead(transactionHeadId: Long) =
+    navigate(route = EditTransactionHead(transactionHeadId))
 
 fun NavGraphBuilder.editTransactionHeadScreen(
-    onBackClick : () -> Unit
+    onBackClick: () -> Unit
 ) {
-    composable(
-        route = "customers/{customerId}/transactionHeads/{transactionHeadId}/edit",
-        arguments = listOf(
-            navArgument("customerId") { type = NavType.LongType },
-            navArgument("transactionHeadId") { type = NavType.LongType })
-    ) {
-        EditTransactionHeadRoute(
-            onBackClick = onBackClick
-        )
+    composable<EditTransactionHead> {
+        EditTransactionHeadScreen(onBackClick = onBackClick)
     }
 }

@@ -41,7 +41,7 @@ import com.example.homebankfront.ui.components.TextWithLabel
 @Composable
 internal fun TransactionHeadsScreen(
     viewModel: TransactionHeadsListViewModel = hiltViewModel(),
-    onNewTransactionHeadClick: (Long, Long) -> Unit,
+    onNewTransactionHeadClick: (Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -62,7 +62,7 @@ internal fun TransactionHeadsScreen(
 @Composable
 fun TransactionHeadsScreen(
     transactionHeadsListState: TransactionHeadsListState,
-    onNewTransactionHeadClick: (Long, Long) -> Unit,
+    onNewTransactionHeadClick: (Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -87,7 +87,7 @@ fun TransactionHeadsScreen(
 fun TransactionHeadsScreen(
     customer: Customer,
     transactionHeads: List<TransactionHead>,
-    onNewTransactionHeadClick: (Long, Long) -> Unit,
+    onNewTransactionHeadClick: (Long) -> Unit,
     onTransactionHeadClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -99,15 +99,15 @@ fun TransactionHeadsScreen(
                     IconButton(onClick = { onBackClick() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = ""
+                            contentDescription = stringResource(R.string.go_back)
                         )
                     }
                 },
                 actions = {
-                    IconButton(onClick = { onNewTransactionHeadClick(customer.id, -1L) }) {
+                    IconButton(onClick = { onNewTransactionHeadClick(-1L) }) {
                         Icon(
                             imageVector = Icons.Filled.Add,
-                            contentDescription = ""
+                            contentDescription = stringResource(R.string.new_transaction_head)
                         )
                     }
                 }
@@ -158,7 +158,7 @@ fun TransactionHeadItem(
             Column(modifier = Modifier.weight(1f)) {
                 TextWithLabel(
                     label = stringResource(R.string.title),
-                    text = transactionHead.transactionName ?: ""
+                    text = transactionHead.transactionName
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -167,12 +167,12 @@ fun TransactionHeadItem(
                     label = when (customerId) {
                         transactionHead.lenderId -> stringResource(R.string.to)
                         transactionHead.borrowerId -> stringResource(R.string.from)
-                        else -> "Error: Fel id"
+                        else -> stringResource(R.string.error_wrong_id)
                     },
                     text = when (customerId) {
-                        transactionHead.lenderId -> transactionHead.borrower ?: ""
-                        transactionHead.borrowerId -> transactionHead.lender ?: ""
-                        else -> "Error: Fel id"
+                        transactionHead.lenderId -> transactionHead.borrower
+                        transactionHead.borrowerId -> transactionHead.lender
+                        else -> stringResource(R.string.error_wrong_id)
                     }
                 )
             }

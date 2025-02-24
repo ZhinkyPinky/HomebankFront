@@ -28,8 +28,11 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideTransactionHeadRepository(transactionHeadService: TransactionHeadService): TransactionHeadRepository =
-        TransactionHeadRepository(transactionHeadService)
+    fun provideTransactionHeadRepository(
+        transactionHeadService: TransactionHeadService,
+        responseHandler: ResponseHandler
+    ): TransactionHeadRepository =
+        TransactionHeadRepository(transactionHeadService, responseHandler)
 
     @Provides
     @Singleton
@@ -40,6 +43,7 @@ class RepositoryModule {
     @Singleton
     fun provideAuthRepository(
         authService: AuthService,
+        tokenStorage: TokenStorage,
         responseHandler: ResponseHandler,
-    ): AuthRepository = AuthRepository(authService, responseHandler)
+    ): AuthRepository = AuthRepository(authService, tokenStorage, responseHandler)
 }
