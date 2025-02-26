@@ -9,6 +9,8 @@ fun Any.logDebug(message: String) {
     if (BuildConfig.DEBUG) Log.d(className, message)
 }
 
+fun Any.logInfo(message: String) = Log.i(className, message)
+
 fun Any.logError(message: String) = Log.e(className, message)
 
 class Logger {

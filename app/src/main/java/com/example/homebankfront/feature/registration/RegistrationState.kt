@@ -1,12 +1,7 @@
 package com.example.homebankfront.feature.registration
 
-import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.RegistrationRequest
 import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError
-import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError.InvalidEmail
 import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError.MissingEmail
 import com.example.homebankfront.feature.registration.RegistrationError.PasswordFieldError
 import com.example.homebankfront.feature.registration.RegistrationError.PasswordFieldError.MissingPassword
@@ -15,8 +10,6 @@ import com.example.homebankfront.feature.registration.RegistrationError.Username
 import com.example.homebankfront.feature.registration.RegistrationField.EmailField
 import com.example.homebankfront.feature.registration.RegistrationField.PasswordField
 import com.example.homebankfront.feature.registration.RegistrationField.UsernameField
-import com.example.homebankfront.feature.utility.Either
-import com.example.homebankfront.feature.utility.Error
 import com.example.homebankfront.feature.utility.ResultGeneric
 import com.example.homebankfront.feature.utility.ResultGeneric.Failure
 import com.example.homebankfront.feature.utility.ResultGeneric.Success
@@ -43,6 +36,12 @@ sealed interface RegistrationState {
 
             return if (errors.any { it != null }) Failure(newState) else Success(Unit)
         }
+
+        fun toRegisteredState(): Registered = Registered(
+            username = usernameField.username,
+            password = passwordField.password,
+            email = emailField.email
+        )
 
         fun toRequest(): RegistrationRequest = RegistrationRequest(
             username = usernameField.username,
