@@ -74,41 +74,38 @@ class AuthenticationViewModel @Inject constructor(
     }
 
     private fun updateField(field: AuthenticationField) = _state.update { currentState ->
-        if (currentState is Authenticating) {
-            when (field) {
-                is PasswordField -> currentState.copy(passwordField = field)
-                is UsernameField -> currentState.copy(usernameField = field)
-            }
-        } else {
-            currentState
+        if (currentState !is Authenticating) return
+
+        when (field) {
+            is PasswordField -> currentState.copy(passwordField = field)
+            is UsernameField -> currentState.copy(usernameField = field)
         }
     }
 
     private fun togglePasswordVisibility() = _state.value.let { currentState ->
-        if (currentState is Authenticating) {
-            val passwordField = currentState.passwordField
-            updateField(passwordField.copy(showPassword = !passwordField.showPassword))
-        }
+        if (currentState is Authenticating) updateField(currentState.passwordField.toggleVisibility())
     }
 
-    private fun toggleLoading() = _state.update { currentState ->
-        if (currentState is Authenticating) currentState.copy(isLoading = !currentState.isLoading) else currentState
+    private fun setLoading(isLoading: Boolean) = _state.update { currentState ->
+        if (currentState !is Authenticating) return else currentState.copy(isLoading = isLoading)
     }
 
-    private fun authenticate() = _state.value.let { currentState ->
-        if (currentState is Authenticating) {
-            when (val validationResult = currentState.validate()) {
-                is Failure -> _state.update { validationResult.error }
-                is Success -> {
-                    toggleLoading()
-                    viewModelScope.launch {
+    private fun authenticate() {
+        val currentState = _state.value
+        if (currentState !is Authenticating) return
+
+        when (val validationResult = currentState.validate()) {
+            is Failure -> _state.update { validationResult.error }
+            is Success -> {
+                setLoading(true)
+                viewModelScope.launch {
+                    try {
                         when (val result = authRepository.authenticate(currentState.toRequest())) {
                             is Success -> _state.update { Authenticated }
-                            is Failure -> {
-                                handleError(result.error)
-                                toggleLoading()
-                            }
+                            is Failure -> handleError(result.error)
                         }
+                    } finally {
+                        setLoading(false)
                     }
                 }
             }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -15,11 +16,14 @@ import com.example.homebankfront.ui.theme.HomeBankApp
 import com.example.homebankfront.ui.theme.HomeBankFrontTheme
 import dagger.hilt.android.AndroidEntryPoint
 
-val LocalSnackHostState =
-    compositionLocalOf<SnackbarHostState> { error("No snackbar host state found") }
+val LocalSnackHostState = compositionLocalOf<SnackbarHostState> {
+    error("No snackbar host state found")
+}
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val mainActivityViewModel: MainActivityViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -32,7 +36,7 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(value = LocalSnackHostState provides snackbarHostState) {
                     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { _ ->
                         Surface {
-                            HomeBankApp()
+                            HomeBankApp(onEvent = mainActivityViewModel::onEvent)
                         }
                     }
                 }

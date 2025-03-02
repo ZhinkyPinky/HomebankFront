@@ -4,10 +4,15 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadScreen
+import com.example.homebankfront.feature.utility.className
+import com.example.homebankfront.navigation.Route
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class EditTransactionHead(val transactionHeadId: Long)
+data class EditTransactionHead(val transactionHeadId: Long) : Route {
+    override val enableNavDrawer: Boolean = true
+    override val route: String = className
+}
 
 fun NavController.navigateToEditTransactionHead(transactionHeadId: Long) =
     navigate(route = EditTransactionHead(transactionHeadId))

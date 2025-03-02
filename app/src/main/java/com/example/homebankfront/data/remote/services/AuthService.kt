@@ -4,6 +4,7 @@ import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.data.bodies.RefreshRequest
 import com.example.homebankfront.data.bodies.AuthenticationResponse
 import com.example.homebankfront.data.bodies.RegistrationRequest
+import com.example.homebankfront.data.bodies.SignOutRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -19,5 +20,5 @@ interface AuthService {
     suspend fun refresh(@Body refreshRequest: RefreshRequest): Response<AuthenticationResponse>
 
     @POST(ApiPaths.LOGOUT)
-    suspend fun logout(): Response<String>
+    suspend fun signOut(@Body signOutRequest: SignOutRequest): Response<Unit>
 }

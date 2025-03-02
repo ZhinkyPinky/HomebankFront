@@ -7,7 +7,7 @@ import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowFi
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.PaymentDateField
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.TypeOfTransactionField
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.Ready
-import com.example.homebankfront.feature.editTransactionRow.navigation.EditTransactionRowError.NameFieldError
+import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowError.NameFieldError
 import com.example.homebankfront.feature.utility.ResultGeneric
 import com.example.homebankfront.feature.utility.ResultGeneric.*
 import java.time.LocalDate

@@ -3,7 +3,7 @@ package com.example.homebankfront.feature.utility
 import android.util.Log
 import com.example.homebankfront.BuildConfig
 
-val Any.className: String get() = this::class.java.simpleName
+val Any.className: String get() = this::class.simpleName.toString()
 
 fun Any.logDebug(message: String) {
     if (BuildConfig.DEBUG) Log.d(className, message)
@@ -23,7 +23,6 @@ class Logger {
         }
 
         fun e(tag: String = getCallerClassName(), message: String) = Log.e(tag, message)
-
 
         /**
          * Returns the name of the class that called the logging function.

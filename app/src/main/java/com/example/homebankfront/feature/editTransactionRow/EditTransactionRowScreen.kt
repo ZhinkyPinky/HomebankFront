@@ -32,8 +32,6 @@ import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.TransactionRow
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.*
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowUiEvent.*
-import com.example.homebankfront.feature.editTransactionRow.navigation.getStringResourceFromContext
-import com.example.homebankfront.feature.editTransactionRow.navigation.toStringResource
 import com.example.homebankfront.feature.utility.Either.*
 import com.example.homebankfront.feature.utility.getStringResourceFromContext
 import com.example.homebankfront.ui.components.DatePicker

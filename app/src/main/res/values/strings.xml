@@ -54,4 +54,6 @@
     <string name="new_transaction_head">Nytt transaktionshuvud</string>
     <string name="error_wrong_id">Error: Fel id</string>
     <string name="name">Namn</string>
+    <string name="customers">Kunder</string>
+    <string name="sign_out">Logga ut</string>
 </resources>

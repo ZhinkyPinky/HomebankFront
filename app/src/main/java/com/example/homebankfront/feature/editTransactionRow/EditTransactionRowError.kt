@@ -1,10 +1,9 @@
-package com.example.homebankfront.feature.editTransactionRow.navigation
+package com.example.homebankfront.feature.editTransactionRow
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.homebankfront.R
-import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState
 
 sealed class EditTransactionRowError(val stringResourceId: Int) {
     sealed class NameFieldError(stringResourceId: Int) : EditTransactionRowError(stringResourceId) {

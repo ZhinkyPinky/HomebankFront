@@ -5,10 +5,15 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.homebankfront.feature.authentication.navigation.navigateToAuthentication
 import com.example.homebankfront.feature.registration.RegistrationScreen
+import com.example.homebankfront.feature.utility.className
+import com.example.homebankfront.navigation.Route
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object Registration
+data object Registration : Route {
+    override val enableNavDrawer: Boolean = false
+    override val route: String = className
+}
 
 fun NavController.navigateToRegistration() = navigate(route = Registration)
 

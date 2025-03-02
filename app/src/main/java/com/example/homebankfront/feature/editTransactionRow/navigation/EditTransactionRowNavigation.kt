@@ -2,28 +2,27 @@ package com.example.homebankfront.feature.editTransactionRow.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowRoute
+import com.example.homebankfront.feature.utility.className
+import com.example.homebankfront.navigation.Route
+import kotlinx.serialization.Serializable
 
-fun NavController.navigateToEditTransactionRow(
-    transactionHeadId: Long,
-    transactionRowId: Long
-) = navigate(
-    route = "transactionHeads/$transactionHeadId/transactionRows/$transactionRowId/edit"
-)
 
-fun NavGraphBuilder.editTransactionRowScreen(
-    onBackClick: () -> Unit
-) {
-    composable(
-        route = "transactionHeads/{transactionHeadId}/transactionRows/{transactionRowId}/edit",
-        arguments = listOf(
-            navArgument("transactionHeadId") { type = NavType.LongType },
-            navArgument("transactionRowId") { type = NavType.LongType }
-        )
-    ) {
+@Serializable
+data class EditTransactionRow(
+    val transactionHeadId: Long,
+    val transactionRowId: Long
+) : Route {
+    override val enableNavDrawer: Boolean = true
+    override val route: String = className
+}
+
+fun NavController.navigateToEditTransactionRow(transactionHeadId: Long, transactionRowId: Long) =
+    navigate(route = EditTransactionRow(transactionHeadId, transactionRowId))
+
+fun NavGraphBuilder.editTransactionRowScreen(onBackClick: () -> Unit) {
+    composable<EditTransactionRow> {
         EditTransactionRowRoute(
             onBackClick = onBackClick
         )

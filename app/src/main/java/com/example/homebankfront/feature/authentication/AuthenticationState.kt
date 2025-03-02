@@ -5,9 +5,11 @@ import com.example.homebankfront.feature.authentication.AuthenticationError.Pass
 import com.example.homebankfront.feature.authentication.AuthenticationError.PasswordFieldError.MissingPassword
 import com.example.homebankfront.feature.authentication.AuthenticationError.UsernameFieldError
 import com.example.homebankfront.feature.authentication.AuthenticationError.UsernameFieldError.MissingUsername
-import com.example.homebankfront.feature.authentication.AuthenticationField.*
+import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
+import com.example.homebankfront.feature.authentication.AuthenticationField.UsernameField
 import com.example.homebankfront.feature.utility.ResultGeneric
-import com.example.homebankfront.feature.utility.ResultGeneric.*
+import com.example.homebankfront.feature.utility.ResultGeneric.Failure
+import com.example.homebankfront.feature.utility.ResultGeneric.Success
 
 sealed interface AuthenticationState {
     data object Authenticated : AuthenticationState
@@ -52,5 +54,6 @@ sealed interface AuthenticationField {
         val error: PasswordFieldError? = null
     ) : AuthenticationField {
         fun validate() = if (password.isBlank()) MissingPassword else null
+        fun toggleVisibility() = copy(showPassword = !showPassword)
     }
 }

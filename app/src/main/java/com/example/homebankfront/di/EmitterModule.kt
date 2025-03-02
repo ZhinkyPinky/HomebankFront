@@ -14,4 +14,8 @@ class EmitterModule {
     @Provides
     @Singleton
     fun provideNetworkErrorEmitter(): EventEmitter<NetworkError> = EventEmitter()
+
+    @Provides
+    @Singleton
+    fun provideAppStatusEmitter(): EventEmitter<Unit> = EventEmitter()
 }

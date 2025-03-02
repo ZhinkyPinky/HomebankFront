@@ -13,7 +13,6 @@ import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowSt
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.Ready
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.Saved
 import com.example.homebankfront.feature.editTransactionRow.domain.GetTransactionRowUseCase
-import com.example.homebankfront.feature.editTransactionRow.navigation.EditTransactionRowError
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right

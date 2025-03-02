@@ -1,9 +1,11 @@
 package com.example.homebankfront.security
 
+import com.example.homebankfront.feature.utility.logDebug
 import javax.inject.Inject
 
-class SecureTokenStorage @Inject constructor(private val secureStorage: SecureStorage) :
-    TokenStorage {
+class SecureTokenStorage @Inject constructor(
+    private val secureStorage: SecureStorage
+) : TokenStorage {
     companion object {
         const val REFRESH_TOKEN_KEY = "refreshToken"
         const val ACCESS_TOKEN_KEY = "accessToken"
@@ -19,5 +21,8 @@ class SecureTokenStorage @Inject constructor(private val secureStorage: SecureSt
 
     override fun getRefreshToken(): String? = secureStorage.getString(REFRESH_TOKEN_KEY)
 
-    override fun clearTokens() = secureStorage.clear()
+    override fun clearTokens() {
+        logDebug("Clearing tokens.")
+        secureStorage.clear()
+    }
 }

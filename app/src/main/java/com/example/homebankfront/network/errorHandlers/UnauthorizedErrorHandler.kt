@@ -32,6 +32,7 @@ class UnauthorizedErrorHandler @Inject constructor(
         }
 
         Log.d(this::class.simpleName, "Refresh failed")
+
         return chain.proceed(request)
     }
 

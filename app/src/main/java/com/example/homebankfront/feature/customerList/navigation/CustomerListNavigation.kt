@@ -4,11 +4,15 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.homebankfront.feature.customerList.CustomerListRoute
+import com.example.homebankfront.feature.utility.className
+import com.example.homebankfront.navigation.Route
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object CustomerList
-
+data object CustomerList : Route {
+    override val enableNavDrawer: Boolean = true
+    override val route: String = className
+}
 
 fun NavController.navigateToCustomerList() = navigate(route = CustomerList)
 
