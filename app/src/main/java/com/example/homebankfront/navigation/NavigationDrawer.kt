@@ -1,4 +1,4 @@
-package com.example.homebankfront
+package com.example.homebankfront.navigation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.shape.CornerSize
@@ -15,10 +15,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.homebankfront.AppEvent
 import com.example.homebankfront.AppEvent.SignOut
-import com.example.homebankfront.navigation.Route
-import com.example.homebankfront.navigation.navigateToAuthenticated
-import com.example.homebankfront.navigation.navigateToUnauthenticated
+import com.example.homebankfront.R
 import com.example.homebankfront.ui.HomebankAppState
 import kotlinx.coroutines.launch
 
