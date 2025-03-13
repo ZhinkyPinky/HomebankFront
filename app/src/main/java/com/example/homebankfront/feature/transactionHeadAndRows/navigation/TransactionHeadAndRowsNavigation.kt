@@ -14,7 +14,7 @@ data class TransactionHeadAndRows(
     val transactionHeadId: Long
 ) : Route {
     override val enableNavDrawer: Boolean = true
-    override val route: String = className
+    override val name: String = className
 }
 
 fun NavController.navigateToTransactionHeadAndRows(

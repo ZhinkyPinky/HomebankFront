@@ -15,7 +15,7 @@ data class EditTransactionRow(
     val transactionRowId: Long
 ) : Route {
     override val enableNavDrawer: Boolean = true
-    override val route: String = className
+    override val name: String = className
 }
 
 fun NavController.navigateToEditTransactionRow(transactionHeadId: Long, transactionRowId: Long) =

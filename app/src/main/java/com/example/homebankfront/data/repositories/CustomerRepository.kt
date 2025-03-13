@@ -1,11 +1,12 @@
 package com.example.homebankfront.data.repositories
 
 import com.example.homebankfront.data.bodies.Customer
+import com.example.homebankfront.data.bodies.CustomerAndTransactionHeads
 import com.example.homebankfront.data.remote.services.CustomerService
 import com.example.homebankfront.feature.customerList.CustomerError
 import com.example.homebankfront.feature.customerList.toCustomerError
 import com.example.homebankfront.feature.utility.Either
-import com.example.homebankfront.feature.utility.Either.Right
+import com.example.homebankfront.feature.utility.Either.*
 import com.example.homebankfront.feature.utility.Error
 import com.example.homebankfront.feature.utility.Error.UnknownError
 import com.example.homebankfront.feature.utility.Logger
@@ -48,8 +49,24 @@ class CustomerRepository @Inject constructor(
             transactionHeadId = transactionHeadId
         )
 
-    suspend fun getCustomerAndTransactionHeads(customerId: Long) =
-        customerService.getCustomerAndTransactionHeads(customerId = customerId)
+    suspend fun getCustomerAndTransactionHeads(customerId: Long): ResultGeneric<CustomerAndTransactionHeads, Either<Unit, Error>> =
+        runCatching {
+            val response = customerService.getCustomerAndTransactionHeads(customerId = customerId)
+            responseHandler(
+                response = response,
+                onSuccess = { body ->
+                    Success(body)
+                },
+                onFailure = {
+                    Failure(Left(Unit))
+                }
+            )
+        }.getOrElse {
+            when (it) {
+                is SocketTimeoutException -> Failure(Right(SocketTimeOut))
+                else -> Failure(Right(UnknownError))
+            }
+        }
 
     suspend fun getCustomerAndTransactionHeadAndRows(customerId: Long, transactionHeadId: Long) =
         customerService.getCustomerTransactionHeadAndRows(

@@ -27,13 +27,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
+import com.example.homebankfront.feature.authentication.getStringResourceFromContext
+import com.example.homebankfront.feature.utility.*
+import com.example.homebankfront.feature.utility.Either.Left
+import com.example.homebankfront.feature.utility.Either.Right
+import com.example.homebankfront.feature.utility.Error.*
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextWithLabel
 
@@ -45,14 +52,28 @@ internal fun TransactionHeadsScreen(
     onTransactionHeadClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
-    val transactionHeadsListState: TransactionHeadsListState by viewModel.transactionHeadsListState.collectAsStateWithLifecycle()
+    val state: TransactionHeadsListState by viewModel.transactionHeadsListState.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    val snackbarHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
         viewModel.getCustomerAndTransactionHeads()
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.errorFlow.collect { error ->
+            val errorMessage = when (error) {
+                is Left -> UnknownError.getStringResourceFromContext(context)
+                is Right -> error.value.getStringResourceFromContext(context)
+            }
+
+            snackbarHostState.showSnackbar(errorMessage)
+        }
+    }
+
     TransactionHeadsScreen(
-        transactionHeadsListState = transactionHeadsListState,
+        transactionHeadsListState = state,
         onNewTransactionHeadClick = onNewTransactionHeadClick,
         onTransactionHeadClick = onTransactionHeadClick,
         onBackClick = onBackClick

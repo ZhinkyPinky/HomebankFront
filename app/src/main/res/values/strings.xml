@@ -56,4 +56,5 @@
     <string name="name">Namn</string>
     <string name="customers">Kunder</string>
     <string name="sign_out">Logga ut</string>
+    <string name="toggle_password_visibility">Toggle password visibility</string>
 </resources>

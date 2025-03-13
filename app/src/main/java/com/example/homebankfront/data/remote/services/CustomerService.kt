@@ -18,7 +18,7 @@ interface CustomerService {
     suspend fun getCustomersAndTransactionHead(@Path("transactionHeadId") transactionHeadId: Long): CustomersAndTransactionHead
 
     @GET(ApiPaths.CUSTOMER_AND_TRANSACTION_HEADS)
-    suspend fun getCustomerAndTransactionHeads(@Path("customerId") customerId: Long): CustomerAndTransactionHeads
+    suspend fun getCustomerAndTransactionHeads(@Path("customerId") customerId: Long): Response<CustomerAndTransactionHeads>
 
     @GET(ApiPaths.CUSTOMER_AND_TRANSACTION_HEAD)
     suspend fun getCustomerAndTransactionHead(

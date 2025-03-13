@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.example.homebankfront"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.homebankfront"
         minSdk = 31
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -82,6 +82,19 @@ android {
                 "\"http://192.168.68.87:8080\""
             )
         }
+
+        create("developmentRemote") {
+            dimension = "env"
+            manifestPlaceholders["appName"] = "DevHomebankRemote"
+            applicationIdSuffix = ".devRemote"
+            versionNameSuffix = "-devRemote"
+
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                "\"https://homebank-api-dev.livelyhill-daa2c63f.northeurope.azurecontainerapps.io\""
+            )
+        }
     }
 }
 
@@ -93,7 +106,10 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+
+    implementation(libs.androidx.compose.material.icons)
     implementation(libs.androidx.material3)
+
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
 

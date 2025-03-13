@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object Registration : Route {
     override val enableNavDrawer: Boolean = false
-    override val route: String = className
+    override val name: String = className
 }
 
 fun NavController.navigateToRegistration() = navigate(route = Registration)

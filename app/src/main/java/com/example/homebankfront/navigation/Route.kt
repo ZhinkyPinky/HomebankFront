@@ -10,17 +10,17 @@ import com.example.homebankfront.feature.transactionHeadsList.navigation.Transac
 
 interface Route {
     val enableNavDrawer: Boolean
-    val route: String
+    val name: String
 
     companion object {
         fun fromString(route: String?): Route? = when (route) {
-            Authentication.route -> Authentication
-            CustomerList.route -> CustomerList
-            EditTransactionHead(0).route -> EditTransactionHead(0)
-            EditTransactionRow(0, 0).route -> EditTransactionRow(0, 0)
-            Registration.route -> Registration
-            TransactionHeadAndRows(0,0).route -> TransactionHeadAndRows(0, 0)
-            TransactionHeadsList(0).route -> TransactionHeadsList(0)
+            Authentication.name -> Authentication
+            CustomerList.name -> CustomerList
+            EditTransactionHead(0).name -> EditTransactionHead(0)
+            EditTransactionRow(0, 0).name -> EditTransactionRow(0, 0)
+            Registration.name -> Registration
+            TransactionHeadAndRows(0,0).name -> TransactionHeadAndRows(0, 0)
+            TransactionHeadsList(0).name -> TransactionHeadsList(0)
             else -> null
         }
     }

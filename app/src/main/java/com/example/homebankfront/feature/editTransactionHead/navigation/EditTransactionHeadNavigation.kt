@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EditTransactionHead(val transactionHeadId: Long) : Route {
     override val enableNavDrawer: Boolean = true
-    override val route: String = className
+    override val name: String = className
 }
 
 fun NavController.navigateToEditTransactionHead(transactionHeadId: Long) =

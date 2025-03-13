@@ -29,7 +29,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object Unauthenticated : Route {
     override val enableNavDrawer: Boolean = false
-    override val route: String = className
+    override val name: String = className
 }
 
 fun NavController.navigateToUnauthenticated(builder: NavOptionsBuilder.() -> Unit) =
@@ -41,7 +41,7 @@ fun NavController.navigateToUnauthenticated(builder: NavOptionsBuilder.() -> Uni
 @Serializable
 data object Authenticated : Route {
     override val enableNavDrawer: Boolean = true
-    override val route: String = className
+    override val name: String = className
 }
 
 fun NavController.navigateToAuthenticated(builder: NavOptionsBuilder.() -> Unit) =

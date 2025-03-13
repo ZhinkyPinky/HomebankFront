@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object Authentication : Route {
     override val enableNavDrawer: Boolean = false
-    override val route: String = className
+    override val name: String = className
 }
 
 fun NavController.navigateToAuthentication(builder: NavOptionsBuilder.() -> Unit) =
