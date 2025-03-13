@@ -8,17 +8,20 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
+import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
 import androidx.credentials.exceptions.GetCredentialException
 import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.feature.utility.Logger
+import com.example.homebankfront.feature.utility.logDebug
+import dagger.hilt.android.qualifiers.ActivityContext
 import javax.inject.Inject
 
 class AuthenticationManager @Inject constructor(
-    private val activityContext: Context
+    @ActivityContext private val activityContext: Context
 ) {
     private val credentialManager = CredentialManager.create(activityContext)
 
-    suspend fun register(username: String, password: String) {
+    suspend fun registerCredentials(username: String, password: String) {
         Logger.d(message = "Trying to register $username")
 
         val createPasswordRequest = CreatePasswordRequest(
@@ -26,15 +29,19 @@ class AuthenticationManager @Inject constructor(
             password = password
         )
 
-        credentialManager.createCredential(
-            context = activityContext,
-            request = createPasswordRequest
-        )
+        try {
+            credentialManager.createCredential(
+                context = activityContext,
+                request = createPasswordRequest
+            )
+        } catch (e: CreateCredentialNoCreateOptionException) {
+            Logger.e(message = "No credential provider available: ${e.message}")
+        } catch (e: Exception) {
+            Logger.e(message = "Failed to register $username: ${e.message}")
+        }
     }
 
-    suspend fun signIn(): AuthenticationRequest {
-        var authenticationRequest = AuthenticationRequest("", "")
-
+    suspend fun signIn(): AuthenticationRequest? {
         try {
             val request = GetCredentialRequest(credentialOptions = listOf(GetPasswordOption()))
 
@@ -47,7 +54,7 @@ class AuthenticationManager @Inject constructor(
                 is PasswordCredential -> {
                     val username: String = credential.id
                     val password: String = credential.password
-                    authenticationRequest = AuthenticationRequest(
+                    return AuthenticationRequest(
                         username = credential.id,
                         password = credential.password
                     )
@@ -58,7 +65,7 @@ class AuthenticationManager @Inject constructor(
             handleFailure(e)
         }
 
-        return authenticationRequest
+        return null
     }
 
     fun handleSignIn(result: GetCredentialResponse): AuthenticationRequest {

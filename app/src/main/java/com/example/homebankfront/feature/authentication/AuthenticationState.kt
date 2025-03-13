@@ -12,12 +12,17 @@ import com.example.homebankfront.feature.utility.ResultGeneric.Failure
 import com.example.homebankfront.feature.utility.ResultGeneric.Success
 
 sealed interface AuthenticationState {
-    data object Authenticated : AuthenticationState
+    data class Authenticated(
+        val username: String,
+        val password: String,
+        val registerCredentials: Boolean = true
+    ) : AuthenticationState
 
     data class Authenticating(
         val usernameField: UsernameField = UsernameField(),
         val passwordField: PasswordField = PasswordField(),
-        val isLoading: Boolean = false
+        val isLoading: Boolean = false,
+        val autoAuthentication: Boolean = false
     ) : AuthenticationState {
         fun validate(): ResultGeneric<Unit, Authenticating> {
             val usernameFieldError = usernameField.validate()

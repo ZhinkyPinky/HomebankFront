@@ -130,6 +130,7 @@ dependencies {
     implementation(libs.converter.gson)
 
     implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services)
     implementation(libs.com.google.android.libraries.identity.googleid)
     implementation(libs.kotlinx.serialization.json)
 

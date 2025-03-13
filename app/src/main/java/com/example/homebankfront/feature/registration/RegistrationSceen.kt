@@ -32,6 +32,7 @@ import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.getStringResourceFromContext
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
+import kotlinx.coroutines.launch
 import kotlin.reflect.KSuspendFunction2
 
 
@@ -59,7 +60,7 @@ fun RegistrationScreen(
     RegistrationScreen(
         state = state,
         onEvent = viewModel::onEvent,
-        register = authenticationManager::register,
+        authenticationManager = authenticationManager,
         onRegistration = onRegistration
     )
 }
@@ -68,7 +69,7 @@ fun RegistrationScreen(
 fun RegistrationScreen(
     state: RegistrationState,
     onEvent: (RegistrationEvent) -> Unit,
-    register: KSuspendFunction2<String, String, Unit>,
+    authenticationManager: AuthenticationManager,
     onRegistration: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -87,11 +88,11 @@ fun RegistrationScreen(
         }
 
         is Registered -> LaunchedEffect(Unit) {
-            // coroutineScope.launch {
-            //   register(state.value, state.value)
-            //}.invokeOnCompletion {
-            onRegistration()
-            //}
+            coroutineScope.launch {
+                authenticationManager.registerCredentials(state.username, state.password)
+            }.invokeOnCompletion {
+                onRegistration()
+            }
         }
     }
 }

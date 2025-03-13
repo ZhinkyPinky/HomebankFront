@@ -1,13 +1,11 @@
 package com.example.homebankfront.feature.authentication
 
+import androidx.compose.runtime.internal.composableLambdaInstance
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.data.repositories.AuthRepository
 import com.example.homebankfront.feature.authentication.AuthenticationError.BadCredentials
-import com.example.homebankfront.feature.authentication.AuthenticationEvent.Authenticate
-import com.example.homebankfront.feature.authentication.AuthenticationEvent.NoCredentials
-import com.example.homebankfront.feature.authentication.AuthenticationEvent.TogglePasswordVisibility
-import com.example.homebankfront.feature.authentication.AuthenticationEvent.UpdateField
+import com.example.homebankfront.feature.authentication.AuthenticationEvent.*
 import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
 import com.example.homebankfront.feature.authentication.AuthenticationField.UsernameField
 import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticated
@@ -70,6 +68,7 @@ class AuthenticationViewModel @Inject constructor(
             is Authenticate -> authenticate()
             is TogglePasswordVisibility -> togglePasswordVisibility()
             is UpdateField -> updateField(event.field)
+            is ToggleAutoAuthentication -> toggleAutoAuthentication()
         }
     }
 
@@ -84,6 +83,10 @@ class AuthenticationViewModel @Inject constructor(
 
     private fun togglePasswordVisibility() = _state.value.let { currentState ->
         if (currentState is Authenticating) updateField(currentState.passwordField.toggleVisibility())
+    }
+
+    private fun toggleAutoAuthentication() = _state.update { currentState ->
+        if (currentState !is Authenticating) return else currentState.copy(autoAuthentication = !currentState.autoAuthentication)
     }
 
     private fun setLoading(isLoading: Boolean) = _state.update { currentState ->
@@ -101,7 +104,14 @@ class AuthenticationViewModel @Inject constructor(
                 viewModelScope.launch {
                     try {
                         when (val result = authRepository.authenticate(currentState.toRequest())) {
-                            is Success -> _state.update { Authenticated }
+                            is Success -> _state.update {
+                                Authenticated(
+                                    username = currentState.usernameField.username,
+                                    password = currentState.passwordField.password,
+                                    registerCredentials = !currentState.autoAuthentication
+                                )
+                            }
+
                             is Failure -> handleError(result.error)
                         }
                     } finally {

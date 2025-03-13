@@ -3,16 +3,7 @@ package com.example.homebankfront.feature.authentication
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.TextObfuscationMode
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,14 +15,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
-import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.*
 import com.example.homebankfront.feature.authentication.AuthenticationField.*
 import com.example.homebankfront.feature.authentication.AuthenticationState.*
@@ -41,7 +29,6 @@ import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.SecurePasswordTextField
 import com.example.homebankfront.ui.components.TextField
 import kotlinx.coroutines.launch
-import kotlin.reflect.KSuspendFunction0
 
 @Composable
 fun AuthenticationScreen(
@@ -67,9 +54,9 @@ fun AuthenticationScreen(
 
     AuthenticationScreen(
         state = state,
-        signIn = authenticationManager::signIn,
+        authenticationManager = authenticationManager,
         onEvent = viewModel::onEvent,
-        onAuthenticated = onAuthentication,
+        onAuthentication = onAuthentication,
         navigateToRegistration = navigateToRegistration
     )
 }
@@ -77,9 +64,9 @@ fun AuthenticationScreen(
 @Composable
 fun AuthenticationScreen(
     state: AuthenticationState,
-    signIn: KSuspendFunction0<AuthenticationRequest>,
+    authenticationManager: AuthenticationManager,
     onEvent: (AuthenticationEvent) -> Unit,
-    onAuthenticated: () -> Unit,
+    onAuthentication: () -> Unit,
     navigateToRegistration: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -88,7 +75,12 @@ fun AuthenticationScreen(
         is Authenticating -> {
             LaunchedEffect(Unit) {
                 coroutineScope.launch {
-                    signIn()
+                    authenticationManager.signIn()?.let {
+                        onEvent(UpdateField(state.usernameField.copy(username = it.username)))
+                        onEvent(UpdateField(state.passwordField.copy(password = it.password)))
+                        onEvent(ToggleAutoAuthentication)
+                        onEvent(Authenticate)
+                    }
                 }
             }
 
@@ -103,7 +95,18 @@ fun AuthenticationScreen(
             LoadingOverlay(isLoading = state.isLoading)
         }
 
-        is Authenticated -> onAuthenticated()
+        is Authenticated -> LaunchedEffect(Unit) {
+            coroutineScope.launch {
+                if (state.registerCredentials) {
+                    authenticationManager.registerCredentials(
+                        username = state.username,
+                        password = state.password
+                    )
+                }
+            }.invokeOnCompletion {
+                onAuthentication()
+            }
+        }
     }
 }
 
