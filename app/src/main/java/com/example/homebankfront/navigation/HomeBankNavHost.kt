@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import com.example.homebankfront.feature.authentication.navigation.Authentication
 import com.example.homebankfront.feature.authentication.navigation.authentication
+import com.example.homebankfront.feature.changePassword.navigation.changePasswordScreen
 import com.example.homebankfront.feature.customerList.navigation.CustomerList
 import com.example.homebankfront.feature.customerList.navigation.customerListScreen
 import com.example.homebankfront.feature.customerList.navigation.navigateToCustomerList
@@ -86,6 +87,8 @@ fun HomeBankNavHost(appState: HomebankAppState) {
             editTransactionHeadScreen(onBackClick = navController::navigateUp)
 
             editTransactionRowScreen(onBackClick = navController::navigateUp)
+
+            changePasswordScreen(onChangedPassword = navController::navigateUp)
         }
     }
 }

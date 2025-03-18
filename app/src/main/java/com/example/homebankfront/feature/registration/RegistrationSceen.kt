@@ -29,11 +29,10 @@ import com.example.homebankfront.feature.registration.RegistrationState.Register
 import com.example.homebankfront.feature.registration.RegistrationState.Registering
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
-import com.example.homebankfront.feature.utility.getStringResourceFromContext
 import com.example.homebankfront.ui.components.LoadingOverlay
+import com.example.homebankfront.ui.components.SecurePasswordTextField
 import com.example.homebankfront.ui.components.TextField
 import kotlinx.coroutines.launch
-import kotlin.reflect.KSuspendFunction2
 
 
 @Composable
@@ -116,6 +115,17 @@ fun RegistrationScreen(
                     enabled = !isLoading,
                     onValueChange = {
                         usernameField.copy(username = it, error = null).update(onEvent)
+                    }
+                )
+
+                SecurePasswordTextField(
+                    text = passwordField.password,
+                    supportingText = passwordField.error?.toStringResource(),
+                    isError = passwordField.error != null,
+                    showPassword = passwordField.showPassword,
+                    onToggleVisibility = { passwordField.toggleVisibility().update(onEvent) },
+                    onValueChange = {
+                        passwordField.copy(password = it, error = null).update(onEvent)
                     }
                 )
 

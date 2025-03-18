@@ -57,4 +57,9 @@
     <string name="customers">Kunder</string>
     <string name="sign_out">Logga ut</string>
     <string name="toggle_password_visibility">Toggle password visibility</string>
+    <string name="password_too_short">Lösenordet är för kort</string>
+    <string name="change_password">Byta lösenord</string>
+    <string name="confirm_password">Bekräfta lösenord</string>
+    <string name="new_password">Nytt lösenord</string>
+    <string name="old_password">Gammalt lösenord</string>
 </resources>

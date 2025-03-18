@@ -76,6 +76,7 @@ sealed interface RegistrationField {
         val error: PasswordFieldError? = null
     ) : RegistrationField {
         fun validate() = if (password.isBlank()) MissingPassword else null
+        fun toggleVisibility() = copy(showPassword = !showPassword)
     }
 
     data class EmailField(

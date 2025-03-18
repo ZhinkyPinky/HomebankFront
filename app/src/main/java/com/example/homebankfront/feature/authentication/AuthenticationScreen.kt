@@ -20,11 +20,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
-import com.example.homebankfront.feature.authentication.AuthenticationEvent.*
-import com.example.homebankfront.feature.authentication.AuthenticationField.*
-import com.example.homebankfront.feature.authentication.AuthenticationState.*
-import com.example.homebankfront.feature.utility.Either.*
-import com.example.homebankfront.feature.utility.getStringResourceFromContext
+import com.example.homebankfront.feature.authentication.AuthenticationEvent.Authenticate
+import com.example.homebankfront.feature.authentication.AuthenticationEvent.ToggleAutoAuthentication
+import com.example.homebankfront.feature.authentication.AuthenticationEvent.UpdateField
+import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
+import com.example.homebankfront.feature.authentication.AuthenticationField.UsernameField
+import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticated
+import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticating
+import com.example.homebankfront.feature.utility.Either.Left
+import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.SecurePasswordTextField
 import com.example.homebankfront.ui.components.TextField
@@ -140,19 +144,6 @@ fun AuthenticationScreen(
                     onToggleVisibility = { onEvent(UpdateField(passwordField.toggleVisibility())) },
                     onValueChange = { onEvent(UpdateField(passwordField.copy(password = it))) }
                 )
-
-                /*
-                TextField(
-                    label = stringResource(R.string.password),
-                    text = passwordField.password,
-                    supportingText = passwordField.error?.toStringResource(),
-                    isError = passwordField.error != null,
-                    enabled = !isLoading,
-                    onValueChange = {
-                        onEvent(UpdateField(passwordField.copy(password = it, error = null)))
-                    }
-                )
-                 */
 
                 TextButton(onClick = { onEvent(Authenticate) }) {
                     Text(text = stringResource(R.string.sign_in))

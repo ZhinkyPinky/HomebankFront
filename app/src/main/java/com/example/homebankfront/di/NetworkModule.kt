@@ -7,6 +7,7 @@ import com.example.homebankfront.data.remote.services.AuthService
 import com.example.homebankfront.data.remote.services.CustomerService
 import com.example.homebankfront.data.remote.services.TransactionHeadService
 import com.example.homebankfront.data.remote.services.TransactionRowService
+import com.example.homebankfront.data.remote.services.UserService
 import com.example.homebankfront.data.repositories.ResponseHandler
 import com.example.homebankfront.feature.utility.EventEmitter
 import com.example.homebankfront.feature.utility.NetworkError
@@ -83,6 +84,10 @@ class NetworkModule {
     fun provideTransactionRowService(retrofit: Retrofit): TransactionRowService =
         retrofit.create(TransactionRowService::class.java)
 
+    @Provides
+    @Singleton
+    fun provideUserService(retrofit: Retrofit): UserService =
+        retrofit.create(UserService::class.java)
 
     @Provides
     @Singleton

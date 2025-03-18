@@ -1,3 +1,8 @@
+import java.util.Properties
+
+val properties: Properties = Properties()
+properties.load(project.rootProject.file("local.properties").inputStream())
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -66,7 +71,7 @@ android {
             buildConfigField(
                 "String",
                 "API_BASE_URL",
-                "\"https://homebank-api.livelyhill-daa2c63f.northeurope.azurecontainerapps.io\""
+                properties.getProperty("endpoint.remote.production")
             )
         }
 
@@ -79,7 +84,7 @@ android {
             buildConfigField(
                 "String",
                 "API_BASE_URL",
-                "\"http://192.168.68.87:8080\""
+                properties.getProperty("endpoint.local")
             )
         }
 
@@ -92,7 +97,7 @@ android {
             buildConfigField(
                 "String",
                 "API_BASE_URL",
-                "\"https://homebank-api-dev.livelyhill-daa2c63f.northeurope.azurecontainerapps.io\""
+                properties.getProperty("endpoint.remote.development")
             )
         }
     }

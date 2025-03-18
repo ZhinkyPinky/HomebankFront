@@ -31,4 +31,7 @@ object ApiPaths {
         CUSTOMER_AND_TRANSACTION_HEAD + TRANSACTION_ROWS
     const val CUSTOMER_WITH_TRANSACTION_HEAD_AND_ROW =
         CUSTOMER_TRANSACTION_HEAD_AND_ROWS + TRANSACTION_ROW
+
+    const val USERS = "/users"
+    const val CHANGE_PASSWORD = "$USERS/changePassword"
 }

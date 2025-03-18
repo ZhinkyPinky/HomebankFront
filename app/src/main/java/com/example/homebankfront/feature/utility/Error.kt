@@ -8,28 +8,29 @@ import com.example.homebankfront.R
 
 sealed class Error(val stringResourceId: Int) {
     data object UnknownError : Error(R.string.unknown_error)
+
+    fun getStringResourceFromContext(context: Context): String = when (this) {
+        is NetworkError.ConnectionRetry -> context.getString(
+            stringResourceId,
+            currentRetries,
+            totalRetries
+        )
+
+        else -> context.getString(stringResourceId)
+    }
+
+    @Composable
+    fun toStringResource(): String = when (this) {
+        is NetworkError.ConnectionRetry -> stringResource(
+            stringResourceId,
+            currentRetries,
+            totalRetries
+        )
+
+        else -> stringResource(stringResourceId)
+    }
 }
 
-fun Error.getStringResourceFromContext(context: Context): String = when (this) {
-    is NetworkError.ConnectionRetry -> context.getString(
-        stringResourceId,
-        currentRetries,
-        totalRetries
-    )
-
-    else -> context.getString(stringResourceId)
-}
-
-@Composable
-fun Error.toStringResource(): String = when (this) {
-    is NetworkError.ConnectionRetry -> stringResource(
-        stringResourceId,
-        currentRetries,
-        totalRetries
-    )
-
-    else -> stringResource(stringResourceId)
-}
 
 sealed class NetworkError(stringResourceId: Int) : Error(stringResourceId) {
     data object SocketTimeOut : NetworkError(R.string.connection_timed_out)

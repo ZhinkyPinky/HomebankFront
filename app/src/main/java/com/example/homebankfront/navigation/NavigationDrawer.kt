@@ -18,6 +18,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.homebankfront.AppEvent
 import com.example.homebankfront.AppEvent.SignOut
 import com.example.homebankfront.R
+import com.example.homebankfront.feature.changePassword.navigation.navigateToChangePassword
 import com.example.homebankfront.ui.HomebankAppState
 import kotlinx.coroutines.launch
 
@@ -84,6 +85,15 @@ fun DrawerContent(
                     launchSingleTop = true
                 }
 
+                closeDrawer()
+            }
+        )
+
+        NavigationDrawerItem(
+            label = { Text(stringResource(R.string.change_password)) },
+            selected = false,
+            onClick = {
+                navController.navigateToChangePassword()
                 closeDrawer()
             }
         )

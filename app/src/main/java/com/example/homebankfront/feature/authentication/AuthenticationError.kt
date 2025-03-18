@@ -21,6 +21,15 @@ sealed class AuthenticationError(val stringResourceId: Int) {
     sealed class PasswordFieldError(stringResourceId: Int) : AuthenticationError(stringResourceId) {
         data object MissingPassword : PasswordFieldError(R.string.missing_password)
     }
+
+    fun getStringResourceFromContext(context: Context) = context.getString(stringResourceId)
+
+    @Composable
+    fun toStringResource(): String = when (this) {
+        BadCredentials -> stringResource(stringResourceId)
+        MissingPassword -> stringResource(stringResourceId)
+        MissingUsername -> stringResource(stringResourceId)
+    }
 }
 
 fun String?.toAuthenticationError(): Either<AuthenticationError, Error> = when (this) {
@@ -28,11 +37,4 @@ fun String?.toAuthenticationError(): Either<AuthenticationError, Error> = when (
     else -> Either.Right(UnknownError)
 }
 
-fun AuthenticationError.getStringResourceFromContext(context: Context) = context.getString(stringResourceId)
 
-@Composable
-fun AuthenticationError.toStringResource(): String = when (this) {
-    BadCredentials -> stringResource(stringResourceId)
-    MissingPassword -> stringResource(stringResourceId)
-    MissingUsername -> stringResource(stringResourceId)
-}

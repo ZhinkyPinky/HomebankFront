@@ -8,7 +8,9 @@ import com.example.homebankfront.data.repositories.TransactionRowRepository
 import com.example.homebankfront.data.remote.services.AuthService
 import com.example.homebankfront.data.remote.services.TransactionHeadService
 import com.example.homebankfront.data.remote.services.TransactionRowService
+import com.example.homebankfront.data.remote.services.UserService
 import com.example.homebankfront.data.repositories.ResponseHandler
+import com.example.homebankfront.data.repositories.UserRepository
 import com.example.homebankfront.security.TokenStorage
 import dagger.Module
 import dagger.Provides
@@ -49,4 +51,11 @@ class RepositoryModule {
         tokenStorage: TokenStorage,
         responseHandler: ResponseHandler,
     ): AuthRepository = AuthRepository(authService, tokenStorage, responseHandler)
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(
+        userService: UserService,
+        responseHandler: ResponseHandler
+    ): UserRepository = UserRepository(userService, responseHandler)
 }

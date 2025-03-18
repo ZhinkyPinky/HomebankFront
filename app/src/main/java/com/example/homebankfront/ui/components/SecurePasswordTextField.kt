@@ -2,10 +2,8 @@ package com.example.homebankfront.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedSecureTextField
@@ -17,13 +15,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.homebankfront.R
-import com.example.homebankfront.feature.authentication.AuthenticationEvent
-import com.example.homebankfront.feature.authentication.AuthenticationEvent.UpdateField
-import com.example.homebankfront.feature.authentication.toStringResource
 
 @Composable
 fun SecurePasswordTextField(
     modifier: Modifier = Modifier,
+    label: String = stringResource(R.string.password),
     text: String = "",
     supportingText: String? = null,
     isError: Boolean = false,
@@ -36,7 +32,7 @@ fun SecurePasswordTextField(
     LaunchedEffect(passwordFieldState.text) { onValueChange(passwordFieldState.text.toString()) }
 
     OutlinedSecureTextField(
-        label = { Text(stringResource(R.string.password)) },
+        label = { Text(label) },
         state = passwordFieldState,
         supportingText = { supportingText?.let { Text(supportingText) } },
         isError = isError,

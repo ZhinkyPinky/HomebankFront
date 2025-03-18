@@ -40,7 +40,6 @@ import com.example.homebankfront.feature.editTransactionHead.EditTransactionHead
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.StartDateField
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.TransactionNameField
 import com.example.homebankfront.feature.utility.Either
-import com.example.homebankfront.feature.utility.getStringResourceFromContext
 import com.example.homebankfront.ui.components.DatePicker
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField

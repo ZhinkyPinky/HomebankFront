@@ -36,11 +36,9 @@ import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
-import com.example.homebankfront.feature.authentication.getStringResourceFromContext
-import com.example.homebankfront.feature.utility.*
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
-import com.example.homebankfront.feature.utility.Error.*
+import com.example.homebankfront.feature.utility.Error.UnknownError
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextWithLabel
 
