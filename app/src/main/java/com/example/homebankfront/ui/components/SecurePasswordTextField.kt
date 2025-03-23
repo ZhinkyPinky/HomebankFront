@@ -10,6 +10,8 @@ import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -23,11 +25,10 @@ fun SecurePasswordTextField(
     text: String = "",
     supportingText: String? = null,
     isError: Boolean = false,
-    showPassword: Boolean = false,
-    onToggleVisibility: () -> Unit,
     enabled: Boolean = true,
     onValueChange: (String) -> Unit
 ) {
+    val showPassword = rememberSaveable { mutableStateOf(false) }
     val passwordFieldState = rememberTextFieldState(text)
     LaunchedEffect(passwordFieldState.text) { onValueChange(passwordFieldState.text.toString()) }
 
@@ -38,14 +39,14 @@ fun SecurePasswordTextField(
         isError = isError,
         enabled = enabled,
         trailingIcon = {
-            IconButton(onClick = onToggleVisibility) {
+            IconButton(onClick = { showPassword.value = !showPassword.value }) {
                 Icon(
-                    painter = painterResource(if (showPassword) R.drawable.baseline_visibility_24 else R.drawable.baseline_visibility_off_24),
+                    painter = painterResource(if (showPassword.value) R.drawable.baseline_visibility_24 else R.drawable.baseline_visibility_off_24),
                     contentDescription = stringResource(R.string.toggle_password_visibility)
                 )
             }
         },
-        textObfuscationMode = if (showPassword) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
+        textObfuscationMode = if (showPassword.value) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
         modifier = modifier.then(
             Modifier
                 .fillMaxWidth()

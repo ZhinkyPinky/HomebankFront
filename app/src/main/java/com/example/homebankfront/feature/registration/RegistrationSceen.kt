@@ -122,19 +122,6 @@ fun RegistrationScreen(
                     text = passwordField.password,
                     supportingText = passwordField.error?.toStringResource(),
                     isError = passwordField.error != null,
-                    showPassword = passwordField.showPassword,
-                    onToggleVisibility = { passwordField.toggleVisibility().update(onEvent) },
-                    onValueChange = {
-                        passwordField.copy(password = it, error = null).update(onEvent)
-                    }
-                )
-
-                TextField(
-                    label = stringResource(R.string.password),
-                    text = passwordField.password,
-                    supportingText = passwordField.error?.toStringResource(),
-                    isError = passwordField.error != null,
-                    enabled = !isLoading,
                     onValueChange = {
                         passwordField.copy(password = it, error = null).update(onEvent)
                     }

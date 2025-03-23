@@ -66,7 +66,6 @@ class AuthenticationViewModel @Inject constructor(
         when (event) {
             is NoCredentials -> _state.update { Authenticating() }
             is Authenticate -> authenticate()
-            is TogglePasswordVisibility -> togglePasswordVisibility()
             is UpdateField -> updateField(event.field)
             is ToggleAutoAuthentication -> toggleAutoAuthentication()
         }
@@ -79,10 +78,6 @@ class AuthenticationViewModel @Inject constructor(
             is PasswordField -> currentState.copy(passwordField = field)
             is UsernameField -> currentState.copy(usernameField = field)
         }
-    }
-
-    private fun togglePasswordVisibility() = _state.value.let { currentState ->
-        if (currentState is Authenticating) updateField(currentState.passwordField.toggleVisibility())
     }
 
     private fun toggleAutoAuthentication() = _state.update { currentState ->
@@ -121,7 +116,6 @@ class AuthenticationViewModel @Inject constructor(
             }
         }
     }
-
 
     private suspend fun handleError(error: Either<AuthenticationError, Error>) = when (error) {
         is Left -> when (error.value) {

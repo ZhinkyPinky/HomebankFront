@@ -140,8 +140,6 @@ fun AuthenticationScreen(
                     text = passwordField.password,
                     supportingText = passwordField.error?.toStringResource(),
                     isError = passwordField.error != null,
-                    showPassword = passwordField.showPassword,
-                    onToggleVisibility = { onEvent(UpdateField(passwordField.toggleVisibility())) },
                     onValueChange = { onEvent(UpdateField(passwordField.copy(password = it))) }
                 )
 

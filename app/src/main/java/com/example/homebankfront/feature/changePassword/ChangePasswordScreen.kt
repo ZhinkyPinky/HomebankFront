@@ -93,10 +93,6 @@ fun ChangePasswordScreen(
                     text = oldPasswordField.password,
                     supportingText = oldPasswordField.error?.toStringResource(),
                     isError = oldPasswordField.error != null,
-                    showPassword = oldPasswordField.showPassword,
-                    onToggleVisibility = {
-                        onEvent(UpdateOldPassword(oldPasswordField.toggleVisibility()))
-                    },
                     onValueChange = {
                         onEvent(
                             UpdateOldPassword(
@@ -114,10 +110,6 @@ fun ChangePasswordScreen(
                     text = newPasswordField.password,
                     supportingText = newPasswordField.error?.toStringResource(),
                     isError = newPasswordField.error != null,
-                    showPassword = newPasswordField.showPassword,
-                    onToggleVisibility = {
-                        onEvent(UpdateNewPassword(newPasswordField.toggleVisibility()))
-                    },
                     onValueChange = {
                         onEvent(
                             UpdateNewPassword(
@@ -135,10 +127,6 @@ fun ChangePasswordScreen(
                     text = confirmNewPasswordField.password,
                     supportingText = confirmNewPasswordField.error?.toStringResource(),
                     isError = confirmNewPasswordField.error != null,
-                    showPassword = confirmNewPasswordField.showPassword,
-                    onToggleVisibility = {
-                        onEvent(UpdateConfirmNewPassword(confirmNewPasswordField.toggleVisibility()))
-                    },
                     onValueChange = {
                         onEvent(
                             UpdateConfirmNewPassword(

@@ -158,11 +158,9 @@ sealed interface ChangePasswordState {
 sealed interface ChangePasswordField {
     data class PasswordField(
         val password: String = "",
-        val showPassword: Boolean = false,
         val error: PasswordFieldError? = null
     ) : ChangePasswordField {
         fun validate() = if (password.isBlank()) MissingPassword else null
-        fun toggleVisibility() = copy(showPassword = !showPassword)
     }
 }
 
