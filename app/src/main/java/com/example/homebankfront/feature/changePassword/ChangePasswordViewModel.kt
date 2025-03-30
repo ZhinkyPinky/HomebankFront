@@ -1,25 +1,18 @@
 package com.example.homebankfront.feature.changePassword
 
-import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.ChangePasswordRequest
 import com.example.homebankfront.data.repositories.UserRepository
-import com.example.homebankfront.feature.authentication.AuthenticationError
-import com.example.homebankfront.feature.authentication.AuthenticationError.BadCredentials
-import com.example.homebankfront.feature.authentication.AuthenticationError.UsernameFieldError.MissingUsername
 import com.example.homebankfront.feature.changePassword.ChangePasswordError.PasswordFieldError
-import com.example.homebankfront.feature.changePassword.ChangePasswordError.PasswordFieldError.MissingPassword
+import com.example.homebankfront.feature.changePassword.ChangePasswordError.PasswordFieldError.*
 import com.example.homebankfront.feature.changePassword.ChangePasswordField.PasswordField
 import com.example.homebankfront.feature.changePassword.ChangePasswordState.*
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.Error
-import com.example.homebankfront.feature.utility.Error.UnknownError
 import com.example.homebankfront.feature.utility.EventEmitter
 import com.example.homebankfront.feature.utility.NetworkError
 import com.example.homebankfront.feature.utility.ResultGeneric
@@ -27,6 +20,7 @@ import com.example.homebankfront.feature.utility.ResultGeneric.*
 import com.example.homebankfront.feature.utility.logError
 import com.example.homebankfront.security.SecureTokenStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -112,7 +106,20 @@ class ChangePasswordViewModel @Inject constructor(
     }
 
     private suspend fun handleError(error: Either<ChangePasswordError, Error>) = when (error) {
-        is Left -> _errorFlow.emit(error)
+        is Left -> when (error.value) {
+            PasswordDoesNotMatchError -> _state.value.let { currentState ->
+                if (currentState !is Ready || error.value !is PasswordFieldError) return
+                updateConfirmNewPassword(currentState.confirmNewPasswordField.copy(error = error.value))
+            }
+
+            WrongPassword -> _state.value.let { currentState ->
+                if (currentState !is Ready || error.value !is PasswordFieldError) return
+                updateOldPassword(currentState.oldPasswordField.copy(error = error.value))
+            }
+
+            else -> {}
+        }
+
         is Right -> _errorFlow.emit(error)
     }
 }
@@ -127,7 +134,11 @@ sealed interface ChangePasswordState {
         fun validate(): ResultGeneric<Unit, Ready> {
             val oldPasswordFieldError = oldPasswordField.validate()
             val newPasswordFieldError = newPasswordField.validate()
-            val confirmNewPasswordFieldError = confirmNewPasswordField.validate()
+            var confirmNewPasswordFieldError = confirmNewPasswordField.validate()
+
+            if (confirmNewPasswordFieldError == null && confirmNewPasswordField.password != newPasswordField.password) {
+                confirmNewPasswordFieldError = PasswordDoesNotMatchError
+            }
 
             val errors = listOf(
                 oldPasswordFieldError,
@@ -160,25 +171,7 @@ sealed interface ChangePasswordField {
         val password: String = "",
         val error: PasswordFieldError? = null
     ) : ChangePasswordField {
-        fun validate() = if (password.isBlank()) MissingPassword else null
+        fun validate(): ChangePasswordError.PasswordFieldError? =
+            if (password.isBlank()) MissingPasswordError else null
     }
-}
-
-sealed class ChangePasswordError(val stringResourceId: Int) {
-    sealed class PasswordFieldError(stringResourceId: Int) : ChangePasswordError(stringResourceId) {
-        data object MissingPassword : PasswordFieldError(R.string.missing_password)
-        data object ShortPassword : PasswordFieldError(R.string.password_too_short)
-    }
-
-    fun getStringResourceFromContext(context: Context) = context.getString(stringResourceId)
-
-    @Composable
-    fun toStringResource(): String = stringResource(stringResourceId)
-}
-
-sealed interface ChangePasswordEvent {
-    data class UpdateOldPassword(val oldPassword: PasswordField) : ChangePasswordEvent
-    data class UpdateNewPassword(val newPassword: PasswordField) : ChangePasswordEvent
-    data class UpdateConfirmNewPassword(val confirmNewPassword: PasswordField) : ChangePasswordEvent
-    data object ChangePassword : ChangePasswordEvent
 }

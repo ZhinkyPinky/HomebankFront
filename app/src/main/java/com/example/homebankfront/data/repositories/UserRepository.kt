@@ -4,7 +4,7 @@ import com.example.homebankfront.data.bodies.ChangePasswordRequest
 import com.example.homebankfront.data.remote.services.UserService
 import com.example.homebankfront.feature.changePassword.ChangePasswordError
 import com.example.homebankfront.feature.utility.Either
-import com.example.homebankfront.feature.utility.Either.Right
+import com.example.homebankfront.feature.utility.Either.*
 import com.example.homebankfront.feature.utility.Error
 import com.example.homebankfront.feature.utility.Error.UnknownError
 import com.example.homebankfront.feature.utility.NetworkError.SocketTimeOut
@@ -29,7 +29,9 @@ class UserRepository @Inject constructor(
                 onSuccess = { Success(Unit) },
                 onFailure = { errorMessage: String? ->
                     //TODO: String to ChangePasswordError
-                    Failure(Right(UnknownError))
+                    ChangePasswordError.fromString(errorMessage)?.let {
+                        Failure(Left(it))
+                    } ?: Failure(Right(UnknownError))
                 }
             )
         }.getOrElse { handleException(it) }

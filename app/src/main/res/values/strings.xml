@@ -62,4 +62,6 @@
     <string name="confirm_password">Bekräfta lösenord</string>
     <string name="new_password">Nytt lösenord</string>
     <string name="old_password">Gammalt lösenord</string>
+    <string name="password_does_not_match">Lösenorden matchar inte</string>
+    <string name="wrong_password">Fel lösenord</string>
 </resources>
