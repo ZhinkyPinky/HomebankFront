@@ -38,7 +38,8 @@ import kotlinx.coroutines.launch
 fun AuthenticationScreen(
     viewModel: AuthenticationViewModel = hiltViewModel(),
     onAuthentication: () -> Unit,
-    navigateToRegistration: () -> Unit
+    navigateToRegistration: () -> Unit,
+    navigateToRecoverUserAccount: () -> Unit
 ) {
     val state: AuthenticationState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -61,7 +62,8 @@ fun AuthenticationScreen(
         authenticationManager = authenticationManager,
         onEvent = viewModel::onEvent,
         onAuthentication = onAuthentication,
-        navigateToRegistration = navigateToRegistration
+        navigateToRegistration = navigateToRegistration,
+        navigateToRecoverUserAccount = navigateToRecoverUserAccount
     )
 }
 
@@ -71,7 +73,8 @@ fun AuthenticationScreen(
     authenticationManager: AuthenticationManager,
     onEvent: (AuthenticationEvent) -> Unit,
     onAuthentication: () -> Unit,
-    navigateToRegistration: () -> Unit
+    navigateToRegistration: () -> Unit,
+    navigateToRecoverUserAccount: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -93,7 +96,8 @@ fun AuthenticationScreen(
                 passwordField = state.passwordField,
                 isLoading = state.isLoading,
                 onEvent = onEvent,
-                navigateToRegistration = navigateToRegistration
+                navigateToRegistration = navigateToRegistration,
+                navigateToRecoverUserAccount = navigateToRecoverUserAccount
             )
 
             LoadingOverlay(isLoading = state.isLoading)
@@ -120,7 +124,8 @@ fun AuthenticationScreen(
     passwordField: PasswordField,
     isLoading: Boolean,
     onEvent: (AuthenticationEvent) -> Unit,
-    navigateToRegistration: () -> Unit
+    navigateToRegistration: () -> Unit,
+    navigateToRecoverUserAccount: () -> Unit
 ) {
     Scaffold { paddingValues ->
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -145,6 +150,10 @@ fun AuthenticationScreen(
 
                 TextButton(onClick = { onEvent(Authenticate) }) {
                     Text(text = stringResource(R.string.sign_in))
+                }
+
+                TextButton(onClick = navigateToRecoverUserAccount) {
+                    Text(text = stringResource(R.string.forgot_password))
                 }
 
                 TextButton(onClick = navigateToRegistration) {

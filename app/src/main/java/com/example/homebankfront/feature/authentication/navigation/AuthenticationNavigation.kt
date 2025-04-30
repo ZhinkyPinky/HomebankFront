@@ -20,12 +20,14 @@ fun NavController.navigateToAuthentication(builder: NavOptionsBuilder.() -> Unit
 
 fun NavGraphBuilder.authentication(
     onAuthentication: () -> Unit,
-    navigateToRegistration: () -> Unit
+    navigateToRegistration: () -> Unit,
+    navigateToRecoverUserAccount: () -> Unit
 ) {
     composable<Authentication> {
         AuthenticationScreen(
             onAuthentication = onAuthentication,
-            navigateToRegistration = navigateToRegistration
+            navigateToRegistration = navigateToRegistration,
+            navigateToRecoverUserAccount = navigateToRecoverUserAccount
         )
     }
 }

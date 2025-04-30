@@ -1,5 +1,6 @@
 package com.example.homebankfront.network
 
+import com.example.homebankfront.data.remote.services.ApiPaths
 import com.example.homebankfront.feature.utility.EventEmitter
 import com.example.homebankfront.feature.utility.Logger
 import com.example.homebankfront.feature.utility.NetworkError
@@ -12,17 +13,18 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
+val excludedEndpoints = setOf(
+    "/auth/login",
+    "/auth/register",
+    "/auth/refresh",
+    ApiPaths.INITIATE_RECOVERY
+)
+
 class RequestHandler @Inject constructor(
     private val tokenStorage: TokenStorage,
     private val networkErrorEmitter: EventEmitter<NetworkError>,
     private val errorHandler: HTTPErrorHandlerContext
 ) {
-    private val excludedEndpoints = setOf(
-        "/auth/login",
-        "/auth/register",
-        "/auth/refresh"
-    )
-
     operator fun invoke(
         chain: Chain,
         retryCount: Int = 3
@@ -30,7 +32,6 @@ class RequestHandler @Inject constructor(
         val originalRequest = chain.request()
         val modifiedRequest: Request
         val urlPath = originalRequest.url().encodedPath()
-
         Logger.d(message = "Handling request to: $urlPath")
 
         //Don't add access token when calling excluded endpoints.

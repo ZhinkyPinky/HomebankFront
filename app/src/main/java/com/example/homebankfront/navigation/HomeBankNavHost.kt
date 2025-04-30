@@ -17,6 +17,8 @@ import com.example.homebankfront.feature.editTransactionHead.navigation.editTran
 import com.example.homebankfront.feature.editTransactionHead.navigation.navigateToEditTransactionHead
 import com.example.homebankfront.feature.editTransactionRow.navigation.editTransactionRowScreen
 import com.example.homebankfront.feature.editTransactionRow.navigation.navigateToEditTransactionRow
+import com.example.homebankfront.feature.recoverUserAccount.navigateToRecoverUserAccount
+import com.example.homebankfront.feature.recoverUserAccount.recoverUserAccount
 import com.example.homebankfront.feature.registration.navigation.navigateToRegistration
 import com.example.homebankfront.feature.registration.navigation.registration
 import com.example.homebankfront.feature.transactionHeadAndRows.navigation.navigateToTransactionHeadAndRows
@@ -63,10 +65,13 @@ fun HomeBankNavHost(appState: HomebankAppState) {
         navigation<Unauthenticated>(startDestination = Authentication) {
             authentication(
                 onAuthentication = navController::navigateToCustomerList,
-                navigateToRegistration = navController::navigateToRegistration
+                navigateToRegistration = navController::navigateToRegistration,
+                navigateToRecoverUserAccount = navController::navigateToRecoverUserAccount
             )
 
             registration(navController)
+
+            recoverUserAccount(navController = navController)
         }
 
         navigation<Authenticated>(startDestination = CustomerList) {

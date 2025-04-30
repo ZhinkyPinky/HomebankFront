@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.homebankfront.network.addAuthorizationHeader
 import com.example.homebankfront.data.bodies.RefreshRequest
 import com.example.homebankfront.data.remote.services.AuthService
+import com.example.homebankfront.network.excludedEndpoints
 import com.example.homebankfront.security.TokenStorage
 import dagger.Lazy
 import kotlinx.coroutines.sync.Mutex
@@ -21,17 +22,19 @@ class UnauthorizedErrorHandler @Inject constructor(
 
     override suspend fun handleError(request: Request, chain: Interceptor.Chain): Response {
         Log.d(this::class.simpleName, "Handling 401")
-        if (refresh()) {
-            Log.d(this::class.simpleName, "Refresh successful")
-            tokenStorage.getAccessToken()?.let {
-                Log.d(this::class.simpleName, "Token: $it")
-                val retryRequest = request.addAuthorizationHeader(it)
-                Log.d(this::class.simpleName, "RetryRequest: ${retryRequest.headers()}")
-                return chain.proceed(retryRequest)
+        if (!excludedEndpoints.contains(request.url().encodedPath())) {
+            if (refresh()) {
+                Log.d(this::class.simpleName, "Refresh successful")
+                tokenStorage.getAccessToken()?.let {
+                    Log.d(this::class.simpleName, "Token: $it")
+                    val retryRequest = request.addAuthorizationHeader(it)
+                    Log.d(this::class.simpleName, "RetryRequest: ${retryRequest.headers()}")
+                    return chain.proceed(retryRequest)
+                }
             }
-        }
 
-        Log.d(this::class.simpleName, "Refresh failed")
+            Log.d(this::class.simpleName, "Refresh failed")
+        }
 
         return chain.proceed(request)
     }
