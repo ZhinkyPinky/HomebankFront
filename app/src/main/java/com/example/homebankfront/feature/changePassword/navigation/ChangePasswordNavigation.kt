@@ -16,9 +16,7 @@ data object ChangePassword : Route {
 
 fun NavController.navigateToChangePassword() = navigate(route = ChangePassword)
 
-fun NavGraphBuilder.changePasswordScreen(
-    onChangedPassword: () -> Unit
-) {
+fun NavGraphBuilder.changePasswordScreen(onChangedPassword: () -> Unit) {
     composable<ChangePassword> {
         ChangePasswordScreen(onChangedPassword = onChangedPassword)
     }

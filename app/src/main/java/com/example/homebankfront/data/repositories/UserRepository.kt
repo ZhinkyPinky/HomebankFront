@@ -4,7 +4,7 @@ import com.example.homebankfront.data.bodies.ChangePasswordRequest
 import com.example.homebankfront.data.bodies.RecoveryRequest
 import com.example.homebankfront.data.remote.services.UserService
 import com.example.homebankfront.feature.changePassword.ChangePasswordError
-import com.example.homebankfront.feature.recoverUserAccount.RecoverUserAccountError
+import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.RecoverUserAccountError
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.*
 import com.example.homebankfront.feature.utility.Error

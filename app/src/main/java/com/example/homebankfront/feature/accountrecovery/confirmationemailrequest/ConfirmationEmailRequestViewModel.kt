@@ -1,4 +1,4 @@
-package com.example.homebankfront.feature.recoverUserAccount
+package com.example.homebankfront.feature.accountrecovery.confirmationemailrequest
 
 import android.content.Context
 import android.util.Log
@@ -9,16 +9,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.RecoveryRequest
 import com.example.homebankfront.data.repositories.UserRepository
-import com.example.homebankfront.feature.recoverUserAccount.RecoverUserAccountError.*
-import com.example.homebankfront.feature.recoverUserAccount.RecoverUserAccountError.EmailFieldError.*
-import com.example.homebankfront.feature.recoverUserAccount.RecoverUserAccountEvent.*
-import com.example.homebankfront.feature.recoverUserAccount.RecoverUserAccountField.*
-import com.example.homebankfront.feature.recoverUserAccount.RecoverUserAccountState.*
+import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.RecoverUserAccountError.*
+import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.RecoverUserAccountError.EmailFieldError.*
+import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.ConfirmationEmailRequestEvent.*
+import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.ConfirmationEmailRequestField.*
+import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.ConfirmationEmailRequestState.*
 import com.example.homebankfront.feature.registration.RegistrationError
-import com.example.homebankfront.feature.registration.RegistrationEvent
-import com.example.homebankfront.feature.registration.RegistrationEvent.Register
-import com.example.homebankfront.feature.registration.RegistrationEvent.UpdateField
-import com.example.homebankfront.feature.registration.RegistrationState.Registering
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.Error
@@ -29,7 +25,6 @@ import com.example.homebankfront.feature.utility.ResultGeneric
 import com.example.homebankfront.feature.utility.ResultGeneric.Failure
 import com.example.homebankfront.feature.utility.ResultGeneric.Success
 import com.example.homebankfront.feature.utility.className
-import com.example.homebankfront.feature.utility.logDebug
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,11 +40,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RecoverUserAccountViewModel @Inject constructor(
+class ConfirmationEmailRequestViewModel @Inject constructor(
     private val networkErrorEmitter: EventEmitter<NetworkError>,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    private val _state: MutableStateFlow<RecoverUserAccountState> = MutableStateFlow(Ready())
+    private val _state: MutableStateFlow<ConfirmationEmailRequestState> = MutableStateFlow(Ready())
     val state = _state.asStateFlow()
 
     private val _errorFlow = MutableSharedFlow<Either<RegistrationError, Error>>(
@@ -69,7 +64,7 @@ class RecoverUserAccountViewModel @Inject constructor(
         e.message?.let { Logger.e(message = it) }
     }.launchIn(viewModelScope)
 
-    fun onEvent(event: RecoverUserAccountEvent) {
+    fun onEvent(event: ConfirmationEmailRequestEvent) {
         when (event) {
             InitiateRecovery -> initiateRecovery()
             is Update -> updateEmail(event.emailField)
@@ -101,7 +96,7 @@ class RecoverUserAccountViewModel @Inject constructor(
                             is Success -> _state.update { RecoveryInitiated }
                         }
                     } catch (e: Exception) {
-                        e.message?.let { Log.e(this@RecoverUserAccountViewModel.className, it) }
+                        e.message?.let { Log.e(this@ConfirmationEmailRequestViewModel.className, it) }
                     } finally {
                         setLoading(false)
                     }
@@ -111,11 +106,11 @@ class RecoverUserAccountViewModel @Inject constructor(
     }
 }
 
-sealed interface RecoverUserAccountState {
+sealed interface ConfirmationEmailRequestState {
     data class Ready(
         val emailField: EmailField = EmailField(),
         val isLoading: Boolean = false
-    ) : RecoverUserAccountState {
+    ) : ConfirmationEmailRequestState {
         fun validate(): ResultGeneric<Unit, Ready> {
             val emailFieldError = emailField.validate()
 
@@ -132,14 +127,14 @@ sealed interface RecoverUserAccountState {
         fun toRequest() = RecoveryRequest(email = emailField.email)
     }
 
-    data object RecoveryInitiated : RecoverUserAccountState
+    data object RecoveryInitiated : ConfirmationEmailRequestState
 }
 
-sealed interface RecoverUserAccountField {
+sealed interface ConfirmationEmailRequestField {
     data class EmailField(
         val email: String = "",
         val error: EmailFieldError? = null
-    ) : RecoverUserAccountField {
+    ) : ConfirmationEmailRequestField {
         fun validate() = if (email.isBlank()) MissingEmail else null
     }
 }
@@ -160,7 +155,7 @@ sealed class RecoverUserAccountError(val stringResourceId: Int) {
 fun RegistrationError.getStringResourceFromContext(context: Context) =
     context.getString(stringResourceId)
 
-sealed interface RecoverUserAccountEvent {
-    data object InitiateRecovery : RecoverUserAccountEvent
-    data class Update(val emailField: EmailField) : RecoverUserAccountEvent
+sealed interface ConfirmationEmailRequestEvent {
+    data object InitiateRecovery : ConfirmationEmailRequestEvent
+    data class Update(val emailField: EmailField) : ConfirmationEmailRequestEvent
 }
