@@ -1,6 +1,5 @@
-package com.example.homebankfront.feature.accountrecovery.confirmationemailrequest
+package com.example.homebankfront.feature.accountrecovery.emailinput
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,7 +10,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -19,11 +17,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
-import com.example.homebankfront.feature.authentication.AuthenticationManager
-import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.ConfirmationEmailRequestEvent.InitiateRecovery
-import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.ConfirmationEmailRequestEvent.Update
-import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.ConfirmationEmailRequestField.*
-import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.ConfirmationEmailRequestState.*
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputEvent.InitiateRecovery
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputEvent.Update
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputField.EmailField
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputState.Input
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputState.RecoveryInitiated
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.ui.components.LoadingOverlay
@@ -32,13 +30,12 @@ import com.example.homebankfront.ui.theme.HomeBankFrontTheme
 import com.example.homebankfront.ui.theme.ThemePreviews
 
 @Composable
-fun ConfirmationEmailRequestScreen(
-    viewModel: ConfirmationEmailRequestViewModel = hiltViewModel(),
-    onRecoveryInitiated: () -> Unit
+fun AccountRecoveryEmailInputScreen(
+    viewModel: AccountRecoveryEmailInputViewModel = hiltViewModel(),
+    onRecoveryInitiated: (String) -> Unit
 ) {
-    val state: ConfirmationEmailRequestState by viewModel.state.collectAsStateWithLifecycle()
+    val state: AccountRecoveryEmailInputState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val authenticationManager = remember { AuthenticationManager(context as ComponentActivity) }
     val snackbarHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
@@ -52,39 +49,26 @@ fun ConfirmationEmailRequestScreen(
         }
     }
 
-    ConfirmationEmailRequestScreen(
-        state = state,
-        onEvent = viewModel::onEvent,
-        onRecoveryInitiated = onRecoveryInitiated
-    )
-}
-
-@Composable
-fun ConfirmationEmailRequestScreen(
-    state: ConfirmationEmailRequestState,
-    onEvent: (ConfirmationEmailRequestEvent) -> Unit,
-    onRecoveryInitiated: () -> Unit
-) {
-    when (state) {
-        is Ready -> {
-            ConfirmationEmailRequestScreen(
-                emailField = state.emailField,
-                isLoading = state.isLoading,
-                onEvent = onEvent,
+    when (val localState = state) {
+        is Input -> {
+            AccountRecoveryEmailInputContent(
+                emailField = localState.emailField,
+                isLoading = localState.isLoading,
+                onEvent = viewModel::onEvent,
             )
 
-            LoadingOverlay(isLoading = state.isLoading)
+            LoadingOverlay(isLoading = localState.isLoading)
         }
 
-        is RecoveryInitiated -> onRecoveryInitiated()
+        is RecoveryInitiated -> onRecoveryInitiated(localState.email)
     }
 }
 
 @Composable
-fun ConfirmationEmailRequestScreen(
+private fun AccountRecoveryEmailInputContent(
     emailField: EmailField,
     isLoading: Boolean,
-    onEvent: (ConfirmationEmailRequestEvent) -> Unit,
+    onEvent: (AccountRecoveryEmailInputEvent) -> Unit,
 ) {
     Scaffold { paddingValues ->
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -108,9 +92,9 @@ fun ConfirmationEmailRequestScreen(
 
 @ThemePreviews
 @Composable
-fun ConfirmationEmailRequestScreenPreview() {
+private fun ConfirmationEmailRequestScreenPreview() {
     HomeBankFrontTheme {
-        ConfirmationEmailRequestScreen(
+        AccountRecoveryEmailInputContent(
             emailField = EmailField(),
             isLoading = false,
             onEvent = {}

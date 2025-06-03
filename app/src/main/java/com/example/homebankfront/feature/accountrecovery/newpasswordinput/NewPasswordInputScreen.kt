@@ -1,10 +1,27 @@
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
+import com.example.homebankfront.R
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputEvent
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputState
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputViewModel
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.PasswordField
 import com.example.homebankfront.feature.utility.Either.*
+import com.example.homebankfront.ui.components.LoadingOverlay
+import com.example.homebankfront.ui.components.SecurePasswordTextField
 
 @Composable
 fun NewPasswordInputScreen(
@@ -36,19 +53,18 @@ fun NewPasswordInputScreen(
 
 @Composable
 fun ChangePasswordScreen(
-    state: ChangePasswordState,
-    onEvent: (ChangePasswordEvent) -> Unit,
+    state: NewPasswordInputState,
+    onEvent: (NewPasswordInputEvent) -> Unit,
     onChangedPassword: () -> Unit
 ) {
     when (state) {
-        ChangePasswordState.PasswordChanged -> {
+       NewPasswordInputState.Changed  -> {
             //TODO: Figure out what to do.
             onChangedPassword()
         }
 
-        is ChangePasswordState.Ready -> {
+        is NewPasswordInputState.Input -> {
             ChangePasswordScreen(
-                oldPasswordField = state.oldPasswordField,
                 newPasswordField = state.newPasswordField,
                 confirmNewPasswordField = state.confirmNewPasswordField,
                 onEvent = onEvent
@@ -56,29 +72,30 @@ fun ChangePasswordScreen(
 
             LoadingOverlay(isLoading = state.isLoading)
         }
+
+        else -> {}
     }
 }
 
 @Composable
 fun ChangePasswordScreen(
-    oldPasswordField: ChangePasswordField.PasswordField,
-    newPasswordField: ChangePasswordField.PasswordField,
-    confirmNewPasswordField: ChangePasswordField.PasswordField,
-    onEvent: (ChangePasswordEvent) -> Unit,
+    newPasswordField: PasswordField,
+    confirmNewPasswordField: PasswordField,
+    onEvent: (NewPasswordInputEvent) -> Unit,
 ) {
     Scaffold { paddingValues ->
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.padding(paddingValues)) {
                 SecurePasswordTextField(
                     label = stringResource(R.string.old_password),
-                    text = oldPasswordField.password,
-                    supportingText = oldPasswordField.error?.toStringResource(),
-                    isError = oldPasswordField.error != null,
+                    text = newPasswordField.value,
+                    supportingText = newPasswordField.error?.toStringResource(),
+                    isError = newPasswordField.error != null,
                     onValueChange = {
                         onEvent(
-                            UpdateOldPassword(
-                                oldPasswordField.copy(
-                                    password = it,
+                            NewPasswordInputEvent.UpdateNewPasswordField(
+                                newPasswordField.copy(
+                                    value = it,
                                     error = null
                                 )
                             )
@@ -88,31 +105,14 @@ fun ChangePasswordScreen(
 
                 SecurePasswordTextField(
                     label = stringResource(R.string.new_password),
-                    text = newPasswordField.password,
-                    supportingText = newPasswordField.error?.toStringResource(),
-                    isError = newPasswordField.error != null,
-                    onValueChange = {
-                        onEvent(
-                            UpdateNewPassword(
-                                newPasswordField.copy(
-                                    password = it,
-                                    error = null
-                                )
-                            )
-                        )
-                    }
-                )
-
-                SecurePasswordTextField(
-                    label = stringResource(R.string.confirm_password),
-                    text = confirmNewPasswordField.password,
+                    text = confirmNewPasswordField.value,
                     supportingText = confirmNewPasswordField.error?.toStringResource(),
                     isError = confirmNewPasswordField.error != null,
                     onValueChange = {
                         onEvent(
-                            UpdateConfirmNewPassword(
-                                confirmNewPasswordField.copy(
-                                    password = it,
+                            NewPasswordInputEvent.UpdateConfirmNewPasswordField(
+                                newPasswordField.copy(
+                                    value = it,
                                     error = null
                                 )
                             )
@@ -120,7 +120,7 @@ fun ChangePasswordScreen(
                     }
                 )
 
-                TextButton(onClick = { onEvent(ChangePassword) }) {
+                TextButton(onClick = { onEvent(NewPasswordInputEvent.Authenticate) }) {
                     Text(text = stringResource(R.string.change_password))
                 }
             }

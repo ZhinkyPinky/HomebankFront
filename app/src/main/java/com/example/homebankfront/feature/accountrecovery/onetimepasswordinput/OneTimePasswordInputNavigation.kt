@@ -9,13 +9,16 @@ import kotlinx.serialization.Serializable
 import navigationToNewPasswordInput
 
 @Serializable
-data object OneTimePasswordInput : Route {
+data class OneTimePasswordInput(
+    val emailAddress: String
+) : Route {
     override val enableNavDrawer: Boolean = false
     override val name: String = className
 }
 
 
-fun NavController.navigationToOneTimePasswordInput() = navigate(route = OneTimePasswordInput)
+fun NavController.navigationToOneTimePasswordInput(emailAddress: String) =
+    navigate(route = OneTimePasswordInput(emailAddress))
 
 fun NavGraphBuilder.oneTimePasswordInput(navController: NavController) {
     composable<OneTimePasswordInput> {

@@ -1,6 +1,8 @@
-import NewPasswordInputError.*
-import NewPasswordInputEvent.*
-import NewPasswordInputState.Input
+package com.example.homebankfront.feature.accountrecovery.newpasswordinput
+
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputError.*
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputEvent.*
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputState.Input
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -53,7 +55,7 @@ class NewPasswordInputViewModel @Inject constructor(
     fun onEvent(event: NewPasswordInputEvent) {
         when (event) {
             is UpdateConfirmNewPasswordField -> TODO()
-             Authenticate -> TODO()
+             is Authenticate -> TODO()
             is UpdateNewPasswordField -> updateNewPassword(event.field)
         }
     }

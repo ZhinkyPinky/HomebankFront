@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.homebankfront.R
 
-
 sealed class Error(val stringResourceId: Int) {
     data object UnknownError : Error(R.string.unknown_error)
 

@@ -1,14 +1,17 @@
 package com.example.homebankfront.feature.accountrecovery.onetimepasswordinput
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.R
 import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordError.OneTimePasswordFieldError
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.*
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.*
-import com.example.homebankfront.feature.registration.RegistrationError
+import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.Authenticate
+import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.UpdatePasswordField
+import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.Authenticated
+import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.Default
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.Error
@@ -30,9 +33,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OneTimePasswordInputViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val networkErrorEmitter: EventEmitter<NetworkError>,
 ) : ViewModel() {
-    private val _state: MutableStateFlow<OneTimePasswordInputState> = MutableStateFlow(Default())
+    private val emailAddress: String = checkNotNull(savedStateHandle["emailAddress"])
+
+    private val _state: MutableStateFlow<OneTimePasswordInputState> =
+        MutableStateFlow(Default(emailAddress))
     val state = _state.asStateFlow()
 
     private val _errorFlow = MutableSharedFlow<Either<OneTimePasswordError, Error>>(
@@ -66,6 +73,7 @@ class OneTimePasswordInputViewModel @Inject constructor(
 
 sealed interface OneTimePasswordInputState {
     data class Default(
+        val emailAddress: String,
         val oneTimePasswordField: OneTimePasswordField = OneTimePasswordField(),
         val isLoading: Boolean = false
     ) : OneTimePasswordInputState
@@ -91,4 +99,7 @@ sealed class OneTimePasswordError(val stringResourceId: Int) {
 
     @Composable
     fun toStringResource() = stringResource(stringResourceId)
+
+
+    fun getStringResourceFromContext(context: Context) = context.getString(stringResourceId)
 }

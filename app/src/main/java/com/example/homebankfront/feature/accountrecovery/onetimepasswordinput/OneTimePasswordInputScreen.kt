@@ -17,9 +17,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
-import com.example.homebankfront.feature.accountrecovery.confirmationemailrequest.getStringResourceFromContext
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.*
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.*
+import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.Authenticate
+import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.UpdatePasswordField
+import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.Authenticated
+import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.Default
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.ui.components.LoadingOverlay
