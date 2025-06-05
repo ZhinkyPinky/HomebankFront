@@ -19,6 +19,7 @@ import com.example.homebankfront.feature.editTransactionRow.navigation.editTrans
 import com.example.homebankfront.feature.editTransactionRow.navigation.navigateToEditTransactionRow
 import com.example.homebankfront.feature.accountrecovery.emailinput.navigateToAccountRecoveryEmailInput
 import com.example.homebankfront.feature.accountrecovery.emailinput.accountRecoveryEmailInput
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.recoveryPasswordInput
 import com.example.homebankfront.feature.registration.navigation.navigateToRegistration
 import com.example.homebankfront.feature.registration.navigation.registration
 import com.example.homebankfront.feature.transactionHeadAndRows.navigation.navigateToTransactionHeadAndRows
@@ -28,6 +29,7 @@ import com.example.homebankfront.feature.transactionHeadsList.navigation.transac
 import com.example.homebankfront.feature.utility.className
 import com.example.homebankfront.ui.HomebankAppState
 import kotlinx.serialization.Serializable
+import newPasswordInput
 
 @Serializable
 data object Unauthenticated : Route {
@@ -69,9 +71,11 @@ fun HomeBankNavHost(appState: HomebankAppState) {
                 navigateToRecoverUserAccount = navController::navigateToAccountRecoveryEmailInput
             )
 
-            registration(navController)
+            registration(navController = navController)
 
             accountRecoveryEmailInput(navController = navController)
+            recoveryPasswordInput(navController = navController)
+            newPasswordInput(navController = navController)
         }
 
         navigation<Authenticated>(startDestination = CustomerList) {

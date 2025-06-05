@@ -16,17 +16,21 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
 import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputEvent
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputEvent.*
 import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputState
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputState.*
 import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputViewModel
 import com.example.homebankfront.feature.accountrecovery.newpasswordinput.PasswordField
 import com.example.homebankfront.feature.utility.Either.*
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.SecurePasswordTextField
+import com.example.homebankfront.ui.theme.HomeBankFrontTheme
+import com.example.homebankfront.ui.theme.ThemePreviews
 
 @Composable
 fun NewPasswordInputScreen(
     viewModel: NewPasswordInputViewModel = hiltViewModel(),
-    onChangedPassword: () -> Unit
+    onNewPasswordSet: () -> Unit
 ) {
     val state: NewPasswordInputState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -43,42 +47,26 @@ fun NewPasswordInputScreen(
         }
     }
 
-
-    ChangePasswordScreen(
-        state = state,
-        onEvent = viewModel::onEvent,
-        onChangedPassword = onChangedPassword
-    )
-}
-
-@Composable
-fun ChangePasswordScreen(
-    state: NewPasswordInputState,
-    onEvent: (NewPasswordInputEvent) -> Unit,
-    onChangedPassword: () -> Unit
-) {
-    when (state) {
-       NewPasswordInputState.Changed  -> {
-            //TODO: Figure out what to do.
-            onChangedPassword()
+    when (val localState = state) {
+        NewPasswordSet -> {
+            //TODO: Figure out what to do. Go to login screen or just login?
+            onNewPasswordSet()
         }
 
-        is NewPasswordInputState.Input -> {
-            ChangePasswordScreen(
-                newPasswordField = state.newPasswordField,
-                confirmNewPasswordField = state.confirmNewPasswordField,
-                onEvent = onEvent
+        is Input -> {
+            NewPasswordContent(
+                newPasswordField = localState.newPasswordField,
+                confirmNewPasswordField = localState.confirmNewPasswordField,
+                onEvent = viewModel::onEvent
             )
 
-            LoadingOverlay(isLoading = state.isLoading)
+            LoadingOverlay(isLoading = localState.isLoading)
         }
-
-        else -> {}
     }
 }
 
 @Composable
-fun ChangePasswordScreen(
+private fun NewPasswordContent(
     newPasswordField: PasswordField,
     confirmNewPasswordField: PasswordField,
     onEvent: (NewPasswordInputEvent) -> Unit,
@@ -92,14 +80,12 @@ fun ChangePasswordScreen(
                     supportingText = newPasswordField.error?.toStringResource(),
                     isError = newPasswordField.error != null,
                     onValueChange = {
-                        onEvent(
-                            NewPasswordInputEvent.UpdateNewPasswordField(
-                                newPasswordField.copy(
-                                    value = it,
-                                    error = null
-                                )
-                            )
+                        val updatedNewPasswordField = newPasswordField.copy(
+                            value = it,
+                            error = null
                         )
+
+                        onEvent(UpdateNewPasswordField(updatedNewPasswordField))
                     }
                 )
 
@@ -109,21 +95,31 @@ fun ChangePasswordScreen(
                     supportingText = confirmNewPasswordField.error?.toStringResource(),
                     isError = confirmNewPasswordField.error != null,
                     onValueChange = {
-                        onEvent(
-                            NewPasswordInputEvent.UpdateConfirmNewPasswordField(
-                                newPasswordField.copy(
-                                    value = it,
-                                    error = null
-                                )
-                            )
+                        val updatedConfirmNewPasswordField = confirmNewPasswordField.copy(
+                            value = it,
+                            error = null
                         )
+
+                        onEvent(UpdateConfirmNewPasswordField(updatedConfirmNewPasswordField))
                     }
                 )
 
-                TextButton(onClick = { onEvent(NewPasswordInputEvent.Authenticate) }) {
+                TextButton(onClick = { onEvent(Authenticate) }) {
                     Text(text = stringResource(R.string.change_password))
                 }
             }
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun NewPasswordInputScreenPreview() {
+    HomeBankFrontTheme {
+        NewPasswordContent(
+            newPasswordField = PasswordField(),
+            confirmNewPasswordField = PasswordField(),
+            onEvent = {}
+        )
     }
 }

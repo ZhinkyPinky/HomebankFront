@@ -1,4 +1,4 @@
-package com.example.homebankfront.feature.accountrecovery.onetimepasswordinput
+package com.example.homebankfront.feature.accountrecovery.recoverypasswordinput
 
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -7,11 +7,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.R
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordError.OneTimePasswordFieldError
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.Authenticate
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.UpdatePasswordField
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.Authenticated
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.Default
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.RecoveryPasswordError.RecoveryPasswordFieldError
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.RecoveryPasswordInputEvent.Authenticate
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.RecoveryPasswordInputEvent.UpdatePasswordField
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.RecoveryPasswordInputState.Authenticated
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.RecoveryPasswordInputState.Input
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.Error
@@ -32,17 +32,17 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
-class OneTimePasswordInputViewModel @Inject constructor(
+class RecoveryPasswordInputViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val networkErrorEmitter: EventEmitter<NetworkError>,
 ) : ViewModel() {
     private val emailAddress: String = checkNotNull(savedStateHandle["emailAddress"])
 
-    private val _state: MutableStateFlow<OneTimePasswordInputState> =
-        MutableStateFlow(Default(emailAddress))
+    private val _state: MutableStateFlow<RecoveryPasswordInputState> =
+        MutableStateFlow(Input(emailAddress))
     val state = _state.asStateFlow()
 
-    private val _errorFlow = MutableSharedFlow<Either<OneTimePasswordError, Error>>(
+    private val _errorFlow = MutableSharedFlow<Either<RecoveryPasswordError, Error>>(
         extraBufferCapacity = 10
     )
     val errorFlow = _errorFlow.asSharedFlow()
@@ -59,42 +59,42 @@ class OneTimePasswordInputViewModel @Inject constructor(
         e.message?.let { Logger.e(message = it) }
     }.launchIn(viewModelScope)
 
-    fun onEvent(event: OneTimePasswordInputEvent) {
+    fun onEvent(event: RecoveryPasswordInputEvent) {
         when (event) {
             Authenticate -> _state.update { Authenticated }
             is UpdatePasswordField -> updatePasswordField(event.field)
         }
     }
 
-    private fun updatePasswordField(field: OneTimePasswordField) = _state.update { currentState ->
-        if (currentState !is Default) return else currentState.copy(oneTimePasswordField = field)
+    private fun updatePasswordField(field: RecoveryPasswordField) = _state.update { currentState ->
+        if (currentState !is Input) return else currentState.copy(recoveryPasswordField = field)
     }
 }
 
-sealed interface OneTimePasswordInputState {
-    data class Default(
+sealed interface RecoveryPasswordInputState {
+    data class Input(
         val emailAddress: String,
-        val oneTimePasswordField: OneTimePasswordField = OneTimePasswordField(),
+        val recoveryPasswordField: RecoveryPasswordField = RecoveryPasswordField(),
         val isLoading: Boolean = false
-    ) : OneTimePasswordInputState
+    ) : RecoveryPasswordInputState
 
-    data object Authenticated : OneTimePasswordInputState
+    data object Authenticated : RecoveryPasswordInputState
 }
 
-sealed interface OneTimePasswordInputEvent {
-    data class UpdatePasswordField(val field: OneTimePasswordField) : OneTimePasswordInputEvent
-    data object Authenticate : OneTimePasswordInputEvent
+sealed interface RecoveryPasswordInputEvent {
+    data class UpdatePasswordField(val field: RecoveryPasswordField) : RecoveryPasswordInputEvent
+    data object Authenticate : RecoveryPasswordInputEvent
 }
 
-data class OneTimePasswordField(
+data class RecoveryPasswordField(
     val value: String = "",
-    val error: OneTimePasswordFieldError? = null
+    val error: RecoveryPasswordFieldError? = null
 )
 
-sealed class OneTimePasswordError(val stringResourceId: Int) {
-    sealed class OneTimePasswordFieldError(stringResourceId: Int) :
-        OneTimePasswordError(stringResourceId) {
-        data object InvalidPassword : OneTimePasswordFieldError(R.string.wrong_password)
+sealed class RecoveryPasswordError(val stringResourceId: Int) {
+    sealed class RecoveryPasswordFieldError(stringResourceId: Int) :
+        RecoveryPasswordError(stringResourceId) {
+        data object InvalidPassword : RecoveryPasswordFieldError(R.string.wrong_password)
     }
 
     @Composable

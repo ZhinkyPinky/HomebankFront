@@ -1,4 +1,4 @@
-package com.example.homebankfront.feature.accountrecovery.onetimepasswordinput
+package com.example.homebankfront.feature.accountrecovery.recoverypasswordinput
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 import navigationToNewPasswordInput
 
 @Serializable
-data class OneTimePasswordInput(
+data class RecoveryPasswordInput(
     val emailAddress: String
 ) : Route {
     override val enableNavDrawer: Boolean = false
@@ -17,11 +17,11 @@ data class OneTimePasswordInput(
 }
 
 
-fun NavController.navigationToOneTimePasswordInput(emailAddress: String) =
-    navigate(route = OneTimePasswordInput(emailAddress))
+fun NavController.navigationToRecoveryPasswordInput(emailAddress: String) =
+    navigate(route = RecoveryPasswordInput(emailAddress))
 
-fun NavGraphBuilder.oneTimePasswordInput(navController: NavController) {
-    composable<OneTimePasswordInput> {
-        OneTimePasswordInputScreen(onAuthenticated = { navController.navigationToNewPasswordInput() })
+fun NavGraphBuilder.recoveryPasswordInput(navController: NavController) {
+    composable<RecoveryPasswordInput> {
+        RecoveryPasswordInputScreen(onAuthenticated = { navController.navigationToNewPasswordInput() })
     }
 }

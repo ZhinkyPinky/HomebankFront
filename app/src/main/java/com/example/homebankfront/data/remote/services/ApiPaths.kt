@@ -34,5 +34,8 @@ object ApiPaths {
 
     const val USERS = "/users"
     const val CHANGE_PASSWORD = "$USERS/changePassword"
-    const val INITIATE_RECOVERY = "$USERS/initiate-recovery"
+
+    const val ACCOUNT_RECOVERY = "/account-recovery"
+    const val INITIATE_RECOVERY = "$ACCOUNT_RECOVERY/initiate"
+    const val ACCOUNT_RECOVERY_AUTHENTICATE = "$ACCOUNT_RECOVERY/authenticate"
 }

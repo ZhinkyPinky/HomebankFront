@@ -1,6 +1,5 @@
 package com.example.homebankfront.feature.editTransactionRow.domain
 
-import com.example.homebankfront.data.bodies.TransactionHead
 import com.example.homebankfront.data.bodies.TransactionRow
 import com.example.homebankfront.data.repositories.TransactionRowRepository
 import com.example.homebankfront.feature.utility.Result

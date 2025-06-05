@@ -16,6 +16,6 @@ fun NavController.navigationToNewPasswordInput() = navigate(route = NewPasswordI
 
 fun NavGraphBuilder.newPasswordInput(navController: NavController) {
     composable<NewPasswordInput> {
-        NewPasswordInputScreen(onChangedPassword = {})
+        NewPasswordInputScreen(onNewPasswordSet = {})
     }
 }

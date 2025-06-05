@@ -1,4 +1,4 @@
-package com.example.homebankfront.feature.accountrecovery.onetimepasswordinput
+package com.example.homebankfront.feature.accountrecovery.recoverypasswordinput
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,21 +17,23 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.Authenticate
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputEvent.UpdatePasswordField
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.Authenticated
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.OneTimePasswordInputState.Default
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.RecoveryPasswordInputEvent.Authenticate
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.RecoveryPasswordInputEvent.UpdatePasswordField
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.RecoveryPasswordInputState.Authenticated
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.RecoveryPasswordInputState.Input
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
+import com.example.homebankfront.ui.theme.HomeBankFrontTheme
+import com.example.homebankfront.ui.theme.ThemePreviews
 
 @Composable
-fun OneTimePasswordInputScreen(
-    viewModel: OneTimePasswordInputViewModel = hiltViewModel(),
+fun RecoveryPasswordInputScreen(
+    viewModel: RecoveryPasswordInputViewModel = hiltViewModel(),
     onAuthenticated: () -> Unit
 ) {
-    val state: OneTimePasswordInputState by viewModel.state.collectAsStateWithLifecycle()
+    val state: RecoveryPasswordInputState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = LocalSnackHostState.current
 
@@ -46,38 +48,25 @@ fun OneTimePasswordInputScreen(
         }
     }
 
-    OneTimePasswordScreen(
-        state = state,
-        onEvent = viewModel::onEvent,
-        onAuthenticated = onAuthenticated
-    )
-}
-
-@Composable
-fun OneTimePasswordScreen(
-    state: OneTimePasswordInputState,
-    onEvent: (OneTimePasswordInputEvent) -> Unit,
-    onAuthenticated: () -> Unit
-) {
-    when (state) {
-        is Default -> {
-            OneTimePasswordScreen(
-                passwordField = state.oneTimePasswordField,
+    when (val localState = state) {
+        is Input -> {
+            RecoveryPasswordInputContent(
+                passwordField = localState.recoveryPasswordField,
                 updatePasswordField = {
-                    onEvent(
+                    viewModel.onEvent(
                         UpdatePasswordField(
-                            state.oneTimePasswordField.copy(
+                            localState.recoveryPasswordField.copy(
                                 value = it,
                                 error = null
                             )
                         )
                     )
                 },
-                authenticate = { onEvent(Authenticate) },
-                isLoading = state.isLoading,
+                authenticate = { viewModel.onEvent(Authenticate) },
+                isLoading = localState.isLoading,
             )
 
-            LoadingOverlay(isLoading = state.isLoading)
+            LoadingOverlay(isLoading = localState.isLoading)
         }
 
         is Authenticated -> onAuthenticated()
@@ -85,8 +74,8 @@ fun OneTimePasswordScreen(
 }
 
 @Composable
-fun OneTimePasswordScreen(
-    passwordField: OneTimePasswordField,
+private fun RecoveryPasswordInputContent(
+    passwordField: RecoveryPasswordField,
     updatePasswordField: (String) -> Unit,
     authenticate: () -> Unit,
     isLoading: Boolean,
@@ -108,5 +97,18 @@ fun OneTimePasswordScreen(
                 }
             }
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun OneTimePasswordInputScreenPreview() {
+    HomeBankFrontTheme {
+        RecoveryPasswordInputContent(
+            passwordField = RecoveryPasswordField(),
+            updatePasswordField = {},
+            authenticate = {},
+            isLoading = false
+        )
     }
 }

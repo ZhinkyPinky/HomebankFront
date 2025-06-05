@@ -17,11 +17,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
-import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputEvent.InitiateRecovery
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputEvent.RequestRecoveryPassword
 import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputEvent.Update
 import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputField.EmailField
 import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputState.Input
-import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputState.RecoveryInitiated
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputState.RecoveryPasswordSent
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.ui.components.LoadingOverlay
@@ -32,7 +32,7 @@ import com.example.homebankfront.ui.theme.ThemePreviews
 @Composable
 fun AccountRecoveryEmailInputScreen(
     viewModel: AccountRecoveryEmailInputViewModel = hiltViewModel(),
-    onRecoveryInitiated: (String) -> Unit
+    onRecoveryPasswordSent: (String) -> Unit
 ) {
     val state: AccountRecoveryEmailInputState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -60,7 +60,7 @@ fun AccountRecoveryEmailInputScreen(
             LoadingOverlay(isLoading = localState.isLoading)
         }
 
-        is RecoveryInitiated -> onRecoveryInitiated(localState.email)
+        is RecoveryPasswordSent -> onRecoveryPasswordSent(localState.email)
     }
 }
 
@@ -82,7 +82,7 @@ private fun AccountRecoveryEmailInputContent(
                     onValueChange = { onEvent(Update(emailField.copy(email = it, error = null))) }
                 )
 
-                TextButton(onClick = { onEvent(InitiateRecovery) }) {
+                TextButton(onClick = { onEvent(RequestRecoveryPassword) }) {
                     Text(text = stringResource(R.string.recover_password))
                 }
             }

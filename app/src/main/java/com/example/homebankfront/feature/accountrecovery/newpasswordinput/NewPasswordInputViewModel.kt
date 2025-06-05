@@ -55,7 +55,7 @@ class NewPasswordInputViewModel @Inject constructor(
     fun onEvent(event: NewPasswordInputEvent) {
         when (event) {
             is UpdateConfirmNewPasswordField -> TODO()
-             is Authenticate -> TODO()
+            is Authenticate -> TODO()
             is UpdateNewPasswordField -> updateNewPassword(event.field)
         }
     }
@@ -77,7 +77,7 @@ sealed interface NewPasswordInputState {
         val isLoading: Boolean = false
     ) : NewPasswordInputState
 
-    data object Changed : NewPasswordInputState
+    data object NewPasswordSet : NewPasswordInputState
 }
 
 sealed interface NewPasswordInputEvent {

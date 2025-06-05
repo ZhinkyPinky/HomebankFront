@@ -3,7 +3,7 @@ package com.example.homebankfront.feature.accountrecovery.emailinput
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.example.homebankfront.feature.accountrecovery.onetimepasswordinput.navigationToOneTimePasswordInput
+import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.navigationToRecoveryPasswordInput
 import com.example.homebankfront.feature.utility.className
 import com.example.homebankfront.navigation.Route
 import kotlinx.serialization.Serializable
@@ -19,8 +19,8 @@ fun NavController.navigateToAccountRecoveryEmailInput(emailAddress: String? = nu
 
 fun NavGraphBuilder.accountRecoveryEmailInput(navController: NavController) {
     composable<AccountRecoveryEmailInput> {
-        AccountRecoveryEmailInputScreen(onRecoveryInitiated = { emailAddress: String ->
-            navController.navigationToOneTimePasswordInput(emailAddress)
+        AccountRecoveryEmailInputScreen(onRecoveryPasswordSent = { emailAddress: String ->
+            navController.navigationToRecoveryPasswordInput(emailAddress)
         })
     }
 }

@@ -13,12 +13,15 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
+// A list of endpoints that do not require an access token to be added to the request.
 val excludedEndpoints = setOf(
-    "/auth/login",
-    "/auth/register",
-    "/auth/refresh",
-    ApiPaths.INITIATE_RECOVERY
+    ApiPaths.LOGIN,
+    ApiPaths.REGISTER,
+    ApiPaths.REFRESH,
+    ApiPaths.INITIATE_RECOVERY,
+    ApiPaths.ACCOUNT_RECOVERY_AUTHENTICATE
 )
+
 
 class RequestHandler @Inject constructor(
     private val tokenStorage: TokenStorage,

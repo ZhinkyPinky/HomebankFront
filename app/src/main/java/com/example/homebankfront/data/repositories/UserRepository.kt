@@ -38,7 +38,7 @@ class UserRepository @Inject constructor(
             )
         }.getOrElse { handleException(it) }
 
-    suspend fun initiateRecovery(request: RecoveryRequest): ResultGeneric<Unit, Either<RecoverUserAccountError, Error>> =
+    suspend fun requestRecoveryPassword(request: RecoveryRequest): ResultGeneric<Unit, Either<RecoverUserAccountError, Error>> =
         runCatching {
             val response = userService.initiateRecovery(request)
 

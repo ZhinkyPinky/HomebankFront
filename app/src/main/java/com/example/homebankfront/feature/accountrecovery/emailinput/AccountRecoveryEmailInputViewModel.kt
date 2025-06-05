@@ -44,8 +44,7 @@ class AccountRecoveryEmailInputViewModel @Inject constructor(
     private val networkErrorEmitter: EventEmitter<NetworkError>,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    private val _state: MutableStateFlow<AccountRecoveryEmailInputState> =
-        MutableStateFlow(Input())
+    private val _state: MutableStateFlow<AccountRecoveryEmailInputState> = MutableStateFlow(Input())
     val state = _state.asStateFlow()
 
     private val _errorFlow = MutableSharedFlow<Either<RegistrationError, Error>>(
@@ -67,7 +66,7 @@ class AccountRecoveryEmailInputViewModel @Inject constructor(
 
     fun onEvent(event: AccountRecoveryEmailInputEvent) {
         when (event) {
-            InitiateRecovery -> initiateRecovery()
+            RequestRecoveryPassword -> requestRecoveryPassword()
             is Update -> updateEmail(event.emailField)
         }
     }
@@ -85,7 +84,7 @@ class AccountRecoveryEmailInputViewModel @Inject constructor(
         if (currentState !is Input) return else currentState.copy(isLoading = isLoading)
     }
 
-    private fun initiateRecovery() {
+    private fun requestRecoveryPassword() {
         val currentState = _state.value
         if (currentState !is Input) return
 
@@ -96,9 +95,9 @@ class AccountRecoveryEmailInputViewModel @Inject constructor(
                 viewModelScope.launch {
                     try {
                         val request = currentState.toRequest()
-                        when (userRepository.initiateRecovery(request)) {
+                        when (userRepository.requestRecoveryPassword(request)) {
                             is Failure -> TODO()
-                            is Success -> _state.update { RecoveryInitiated(request.email) }
+                            is Success -> _state.update { RecoveryPasswordSent(request.email) }
                         }
                     } catch (e: Exception) {
                         e.message?.let {
@@ -134,7 +133,7 @@ sealed interface AccountRecoveryEmailInputState {
         fun toRequest() = RecoveryRequest(email = emailField.email)
     }
 
-    data class RecoveryInitiated(val email: String) : AccountRecoveryEmailInputState
+    data class RecoveryPasswordSent(val email: String) : AccountRecoveryEmailInputState
 }
 
 sealed interface AccountRecoveryEmailInputField {
@@ -163,6 +162,6 @@ fun RegistrationError.getStringResourceFromContext(context: Context) =
     context.getString(stringResourceId)
 
 sealed interface AccountRecoveryEmailInputEvent {
-    data object InitiateRecovery : AccountRecoveryEmailInputEvent
+    data object RequestRecoveryPassword : AccountRecoveryEmailInputEvent
     data class Update(val emailField: EmailField) : AccountRecoveryEmailInputEvent
 }
