@@ -75,7 +75,7 @@ private fun NewPasswordContent(
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.padding(paddingValues)) {
                 SecurePasswordTextField(
-                    label = stringResource(R.string.old_password),
+                    label = stringResource(R.string.new_password),
                     text = newPasswordField.value,
                     supportingText = newPasswordField.error?.toStringResource(),
                     isError = newPasswordField.error != null,
@@ -90,7 +90,7 @@ private fun NewPasswordContent(
                 )
 
                 SecurePasswordTextField(
-                    label = stringResource(R.string.new_password),
+                    label = stringResource(R.string.confirm_password),
                     text = confirmNewPasswordField.value,
                     supportingText = confirmNewPasswordField.error?.toStringResource(),
                     isError = confirmNewPasswordField.error != null,
@@ -104,7 +104,7 @@ private fun NewPasswordContent(
                     }
                 )
 
-                TextButton(onClick = { onEvent(Authenticate) }) {
+                TextButton(onClick = { onEvent(SetNewPassword) }) {
                     Text(text = stringResource(R.string.change_password))
                 }
             }

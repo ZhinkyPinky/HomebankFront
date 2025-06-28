@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.R
+import com.example.homebankfront.data.repositories.AccountRecoveryRepository
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.Error
@@ -30,6 +31,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewPasswordInputViewModel @Inject constructor(
+    private val accountRecoveryRepository : AccountRecoveryRepository,
     private val networkErrorEmitter: EventEmitter<NetworkError>,
 ) : ViewModel() {
     private val _state: MutableStateFlow<NewPasswordInputState> = MutableStateFlow(Input())
@@ -54,10 +56,14 @@ class NewPasswordInputViewModel @Inject constructor(
 
     fun onEvent(event: NewPasswordInputEvent) {
         when (event) {
-            is UpdateConfirmNewPasswordField -> TODO()
-            is Authenticate -> TODO()
+            is UpdateConfirmNewPasswordField -> updateConfirmNewPasswordField(event.field)
+            is SetNewPassword -> setNewPassword();
             is UpdateNewPasswordField -> updateNewPassword(event.field)
         }
+    }
+
+    private fun setNewPassword() {
+        TODO("Not yet implemented")
     }
 
     private fun updateNewPassword(field: PasswordField) = _state.update { currentState ->
@@ -83,7 +89,7 @@ sealed interface NewPasswordInputState {
 sealed interface NewPasswordInputEvent {
     data class UpdateNewPasswordField(val field: PasswordField) : NewPasswordInputEvent
     data class UpdateConfirmNewPasswordField(val field: PasswordField) : NewPasswordInputEvent
-    data object Authenticate : NewPasswordInputEvent
+    data object SetNewPassword : NewPasswordInputEvent
 }
 
 data class PasswordField(
