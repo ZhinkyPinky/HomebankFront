@@ -22,13 +22,13 @@ class UnauthorizedErrorHandler @Inject constructor(
 
     override suspend fun handleError(request: Request, chain: Interceptor.Chain): Response {
         Log.d(this::class.simpleName, "Handling 401")
-        if (!excludedEndpoints.contains(request.url().encodedPath())) {
+        if (!excludedEndpoints.contains(request.url.encodedPath)) {
             if (refresh()) {
                 Log.d(this::class.simpleName, "Refresh successful")
                 tokenStorage.getAccessToken()?.let {
                     Log.d(this::class.simpleName, "Token: $it")
                     val retryRequest = request.addAuthorizationHeader(it)
-                    Log.d(this::class.simpleName, "RetryRequest: ${retryRequest.headers()}")
+                    Log.d(this::class.simpleName, "RetryRequest: ${retryRequest.headers}")
                     return chain.proceed(retryRequest)
                 }
             }

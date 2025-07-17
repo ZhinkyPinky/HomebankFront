@@ -9,7 +9,7 @@ import javax.inject.Inject
 class RequestInterceptor @Inject constructor(private val requestHandler: RequestHandler) :
     Interceptor {
     override fun intercept(chain: Chain): Response {
-        Logger.d(message = "Intercepted request to: ${chain.request().url()}")
+        Logger.d(message = "Intercepted request to: ${chain.request().url}")
         return requestHandler(chain)
     }
 }
