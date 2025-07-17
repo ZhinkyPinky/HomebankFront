@@ -10,7 +10,6 @@ import com.example.homebankfront.feature.editTransactionRow.navigation.EditTrans
 import com.example.homebankfront.feature.registration.navigation.Registration
 import com.example.homebankfront.feature.transactionHeadAndRows.navigation.TransactionHeadAndRows
 import com.example.homebankfront.feature.transactionHeadsList.navigation.TransactionHeadsList
-import com.example.homebankfront.feature.utility.className
 
 interface Route {
     val enableNavDrawer: Boolean

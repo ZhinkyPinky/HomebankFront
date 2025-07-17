@@ -1,7 +1,5 @@
 package com.example.homebankfront.feature.accountrecovery.newpasswordinput
 
-import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputError.*
-import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputEvent.*
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
@@ -10,19 +8,26 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.R
-import com.example.homebankfront.data.bodies.ChangePasswordRequest
 import com.example.homebankfront.data.bodies.SetNewPasswordRequest
 import com.example.homebankfront.data.repositories.AccountRecoveryRepository
-import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputError.PasswordFieldError.*
-import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputState.*
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputError.PasswordFieldError
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputError.PasswordFieldError.InvalidPassword
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputError.PasswordFieldError.MissingPassword
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputEvent.SetNewPassword
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputEvent.UpdateConfirmNewPasswordField
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputEvent.UpdateNewPasswordField
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputState.Input
+import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputState.NewPasswordSet
 import com.example.homebankfront.feature.utility.Either
-import com.example.homebankfront.feature.utility.Either.*
+import com.example.homebankfront.feature.utility.Either.Left
+import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.Error
 import com.example.homebankfront.feature.utility.EventEmitter
 import com.example.homebankfront.feature.utility.Logger
 import com.example.homebankfront.feature.utility.NetworkError
 import com.example.homebankfront.feature.utility.ResultGeneric
-import com.example.homebankfront.feature.utility.ResultGeneric.*
+import com.example.homebankfront.feature.utility.ResultGeneric.Failure
+import com.example.homebankfront.feature.utility.ResultGeneric.Success
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,7 +74,7 @@ class NewPasswordInputViewModel @Inject constructor(
     fun onEvent(event: NewPasswordInputEvent) {
         when (event) {
             is UpdateConfirmNewPasswordField -> updateConfirmNewPasswordField(event.field)
-            is SetNewPassword -> setNewPassword();
+            is SetNewPassword -> setNewPassword()
             is UpdateNewPasswordField -> updateNewPassword(event.field)
         }
     }

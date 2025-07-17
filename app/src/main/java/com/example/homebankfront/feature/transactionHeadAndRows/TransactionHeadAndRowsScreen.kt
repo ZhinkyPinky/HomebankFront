@@ -370,7 +370,7 @@ fun TransactionRowListItem(
 
                         TextWithLabel(
                             label = stringResource(R.string.type),
-                            text = transactionRow.typeOfTransactionCode?.value ?: "",
+                            text = transactionRow.typeOfTransactionCode.value,
                         )
                     }
 

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.RecoveryRequest
+import com.example.homebankfront.data.repositories.AccountRecoveryRepository
 import com.example.homebankfront.data.repositories.UserRepository
 import com.example.homebankfront.feature.accountrecovery.emailinput.RecoverUserAccountError.*
 import com.example.homebankfront.feature.accountrecovery.emailinput.RecoverUserAccountError.EmailFieldError.*
@@ -42,7 +43,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AccountRecoveryEmailInputViewModel @Inject constructor(
     private val networkErrorEmitter: EventEmitter<NetworkError>,
-    private val userRepository: UserRepository
+    private val userRepository: AccountRecoveryRepository
 ) : ViewModel() {
     private val _state: MutableStateFlow<AccountRecoveryEmailInputState> = MutableStateFlow(Input())
     val state = _state.asStateFlow()
@@ -95,7 +96,7 @@ class AccountRecoveryEmailInputViewModel @Inject constructor(
                 viewModelScope.launch {
                     try {
                         val request = currentState.toRequest()
-                        when (userRepository.requestRecoveryPassword(request)) {
+                        when (userRepository.initiateRecovery(request)) {
                             is Failure -> TODO()
                             is Success -> _state.update { RecoveryPasswordSent(request.email) }
                         }

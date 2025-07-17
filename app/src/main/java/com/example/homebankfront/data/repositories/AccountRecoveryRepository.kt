@@ -23,7 +23,6 @@ class AccountRecoveryRepository(
     private val tokenStorage: TokenStorage,
     private val responseHandler: ResponseHandler
 ) {
-
     suspend fun initiateRecovery(recoveryRequest: RecoveryRequest): ResultGeneric<Unit, Either<Unit, Error>> =
         runCatching {
             val response = accountRecoveryService.initiateRecovery(recoveryRequest)

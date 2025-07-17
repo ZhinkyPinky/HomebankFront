@@ -169,7 +169,7 @@ sealed interface ChangePasswordField {
         val password: String = "",
         val error: PasswordFieldError? = null
     ) : ChangePasswordField {
-        fun validate(): ChangePasswordError.PasswordFieldError? =
+        fun validate(): PasswordFieldError? =
             if (password.isBlank()) MissingPasswordError else null
     }
 }

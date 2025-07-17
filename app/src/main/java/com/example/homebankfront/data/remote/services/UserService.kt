@@ -11,7 +11,4 @@ import retrofit2.http.Query
 interface UserService {
     @POST(ApiPaths.CHANGE_PASSWORD)
     suspend fun changePassword(@Body changePasswordRequest: ChangePasswordRequest): Response<Unit>
-
-    @POST(ApiPaths.INITIATE_RECOVERY)
-    suspend fun initiateRecovery(@Body recoveryRequest: RecoveryRequest): Response<Unit>
 }

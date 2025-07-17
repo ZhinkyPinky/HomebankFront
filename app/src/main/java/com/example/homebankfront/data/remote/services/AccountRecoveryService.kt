@@ -1,8 +1,7 @@
 package com.example.homebankfront.data.remote.services
 
-import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.data.bodies.AccessAndRefreshTokenResponse
-import com.example.homebankfront.data.bodies.ChangePasswordRequest
+import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.data.bodies.RecoveryRequest
 import com.example.homebankfront.data.bodies.RecoveryTokenResponse
 import com.example.homebankfront.data.bodies.SetNewPasswordRequest

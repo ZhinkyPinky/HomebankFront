@@ -38,17 +38,6 @@ class UserRepository @Inject constructor(
             )
         }.getOrElse { handleException(it) }
 
-    suspend fun requestRecoveryPassword(request: RecoveryRequest): ResultGeneric<Unit, Either<RecoverUserAccountError, Error>> =
-        runCatching {
-            val response = userService.initiateRecovery(request)
-
-            responseHandler(
-                response = response,
-                onSuccess = { Success(Unit) },
-                onFailure = { errorMessage: String? -> Failure(Right(UnknownError)) }
-            )
-        }.getOrElse { handleException(it) }
-
     private fun handleException(e: Throwable): Failure<Right<Error>> {
         logError(e.stackTraceToString())
         e.message?.let { logError(it) }
