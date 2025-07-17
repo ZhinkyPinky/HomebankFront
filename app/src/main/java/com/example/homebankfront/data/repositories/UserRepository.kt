@@ -1,12 +1,11 @@
 package com.example.homebankfront.data.repositories
 
 import com.example.homebankfront.data.bodies.ChangePasswordRequest
-import com.example.homebankfront.data.bodies.RecoveryRequest
 import com.example.homebankfront.data.remote.services.UserService
 import com.example.homebankfront.feature.changePassword.ChangePasswordError
-import com.example.homebankfront.feature.accountrecovery.emailinput.RecoverUserAccountError
 import com.example.homebankfront.feature.utility.Either
-import com.example.homebankfront.feature.utility.Either.*
+import com.example.homebankfront.feature.utility.Either.Left
+import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.Error
 import com.example.homebankfront.feature.utility.Error.UnknownError
 import com.example.homebankfront.feature.utility.NetworkError.SocketTimeOut
