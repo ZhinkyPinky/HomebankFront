@@ -36,6 +36,7 @@ import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
+import com.example.homebankfront.feature.transactionHeadsList.TransactionHeadsListState.*
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.feature.utility.Error.UnknownError
@@ -51,13 +52,10 @@ internal fun TransactionHeadsScreen(
     onBackClick: () -> Unit
 ) {
     val state: TransactionHeadsListState by viewModel.transactionHeadsListState.collectAsStateWithLifecycle()
-
     val context = LocalContext.current
-    val snackbarHostState = LocalSnackHostState.current
+    val snackHostState = LocalSnackHostState.current
 
-    LaunchedEffect(Unit) {
-        viewModel.getCustomerAndTransactionHeads()
-    }
+    LaunchedEffect(Unit) { viewModel.getCustomerAndTransactionHeads() }
 
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
@@ -66,32 +64,18 @@ internal fun TransactionHeadsScreen(
                 is Right -> error.value.getStringResourceFromContext(context)
             }
 
-            snackbarHostState.showSnackbar(errorMessage)
+            snackHostState.showSnackbar(errorMessage)
         }
     }
 
-    TransactionHeadsScreen(
-        transactionHeadsListState = state,
-        onNewTransactionHeadClick = onNewTransactionHeadClick,
-        onTransactionHeadClick = onTransactionHeadClick,
-        onBackClick = onBackClick
-    )
-}
+    when (state) {
+        is Loading -> LoadingOverlay()
 
-@Composable
-fun TransactionHeadsScreen(
-    transactionHeadsListState: TransactionHeadsListState,
-    onNewTransactionHeadClick: (Long) -> Unit,
-    onTransactionHeadClick: (Long, Long) -> Unit,
-    onBackClick: () -> Unit
-) {
-    when (transactionHeadsListState) {
-        is TransactionHeadsListState.Loading -> LoadingOverlay()
-
-        is TransactionHeadsListState.Ready -> {
-            TransactionHeadsScreen(
-                customer = transactionHeadsListState.customer,
-                transactionHeads = transactionHeadsListState.transactionHeads,
+        is Ready -> {
+            val readyState = state as Ready
+            TransactionHeadsScreenContent(
+                customer = readyState.customer,
+                transactionHeads = readyState.transactionHeads,
                 onNewTransactionHeadClick = onNewTransactionHeadClick,
                 onTransactionHeadClick = onTransactionHeadClick,
                 onBackClick = onBackClick
@@ -103,7 +87,7 @@ fun TransactionHeadsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionHeadsScreen(
+fun TransactionHeadsScreenContent(
     customer: Customer,
     transactionHeads: List<TransactionHead>,
     onNewTransactionHeadClick: (Long) -> Unit,

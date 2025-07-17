@@ -5,55 +5,46 @@ import com.example.homebankfront.feature.registration.RegistrationError.EmailFie
 import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError.MissingEmail
 import com.example.homebankfront.feature.registration.RegistrationError.PasswordFieldError
 import com.example.homebankfront.feature.registration.RegistrationError.PasswordFieldError.MissingPassword
-import com.example.homebankfront.feature.registration.RegistrationError.UsernameFieldError
-import com.example.homebankfront.feature.registration.RegistrationError.UsernameFieldError.MissingUsername
 import com.example.homebankfront.feature.registration.RegistrationField.EmailField
 import com.example.homebankfront.feature.registration.RegistrationField.PasswordField
-import com.example.homebankfront.feature.registration.RegistrationField.UsernameField
 import com.example.homebankfront.feature.utility.ResultGeneric
 import com.example.homebankfront.feature.utility.ResultGeneric.Failure
 import com.example.homebankfront.feature.utility.ResultGeneric.Success
 
 sealed interface RegistrationState {
-    data class Registering(
-        val usernameField: UsernameField = UsernameField(),
-        val passwordField: PasswordField = PasswordField(),
+    data class Input(
         val emailField: EmailField = EmailField(),
+        val passwordField: PasswordField = PasswordField(),
         val isLoading: Boolean = false
     ) : RegistrationState {
-        fun validate(): ResultGeneric<Unit, Registering> {
-            val usernameFieldError = usernameField.validate()
-            val passwordFieldError = passwordField.validate()
+        fun validate(): ResultGeneric<Unit, Input> {
             val emailFieldError = emailField.validate()
+            val passwordFieldError = passwordField.validate()
 
-            val errors = listOf(usernameFieldError, passwordFieldError, emailFieldError)
+            val errors = listOf(emailFieldError, passwordFieldError)
 
             val newState = copy(
-                usernameField = usernameField.copy(error = usernameFieldError),
+                emailField = emailField.copy(error = emailFieldError),
                 passwordField = passwordField.copy(error = passwordFieldError),
-                emailField = emailField.copy(error = emailFieldError)
             )
 
             return if (errors.any { it != null }) Failure(newState) else Success(Unit)
         }
 
         fun toRegisteredState(): Registered = Registered(
-            username = usernameField.username,
+            email = emailField.email,
             password = passwordField.password,
-            email = emailField.email
         )
 
         fun toRequest(): RegistrationRequest = RegistrationRequest(
-            username = usernameField.username,
+            email = emailField.email,
             password = passwordField.password,
-            email = emailField.email
         )
     }
 
     data class Registered(
-        val username: String = "",
+        val email: String = "",
         val password: String = "",
-        val email: String = ""
     ) : RegistrationState
 }
 
@@ -63,11 +54,11 @@ sealed interface RegistrationEvent {
 }
 
 sealed interface RegistrationField {
-    data class UsernameField(
-        val username: String = "",
-        val error: UsernameFieldError? = null
+    data class EmailField(
+        val email: String = "",
+        val error: EmailFieldError? = null
     ) : RegistrationField {
-        fun validate() = if (username.isBlank()) MissingUsername else null
+        fun validate() = if (email.isBlank()) MissingEmail else null
     }
 
     data class PasswordField(
@@ -75,13 +66,6 @@ sealed interface RegistrationField {
         val error: PasswordFieldError? = null
     ) : RegistrationField {
         fun validate() = if (password.isBlank()) MissingPassword else null
-    }
-
-    data class EmailField(
-        val email: String = "",
-        val error: EmailFieldError? = null
-    ) : RegistrationField {
-        fun validate() = if (email.isBlank()) MissingEmail else null
     }
 }
 

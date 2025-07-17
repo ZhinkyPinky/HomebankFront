@@ -22,6 +22,6 @@ fun NavController.navigationToRecoveryPasswordInput(emailAddress: String) =
 
 fun NavGraphBuilder.recoveryPasswordInput(navController: NavController) {
     composable<RecoveryPasswordInput> {
-        RecoveryPasswordInputScreen(onAuthenticated = { navController.navigationToNewPasswordInput() })
+        RecoveryPasswordInputScreen(onAuthenticated = navController::navigationToNewPasswordInput)
     }
 }

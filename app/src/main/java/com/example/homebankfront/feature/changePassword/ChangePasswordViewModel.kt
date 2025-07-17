@@ -1,6 +1,5 @@
 package com.example.homebankfront.feature.changePassword
 
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.data.bodies.ChangePasswordRequest
@@ -20,7 +19,6 @@ import com.example.homebankfront.feature.utility.ResultGeneric.*
 import com.example.homebankfront.feature.utility.logError
 import com.example.homebankfront.security.SecureTokenStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -40,7 +38,7 @@ class ChangePasswordViewModel @Inject constructor(
     private val secureTokenStorage: SecureTokenStorage,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    private val _state: MutableStateFlow<ChangePasswordState> = MutableStateFlow(Ready())
+    private val _state: MutableStateFlow<ChangePasswordState> = MutableStateFlow(Input())
     val state = _state.asStateFlow()
 
     private val _errorFlow = MutableSharedFlow<Either<ChangePasswordError, Error>>(
@@ -71,7 +69,7 @@ class ChangePasswordViewModel @Inject constructor(
 
     private fun changePassword() {
         val currentState = _state.value
-        if (currentState !is Ready) return
+        if (currentState !is Input) return
 
         when (val validationResult = currentState.validate()) {
             is Failure -> _state.update { validationResult.error }
@@ -89,31 +87,31 @@ class ChangePasswordViewModel @Inject constructor(
 
     private fun updateOldPassword(oldPassword: PasswordField) {
         _state.update { currentState ->
-            if (currentState !is Ready) return else currentState.copy(oldPasswordField = oldPassword)
+            if (currentState !is Input) return else currentState.copy(oldPasswordField = oldPassword)
         }
     }
 
     private fun updateNewPassword(newPassword: PasswordField) {
         _state.update { currentState ->
-            if (currentState !is Ready) return else currentState.copy(newPasswordField = newPassword)
+            if (currentState !is Input) return else currentState.copy(newPasswordField = newPassword)
         }
     }
 
     private fun updateConfirmNewPassword(confirmNewPassword: PasswordField) {
         _state.update { currentState ->
-            if (currentState !is Ready) return else currentState.copy(confirmNewPasswordField = confirmNewPassword)
+            if (currentState !is Input) return else currentState.copy(confirmNewPasswordField = confirmNewPassword)
         }
     }
 
     private suspend fun handleError(error: Either<ChangePasswordError, Error>) = when (error) {
         is Left -> when (error.value) {
             PasswordDoesNotMatchError -> _state.value.let { currentState ->
-                if (currentState !is Ready || error.value !is PasswordFieldError) return
+                if (currentState !is Input || error.value !is PasswordFieldError) return
                 updateConfirmNewPassword(currentState.confirmNewPasswordField.copy(error = error.value))
             }
 
             WrongPassword -> _state.value.let { currentState ->
-                if (currentState !is Ready || error.value !is PasswordFieldError) return
+                if (currentState !is Input || error.value !is PasswordFieldError) return
                 updateOldPassword(currentState.oldPasswordField.copy(error = error.value))
             }
 
@@ -125,13 +123,13 @@ class ChangePasswordViewModel @Inject constructor(
 }
 
 sealed interface ChangePasswordState {
-    data class Ready(
+    data class Input(
         val oldPasswordField: PasswordField = PasswordField(),
         val newPasswordField: PasswordField = PasswordField(),
         val confirmNewPasswordField: PasswordField = PasswordField(),
         val isLoading: Boolean = false
     ) : ChangePasswordState {
-        fun validate(): ResultGeneric<Unit, Ready> {
+        fun validate(): ResultGeneric<Unit, Input> {
             val oldPasswordFieldError = oldPasswordField.validate()
             val newPasswordFieldError = newPasswordField.validate()
             var confirmNewPasswordFieldError = confirmNewPasswordField.validate()

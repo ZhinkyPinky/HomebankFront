@@ -1,13 +1,12 @@
 package com.example.homebankfront.feature.authentication
 
-import androidx.compose.runtime.internal.composableLambdaInstance
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.data.repositories.AuthRepository
 import com.example.homebankfront.feature.authentication.AuthenticationError.BadCredentials
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.*
 import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
-import com.example.homebankfront.feature.authentication.AuthenticationField.UsernameField
+import com.example.homebankfront.feature.authentication.AuthenticationField.EmailField
 import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticated
 import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticating
 import com.example.homebankfront.feature.utility.Either
@@ -76,7 +75,7 @@ class AuthenticationViewModel @Inject constructor(
 
         when (field) {
             is PasswordField -> currentState.copy(passwordField = field)
-            is UsernameField -> currentState.copy(usernameField = field)
+            is EmailField -> currentState.copy(emailField = field)
         }
     }
 
@@ -101,7 +100,7 @@ class AuthenticationViewModel @Inject constructor(
                         when (val result = authRepository.authenticate(currentState.toRequest())) {
                             is Success -> _state.update {
                                 Authenticated(
-                                    username = currentState.usernameField.username,
+                                    email = currentState.emailField.email,
                                     password = currentState.passwordField.password,
                                     registerCredentials = !currentState.autoAuthentication
                                 )

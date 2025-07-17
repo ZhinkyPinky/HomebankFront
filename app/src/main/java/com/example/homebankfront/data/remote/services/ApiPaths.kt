@@ -33,9 +33,10 @@ object ApiPaths {
         CUSTOMER_TRANSACTION_HEAD_AND_ROWS + TRANSACTION_ROW
 
     const val USERS = "/users"
-    const val CHANGE_PASSWORD = "$USERS/changePassword"
+    const val CHANGE_PASSWORD = "$USERS/change-password"
 
     const val ACCOUNT_RECOVERY = "/account-recovery"
     const val INITIATE_RECOVERY = "$ACCOUNT_RECOVERY/initiate"
     const val ACCOUNT_RECOVERY_AUTHENTICATE = "$ACCOUNT_RECOVERY/authenticate"
+    const val SET_NEW_PASSWORD = "$ACCOUNT_RECOVERY/set-new-password"
 }

@@ -24,7 +24,7 @@ import com.example.homebankfront.feature.authentication.AuthenticationEvent.Auth
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.ToggleAutoAuthentication
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.UpdateField
 import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
-import com.example.homebankfront.feature.authentication.AuthenticationField.UsernameField
+import com.example.homebankfront.feature.authentication.AuthenticationField.EmailField
 import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticated
 import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticating
 import com.example.homebankfront.feature.utility.Either.Left
@@ -45,6 +45,7 @@ fun AuthenticationScreen(
     val context = LocalContext.current
     val authenticationManager = remember { AuthenticationManager(context as ComponentActivity) }
     val snackbarHostState = LocalSnackHostState.current
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
@@ -57,58 +58,46 @@ fun AuthenticationScreen(
         }
     }
 
-    AuthenticationScreen(
-        state = state,
-        authenticationManager = authenticationManager,
-        onEvent = viewModel::onEvent,
-        onAuthentication = onAuthentication,
-        navigateToRegistration = navigateToRegistration,
-        navigateToRecoverUserAccount = navigateToRecoverUserAccount
-    )
-}
-
-@Composable
-fun AuthenticationScreen(
-    state: AuthenticationState,
-    authenticationManager: AuthenticationManager,
-    onEvent: (AuthenticationEvent) -> Unit,
-    onAuthentication: () -> Unit,
-    navigateToRegistration: () -> Unit,
-    navigateToRecoverUserAccount: () -> Unit
-) {
-    val coroutineScope = rememberCoroutineScope()
 
     when (state) {
         is Authenticating -> {
+            val authenticatingState = state as Authenticating
             LaunchedEffect(Unit) {
                 coroutineScope.launch {
                     authenticationManager.signIn()?.let {
-                        onEvent(UpdateField(state.usernameField.copy(username = it.username)))
-                        onEvent(UpdateField(state.passwordField.copy(password = it.password)))
-                        onEvent(ToggleAutoAuthentication)
-                        onEvent(Authenticate)
+                        viewModel.onEvent(UpdateField(authenticatingState.emailField.copy(email = it.email)))
+                        viewModel.onEvent(
+                            UpdateField(
+                                authenticatingState.passwordField.copy(
+                                    password = it.password
+                                )
+                            )
+                        )
+                        viewModel.onEvent(ToggleAutoAuthentication)
+                        viewModel.onEvent(Authenticate)
                     }
                 }
             }
 
-            AuthenticationScreen(
-                usernameField = state.usernameField,
-                passwordField = state.passwordField,
-                isLoading = state.isLoading,
-                onEvent = onEvent,
+            AuthenticationScreenContent(
+                emailField = authenticatingState.emailField,
+                passwordField = authenticatingState.passwordField,
+                isLoading = authenticatingState.isLoading,
+                onEvent = viewModel::onEvent,
                 navigateToRegistration = navigateToRegistration,
                 navigateToRecoverUserAccount = navigateToRecoverUserAccount
             )
 
-            LoadingOverlay(isLoading = state.isLoading)
+            LoadingOverlay(isLoading = authenticatingState.isLoading)
         }
 
         is Authenticated -> LaunchedEffect(Unit) {
+            val authenticatedState = state as Authenticated
             coroutineScope.launch {
-                if (state.registerCredentials) {
+                if (authenticatedState.registerCredentials) {
                     authenticationManager.registerCredentials(
-                        username = state.username,
-                        password = state.password
+                        email = authenticatedState.email,
+                        password = authenticatedState.password
                     )
                 }
             }.invokeOnCompletion {
@@ -119,8 +108,8 @@ fun AuthenticationScreen(
 }
 
 @Composable
-fun AuthenticationScreen(
-    usernameField: UsernameField,
+fun AuthenticationScreenContent(
+    emailField: EmailField,
     passwordField: PasswordField,
     isLoading: Boolean,
     onEvent: (AuthenticationEvent) -> Unit,
@@ -131,13 +120,13 @@ fun AuthenticationScreen(
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.padding(paddingValues)) {
                 TextField(
-                    label = stringResource(R.string.username),
-                    text = usernameField.username,
-                    supportingText = usernameField.error?.toStringResource(),
-                    isError = usernameField.error != null,
+                    label = stringResource(R.string.email),
+                    text = emailField.email,
+                    supportingText = emailField.error?.toStringResource(),
+                    isError = emailField.error != null,
                     enabled = !isLoading,
                     onValueChange = {
-                        onEvent(UpdateField(usernameField.copy(username = it, error = null)))
+                        onEvent(UpdateField(emailField.copy(email = it, error = null)))
                     }
                 )
 

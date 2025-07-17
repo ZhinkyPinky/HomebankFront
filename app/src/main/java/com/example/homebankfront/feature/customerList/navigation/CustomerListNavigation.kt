@@ -3,7 +3,7 @@ package com.example.homebankfront.feature.customerList.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.example.homebankfront.feature.customerList.CustomerListRoute
+import com.example.homebankfront.feature.customerList.CustomerListScreen
 import com.example.homebankfront.feature.utility.className
 import com.example.homebankfront.navigation.Route
 import kotlinx.serialization.Serializable
@@ -20,6 +20,6 @@ fun NavGraphBuilder.customerListScreen(
     onCustomerClick: (Long) -> Unit
 ) {
     composable<CustomerList> {
-        CustomerListRoute(onCustomerClick = onCustomerClick)
+        CustomerListScreen(onCustomerClick = onCustomerClick)
     }
 }

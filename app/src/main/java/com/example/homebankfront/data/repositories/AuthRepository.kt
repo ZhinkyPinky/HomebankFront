@@ -30,17 +30,17 @@ class AuthRepository @Inject constructor(
 ) {
     suspend fun authenticate(authenticationRequest: AuthenticationRequest): ResultGeneric<Unit, Either<AuthenticationError, Error>> =
         runCatching {
-            logDebug("Trying to authenticate user: ${authenticationRequest.username}")
+            logDebug("Trying to authenticate user: ${authenticationRequest.email}")
             val response = authService.authenticate(authenticationRequest)
             responseHandler(response = response,
                             onSuccess = { body ->
-                                logDebug("Authentication successful for user: ${authenticationRequest.username}")
+                                logDebug("Authentication successful for user: ${authenticationRequest.email}")
                                 tokenStorage.saveAccessToken(body.accessToken)
                                 tokenStorage.saveRefreshToken(body.refreshToken)
                                 Success(Unit)
                             },
                             onFailure = { errorMessage: String? ->
-                                logError("Authentication failed for user: ${authenticationRequest.username} with message $errorMessage")
+                                logError("Authentication failed for user: ${authenticationRequest.email} with message $errorMessage")
                                 Failure(errorMessage.toAuthenticationError())
                             }
             )
@@ -48,19 +48,19 @@ class AuthRepository @Inject constructor(
 
     suspend fun register(registrationRequest: RegistrationRequest): ResultGeneric<Unit, Either<RegistrationError, Error>> =
         runCatching {
-            logDebug("Trying to register user: ${registrationRequest.username}")
+            logDebug("Trying to register user: ${registrationRequest.email}")
             val response = authService.register(registrationRequest)
             responseHandler(
                 response = response,
                 onSuccess = { body ->
-                    logDebug("Registration successful for user: ${registrationRequest.username}")
+                    logDebug("Registration successful for user: ${registrationRequest.email}")
                     //TODO: Don't save tokens on registration?
                     tokenStorage.saveAccessToken(body.accessToken)
                     tokenStorage.saveRefreshToken(body.refreshToken)
                     Success(Unit)
                 },
                 onFailure = { errorMessage: String? ->
-                    logError("Registration failed for user: ${registrationRequest.username} with message $errorMessage")
+                    logError("Registration failed for user: ${registrationRequest.email} with message $errorMessage")
                     Failure(errorMessage.toRegistrationError())
                 })
         }.getOrElse { handleException(it) }

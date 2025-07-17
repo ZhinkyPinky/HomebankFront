@@ -3,35 +3,35 @@ package com.example.homebankfront.feature.authentication
 import com.example.homebankfront.data.bodies.AuthenticationRequest
 import com.example.homebankfront.feature.authentication.AuthenticationError.PasswordFieldError
 import com.example.homebankfront.feature.authentication.AuthenticationError.PasswordFieldError.MissingPassword
-import com.example.homebankfront.feature.authentication.AuthenticationError.UsernameFieldError
-import com.example.homebankfront.feature.authentication.AuthenticationError.UsernameFieldError.MissingUsername
+import com.example.homebankfront.feature.authentication.AuthenticationError.EmailFieldError
+import com.example.homebankfront.feature.authentication.AuthenticationError.EmailFieldError.MissingEmail
 import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
-import com.example.homebankfront.feature.authentication.AuthenticationField.UsernameField
+import com.example.homebankfront.feature.authentication.AuthenticationField.EmailField
 import com.example.homebankfront.feature.utility.ResultGeneric
 import com.example.homebankfront.feature.utility.ResultGeneric.Failure
 import com.example.homebankfront.feature.utility.ResultGeneric.Success
 
 sealed interface AuthenticationState {
     data class Authenticated(
-        val username: String,
+        val email: String,
         val password: String,
         val registerCredentials: Boolean = true
     ) : AuthenticationState
 
     data class Authenticating(
-        val usernameField: UsernameField = UsernameField(),
+        val emailField: EmailField = EmailField(),
         val passwordField: PasswordField = PasswordField(),
         val isLoading: Boolean = false,
         val autoAuthentication: Boolean = false
     ) : AuthenticationState {
         fun validate(): ResultGeneric<Unit, Authenticating> {
-            val usernameFieldError = usernameField.validate()
+            val emailFieldError = emailField.validate()
             val passwordFieldError = passwordField.validate()
 
-            val errors = listOf(usernameFieldError, passwordFieldError)
+            val errors = listOf(emailFieldError, passwordFieldError)
 
             val newState = copy(
-                usernameField = usernameField.copy(error = usernameFieldError),
+                emailField = emailField.copy(error = emailFieldError),
                 passwordField = passwordField.copy(error = passwordFieldError)
             )
 
@@ -39,18 +39,18 @@ sealed interface AuthenticationState {
         }
 
         fun toRequest(): AuthenticationRequest = AuthenticationRequest(
-            username = usernameField.username,
+            email = emailField.email,
             password = passwordField.password
         )
     }
 }
 
 sealed interface AuthenticationField {
-    data class UsernameField(
-        val username: String = "",
-        val error: UsernameFieldError? = null,
+    data class EmailField(
+        val email: String = "",
+        val error: EmailFieldError? = null,
     ) : AuthenticationField {
-        fun validate() = if (username.isBlank()) MissingUsername else null
+        fun validate() = if (email.isBlank()) MissingEmail else null
     }
 
     data class PasswordField(

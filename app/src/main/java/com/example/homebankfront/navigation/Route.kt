@@ -27,7 +27,7 @@ interface Route {
             TransactionHeadsList(0).name -> TransactionHeadsList(0)
             AccountRecoveryEmailInput(null).name -> AccountRecoveryEmailInput(null)
             RecoveryPasswordInput("").name -> RecoveryPasswordInput("")
-            NewPasswordInput.name -> NewPasswordInput
+            NewPasswordInput("").name -> NewPasswordInput("")
             else -> null
         }
     }

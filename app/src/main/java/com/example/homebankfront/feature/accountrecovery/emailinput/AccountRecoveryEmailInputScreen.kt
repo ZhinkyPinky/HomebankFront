@@ -36,7 +36,7 @@ fun AccountRecoveryEmailInputScreen(
 ) {
     val state: AccountRecoveryEmailInputState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackbarHostState = LocalSnackHostState.current
+    val snackHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
@@ -45,7 +45,7 @@ fun AccountRecoveryEmailInputScreen(
                 is Right -> error.value.getStringResourceFromContext(context)
             }
 
-            snackbarHostState.showSnackbar(errorMessage)
+            snackHostState.showSnackbar(errorMessage)
         }
     }
 

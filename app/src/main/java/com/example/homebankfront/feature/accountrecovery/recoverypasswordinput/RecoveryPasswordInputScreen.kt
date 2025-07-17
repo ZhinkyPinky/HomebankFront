@@ -31,7 +31,7 @@ import com.example.homebankfront.ui.theme.ThemePreviews
 @Composable
 fun RecoveryPasswordInputScreen(
     viewModel: RecoveryPasswordInputViewModel = hiltViewModel(),
-    onAuthenticated: () -> Unit
+    onAuthenticated: (String) -> Unit
 ) {
     val state: RecoveryPasswordInputState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -56,7 +56,7 @@ fun RecoveryPasswordInputScreen(
                     viewModel.onEvent(
                         UpdatePasswordField(
                             localState.recoveryPasswordField.copy(
-                                value = it,
+                                password = it,
                                 error = null
                             )
                         )
@@ -69,7 +69,7 @@ fun RecoveryPasswordInputScreen(
             LoadingOverlay(isLoading = localState.isLoading)
         }
 
-        is Authenticated -> onAuthenticated()
+        is Authenticated -> onAuthenticated(localState.recoveryToken)
     }
 }
 
@@ -85,7 +85,7 @@ private fun RecoveryPasswordInputContent(
             Column(modifier = Modifier.padding(paddingValues)) {
                 TextField(
                     label = stringResource(R.string.password),
-                    text = passwordField.value,
+                    text = passwordField.password,
                     supportingText = passwordField.error?.toStringResource(),
                     isError = passwordField.error != null,
                     enabled = !isLoading,

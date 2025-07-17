@@ -42,6 +42,7 @@ import com.example.homebankfront.R
 import com.example.homebankfront.data.bodies.Customer
 import com.example.homebankfront.data.bodies.TransactionHead
 import com.example.homebankfront.data.bodies.TransactionRow
+import com.example.homebankfront.feature.transactionHeadAndRows.TransactionHeadAndRowsState.*
 import com.example.homebankfront.ui.components.ConfirmationDialog
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.MoreDropDownMenu
@@ -57,58 +58,35 @@ internal fun TransactionHeadAndRowsScreen(
     onEditTransactionRowClick: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
-    val transactionHeadAndRowsUiState: TransactionHeadAndRowsState by viewModel.transactionHeadAndRowsState.collectAsStateWithLifecycle()
+    val state: TransactionHeadAndRowsState by viewModel.transactionHeadAndRowsState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getCustomerTransactionHeadAndRows()
     }
 
-    TransactionHeadAndRowsScreen(
-        transactionHeadAndRowsState = transactionHeadAndRowsUiState,
-        onEditTransactionClick = onEditTransactionHeadClick,
-        onEditTransactionRowClick = onEditTransactionRowClick,
-        onBackClick = onBackClick,
-        onEvent = viewModel::onEvent
-    )
-}
-
-
-@Composable
-fun TransactionHeadAndRowsScreen(
-    transactionHeadAndRowsState: TransactionHeadAndRowsState,
-    onEditTransactionClick: (Long) -> Unit,
-    onEditTransactionRowClick: (Long, Long) -> Unit,
-    onBackClick: () -> Unit,
-    onEvent: (TransactionHeadAndRowsUiEvent) -> Unit
-) {
-    when (transactionHeadAndRowsState) {
-        is TransactionHeadAndRowsState.Loading -> LoadingOverlay()
-        is TransactionHeadAndRowsState.Ready -> {
-            TransactionHeadAndRowsScreen(
-                customer = transactionHeadAndRowsState.customer,
-                transactionHead = transactionHeadAndRowsState.transactionHead,
-                transactionRows = transactionHeadAndRowsState.transactionRows,
-                onEditTransactionHeadClick = onEditTransactionClick,
+    when (state) {
+        is Loading -> LoadingOverlay()
+        is Ready -> {
+            val readyState = state as Ready
+            TransactionHeadAndRowsScreenContent(
+                customer = readyState.customer,
+                transactionHead = readyState.transactionHead,
+                transactionRows = readyState.transactionRows,
+                onEditTransactionHeadClick = onEditTransactionHeadClick,
                 onEditTransactionRowClick = onEditTransactionRowClick,
                 onBackClick = onBackClick,
-                onEvent = onEvent,
+                onEvent = viewModel::onEvent,
             )
         }
 
-        is TransactionHeadAndRowsState.Deleted -> {
-            onBackClick()
-        }
-
-        is TransactionHeadAndRowsState.Error -> {
-            //TODO()
-        }
+        is Deleted -> onBackClick()
+        is Error -> TODO()
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionHeadAndRowsScreen(
+fun TransactionHeadAndRowsScreenContent(
     customer: Customer,
     transactionHead: TransactionHead,
     transactionRows: List<TransactionRow>,
@@ -290,9 +268,7 @@ fun TransactionRowList(
         onEditTransactionRowClick = onEditTransactionRowClick
     )
 
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(1.dp)
-    ) {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(1.dp)) {
         itemsIndexed(
             items = transactionRows,
             key = { _, transactionRow -> transactionRow.id }

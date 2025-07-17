@@ -4,13 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.data.repositories.AuthRepository
 import com.example.homebankfront.feature.registration.RegistrationError.EmailFieldError.InvalidEmail
-import com.example.homebankfront.feature.registration.RegistrationError.UsernameFieldError.*
 import com.example.homebankfront.feature.registration.RegistrationEvent.Register
 import com.example.homebankfront.feature.registration.RegistrationEvent.UpdateField
 import com.example.homebankfront.feature.registration.RegistrationField.EmailField
 import com.example.homebankfront.feature.registration.RegistrationField.PasswordField
-import com.example.homebankfront.feature.registration.RegistrationField.UsernameField
-import com.example.homebankfront.feature.registration.RegistrationState.Registering
+import com.example.homebankfront.feature.registration.RegistrationState.Input
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
@@ -43,7 +41,7 @@ class RegistrationViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _state: MutableStateFlow<RegistrationState> =
-        MutableStateFlow(Registering())
+        MutableStateFlow(Input())
     val state = _state.asStateFlow()
 
     private val _errorFlow = MutableSharedFlow<Either<RegistrationError, Error>>(
@@ -72,12 +70,12 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun setLoading(isLoading: Boolean) = _state.update { currentState ->
-        if (currentState !is Registering) return else currentState.copy(isLoading = isLoading)
+        if (currentState !is Input) return else currentState.copy(isLoading = isLoading)
     }
 
     private fun register() {
         val currentState = _state.value
-        if (currentState !is Registering) return
+        if (currentState !is Input) return
 
         when (val validationResult = currentState.validate()) {
             is Failure -> _state.update { validationResult.error }
@@ -100,25 +98,18 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun updateField(field: RegistrationField) = _state.update { currentState ->
-        if (currentState !is Registering) return
+        if (currentState !is Input) return
 
         when (field) {
             is EmailField -> currentState.copy(emailField = field)
             is PasswordField -> currentState.copy(passwordField = field)
-            is UsernameField -> currentState.copy(usernameField = field)
         }
     }
 
     private suspend fun handleError(error: Either<RegistrationError, Error>) = when (error) {
         is Left -> when (error.value) {
-            is TakenUsername -> _state.value.let { currentState ->
-                if (currentState is Registering) {
-                    updateField(currentState.usernameField.copy(error = error.value))
-                }
-            }
-
             is InvalidEmail -> _state.value.let { currentState ->
-                if (currentState is Registering) {
+                if (currentState is Input) {
                     updateField(currentState.emailField.copy(error = error.value))
                 }
             }

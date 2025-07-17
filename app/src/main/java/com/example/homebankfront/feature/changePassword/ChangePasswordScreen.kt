@@ -21,6 +21,7 @@ import com.example.homebankfront.feature.changePassword.ChangePasswordEvent.Chan
 import com.example.homebankfront.feature.changePassword.ChangePasswordEvent.UpdateConfirmNewPassword
 import com.example.homebankfront.feature.changePassword.ChangePasswordEvent.UpdateNewPassword
 import com.example.homebankfront.feature.changePassword.ChangePasswordEvent.UpdateOldPassword
+import com.example.homebankfront.feature.changePassword.ChangePasswordState.*
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.ui.components.LoadingOverlay
@@ -33,7 +34,7 @@ fun ChangePasswordScreen(
 ) {
     val state: ChangePasswordState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackbarHostState = LocalSnackHostState.current
+    val snackHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
@@ -42,44 +43,32 @@ fun ChangePasswordScreen(
                 is Right -> error.value.getStringResourceFromContext(context)
             }
 
-            snackbarHostState.showSnackbar(errorMessage)
+            snackHostState.showSnackbar(errorMessage)
         }
     }
 
-
-    ChangePasswordScreen(
-        state = state,
-        onEvent = viewModel::onEvent,
-        onChangedPassword = onChangedPassword
-    )
-}
-
-@Composable
-fun ChangePasswordScreen(
-    state: ChangePasswordState,
-    onEvent: (ChangePasswordEvent) -> Unit,
-    onChangedPassword: () -> Unit
-) {
     when (state) {
-        ChangePasswordState.PasswordChanged -> {
+        PasswordChanged -> {
             //TODO: Figure out what to do.
             onChangedPassword()
         }
-        is ChangePasswordState.Ready -> {
-            ChangePasswordScreen(
-                oldPasswordField = state.oldPasswordField,
-                newPasswordField = state.newPasswordField,
-                confirmNewPasswordField = state.confirmNewPasswordField,
-                onEvent = onEvent
+
+        is Input -> {
+            val inputState = state as Input
+            ChangePasswordScreenContent(
+                oldPasswordField = inputState.oldPasswordField,
+                newPasswordField = inputState.newPasswordField,
+                confirmNewPasswordField = inputState.confirmNewPasswordField,
+                onEvent = viewModel::onEvent
             )
 
-            LoadingOverlay(isLoading = state.isLoading)
+            LoadingOverlay(isLoading = inputState.isLoading)
         }
     }
 }
 
 @Composable
-fun ChangePasswordScreen(
+fun ChangePasswordScreenContent(
     oldPasswordField: ChangePasswordField.PasswordField,
     newPasswordField: ChangePasswordField.PasswordField,
     confirmNewPasswordField: ChangePasswordField.PasswordField,

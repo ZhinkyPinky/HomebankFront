@@ -5,13 +5,14 @@ import com.example.homebankfront.data.bodies.AccessAndRefreshTokenResponse
 import com.example.homebankfront.data.bodies.ChangePasswordRequest
 import com.example.homebankfront.data.bodies.RecoveryRequest
 import com.example.homebankfront.data.bodies.RecoveryTokenResponse
+import com.example.homebankfront.data.bodies.SetNewPasswordRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AccountRecoveryService {
-    @POST(ApiPaths.CHANGE_PASSWORD)
-    suspend fun setNewPassword(@Body changePasswordRequest: ChangePasswordRequest): Response<AccessAndRefreshTokenResponse>
+    @POST(ApiPaths.SET_NEW_PASSWORD)
+    suspend fun setNewPassword(@Body setNewPasswordRequest: SetNewPasswordRequest): Response<AccessAndRefreshTokenResponse>
 
     @POST(ApiPaths.INITIATE_RECOVERY)
     suspend fun initiateRecovery(@Body recoveryRequest: RecoveryRequest): Response<Unit>

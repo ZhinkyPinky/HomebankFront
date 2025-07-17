@@ -15,24 +15,15 @@ class RegistrationUseCase @Inject constructor(
             is Failure -> result
             is Success -> when (authRepository.register(registrationRequest)) {
                 //TODO: FIX
-                is ResultGeneric.Failure -> Result.Failure("")
+                is ResultGeneric.Failure -> Failure("")
                 is ResultGeneric.Success -> Success
             }
         }
     }
 
     private fun validateRegistrationDetails(registrationRequest: RegistrationRequest): Result {
-        if (registrationRequest.username.isBlank()) {
-            return Failure("Användarnamn saknas")
-        }
-
-        if (registrationRequest.password.isBlank()) {
-            return Failure("Lösenord saknas")
-        }
-
-        if (registrationRequest.email.isBlank()) {
-            return Failure("E-mail saknas")
-        }
+        if (registrationRequest.email.isBlank()) return Failure("E-mail saknas")
+        if (registrationRequest.password.isBlank()) return Failure("Lösenord saknas")
 
         return Success
     }
