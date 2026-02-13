@@ -1,5 +1,6 @@
 package com.example.homebankfront
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,7 @@ val LocalSnackHostState = compositionLocalOf<SnackbarHostState> {
 class MainActivity : ComponentActivity() {
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -34,7 +36,7 @@ class MainActivity : ComponentActivity() {
                 val snackbarHostState = remember { SnackbarHostState() }
 
                 CompositionLocalProvider(value = LocalSnackHostState provides snackbarHostState) {
-                    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { _ ->
+                    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
                         Surface {
                             HomeBankApp(onEvent = mainActivityViewModel::onEvent)
                         }
