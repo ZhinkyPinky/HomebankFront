@@ -3,6 +3,7 @@ package com.example.homebankfront.di
 import com.example.homebankfront.BuildConfig
 import com.example.homebankfront.data.LocalDateAdapter
 import com.example.homebankfront.data.LocalDateTimeAdapter
+import com.example.homebankfront.data.remote.services.AccountRecoveryService
 import com.example.homebankfront.data.remote.services.AuthService
 import com.example.homebankfront.data.remote.services.CustomerService
 import com.example.homebankfront.data.remote.services.TransactionHeadService
@@ -91,8 +92,14 @@ class NetworkModule {
 
     @Provides
     @Singleton
+    fun provideAccountRecoveryService(retrofit: Retrofit): AccountRecoveryService =
+        retrofit.create(AccountRecoveryService::class.java)
+
+    @Provides
+    @Singleton
     fun provideRequestInterceptor(requestHandler: RequestHandler): RequestInterceptor =
         RequestInterceptor(requestHandler)
+
 
     @Provides
     @Singleton

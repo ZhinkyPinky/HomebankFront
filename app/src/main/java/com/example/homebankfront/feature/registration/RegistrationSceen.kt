@@ -24,9 +24,8 @@ import com.example.homebankfront.feature.authentication.AuthenticationManager
 import com.example.homebankfront.feature.registration.RegistrationEvent.Register
 import com.example.homebankfront.feature.registration.RegistrationField.EmailField
 import com.example.homebankfront.feature.registration.RegistrationField.PasswordField
-import com.example.homebankfront.feature.registration.RegistrationField.UsernameField
 import com.example.homebankfront.feature.registration.RegistrationState.Registered
-import com.example.homebankfront.feature.registration.RegistrationState.Registering
+import com.example.homebankfront.feature.registration.RegistrationState.Input
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.ui.components.LoadingOverlay
@@ -43,7 +42,8 @@ fun RegistrationScreen(
     val state: RegistrationState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val authenticationManager = remember { AuthenticationManager(context as ComponentActivity) }
-    val snackbarHostState = LocalSnackHostState.current
+    val snackHostState = LocalSnackHostState.current
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
@@ -52,55 +52,42 @@ fun RegistrationScreen(
                 is Right -> error.value.getStringResourceFromContext(context)
             }
 
-            snackbarHostState.showSnackbar(errorMessage)
+            snackHostState.showSnackbar(errorMessage)
         }
     }
 
-    RegistrationScreen(
-        state = state,
-        onEvent = viewModel::onEvent,
-        authenticationManager = authenticationManager,
-        onRegistration = onRegistration
-    )
-}
-
-@Composable
-fun RegistrationScreen(
-    state: RegistrationState,
-    onEvent: (RegistrationEvent) -> Unit,
-    authenticationManager: AuthenticationManager,
-    onRegistration: () -> Unit
-) {
-    val coroutineScope = rememberCoroutineScope()
-
     when (state) {
-        is Registering -> {
-            RegistrationScreen(
-                usernameField = state.usernameField,
-                passwordField = state.passwordField,
-                emailField = state.emailField,
-                isLoading = state.isLoading,
-                onEvent = onEvent,
+        is Input -> {
+            val inputState = state as Input
+            RegistrationScreenContent(
+                emailField = inputState.emailField,
+                passwordField = inputState.passwordField,
+                isLoading = inputState.isLoading,
+                onEvent = viewModel::onEvent,
             )
 
-            LoadingOverlay(isLoading = state.isLoading)
+            LoadingOverlay(isLoading = inputState.isLoading)
         }
 
         is Registered -> LaunchedEffect(Unit) {
+            val registeredState = state as Registered
             coroutineScope.launch {
-                authenticationManager.registerCredentials(state.username, state.password)
+                authenticationManager.registerCredentials(
+                    registeredState.email,
+                    registeredState.password
+                )
             }.invokeOnCompletion {
                 onRegistration()
             }
         }
     }
+
 }
 
 @Composable
-fun RegistrationScreen(
-    usernameField: UsernameField,
-    passwordField: PasswordField,
+fun RegistrationScreenContent(
     emailField: EmailField,
+    passwordField: PasswordField,
     isLoading: Boolean,
     onEvent: (RegistrationEvent) -> Unit,
 ) {
@@ -108,14 +95,12 @@ fun RegistrationScreen(
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.padding(paddingValues)) {
                 TextField(
-                    label = stringResource(R.string.username),
-                    text = usernameField.username,
-                    supportingText = usernameField.error?.toStringResource(),
-                    isError = usernameField.error != null,
+                    label = stringResource(R.string.email),
+                    text = emailField.email,
+                    supportingText = emailField.error?.toStringResource(),
+                    isError = emailField.error != null,
                     enabled = !isLoading,
-                    onValueChange = {
-                        usernameField.copy(username = it, error = null).update(onEvent)
-                    }
+                    onValueChange = { emailField.copy(email = it, error = null).update(onEvent) }
                 )
 
                 SecurePasswordTextField(
@@ -125,15 +110,6 @@ fun RegistrationScreen(
                     onValueChange = {
                         passwordField.copy(password = it, error = null).update(onEvent)
                     }
-                )
-
-                TextField(
-                    label = stringResource(R.string.email),
-                    text = emailField.email,
-                    supportingText = emailField.error?.toStringResource(),
-                    isError = emailField.error != null,
-                    enabled = !isLoading,
-                    onValueChange = { emailField.copy(email = it, error = null).update(onEvent) }
                 )
 
                 TextButton(onClick = { onEvent(Register) }) {

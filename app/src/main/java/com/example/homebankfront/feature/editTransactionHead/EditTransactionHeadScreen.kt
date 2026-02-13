@@ -39,6 +39,7 @@ import com.example.homebankfront.feature.editTransactionHead.EditTransactionHead
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.PrelEndDateField
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.StartDateField
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.TransactionNameField
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.*
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.ui.components.DatePicker
 import com.example.homebankfront.ui.components.LoadingOverlay
@@ -52,7 +53,7 @@ fun EditTransactionHeadScreen(
 ) {
     val state: EditTransactionHeadState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackbarHostState = LocalSnackHostState.current
+    val snackHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
@@ -61,53 +62,37 @@ fun EditTransactionHeadScreen(
                 is Either.Right -> error.value.getStringResourceFromContext(context)
             }
 
-            snackbarHostState.showSnackbar(errorMessage)
+            snackHostState.showSnackbar(errorMessage)
         }
     }
 
-    EditTransactionHeadScreen(
-        state = state,
-        snackbarHostState = snackbarHostState,
-        onEvent = viewModel::onEvent,
-        onBackClick = onBackClick
-    )
-}
-
-@Composable
-fun EditTransactionHeadScreen(
-    state: EditTransactionHeadState,
-    snackbarHostState: SnackbarHostState,
-    onEvent: (EditTransactionHeadUiEvent) -> Unit,
-    onBackClick: () -> Unit
-) {
     when (state) {
-        is EditTransactionHeadState.Loading -> LoadingOverlay()
-        is EditTransactionHeadState.Ready -> {
-            EditTransactionHeadScreen(
-                transactionHeadId = state.id,
-                transactionNameField = state.transactionNameField,
-                lenderField = state.lenderField,
-                borrowerField = state.borrowerField,
-                startDateField = state.startDateField,
-                prelEndDateField = state.prelEndDateField,
-                endDateField = state.endDateField,
-                descriptionField = state.descriptionField,
-                customers = state.customers,
-                snackbarHostState = snackbarHostState,
-                onEvent = onEvent,
+        is Loading -> LoadingOverlay()
+        is Input -> {
+            val inputState = state as Input
+            EditTransactionHeadScreenContent(
+                transactionHeadId = inputState.id,
+                transactionNameField = inputState.transactionNameField,
+                lenderField = inputState.lenderField,
+                borrowerField = inputState.borrowerField,
+                startDateField = inputState.startDateField,
+                prelEndDateField = inputState.prelEndDateField,
+                endDateField = inputState.endDateField,
+                descriptionField = inputState.descriptionField,
+                customers = inputState.customers,
+                snackHostState = snackHostState,
+                onEvent = viewModel::onEvent,
                 onBackClick = onBackClick
             )
         }
 
-        is EditTransactionHeadState.Saved -> {
-            onBackClick()
-        }
+        is Saved -> onBackClick()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditTransactionHeadScreen(
+fun EditTransactionHeadScreenContent(
     transactionHeadId: Long,
     transactionNameField: TransactionNameField,
     lenderField: LenderField,
@@ -117,7 +102,7 @@ fun EditTransactionHeadScreen(
     endDateField: EndDateField,
     descriptionField: DescriptionField,
     customers: List<Customer>,
-    snackbarHostState: SnackbarHostState,
+    snackHostState: SnackbarHostState,
     onEvent: (EditTransactionHeadUiEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -159,11 +144,12 @@ fun EditTransactionHeadScreen(
                     scrolledContainerColor = MaterialTheme.colorScheme.surface,
                     navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    subtitleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = { SnackbarHost(hostState = snackHostState) }
     ) { paddingValues ->
         Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -173,50 +159,51 @@ fun EditTransactionHeadScreen(
                 .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(scrollState)
         ) {
-            TextField(label = stringResource(R.string.title),
-                      text = transactionNameField.transactionName,
-                      supportingText = transactionNameField.error?.toStringResource(),
-                      isError = transactionNameField.error != null,
-                      onValueChange = { updateTransactionName(onEvent, it) })
+            TextField(
+                label = stringResource(R.string.title),
+                text = transactionNameField.transactionName,
+                supportingText = transactionNameField.error?.toStringResource(),
+                isError = transactionNameField.error != null,
+                onValueChange = { updateTransactionName(onEvent, it) })
 
-            TextFieldWithDropdownMenu(label = stringResource(R.string.lender),
-                                      text = lenderField.lender,
-                                      supportingText = lenderField.error?.toStringResource(),
-                                      isError = lenderField.error != null,
-                                      selectedKey = lenderField.lenderId.toString(),
-                                      menuOptions = customers.associateBy(
-                                          { it.id },
-                                          { it.name }),
-                                      onClick = { lenderId, lender ->
-                                          updateLender(
-                                              onEvent,
-                                              lenderField.copy(
-                                                  lenderId = lenderId,
-                                                  lender = lender,
-                                                  error = null
-                                              )
-                                          )
-                                      }
+            TextFieldWithDropdownMenu(
+                label = stringResource(R.string.lender),
+                text = lenderField.lender,
+                supportingText = lenderField.error?.toStringResource(),
+                isError = lenderField.error != null,
+                selectedKey = lenderField.lenderId.toString(),
+                menuOptions = customers.associateBy(
+                    { it.id },
+                    { it.name }),
+                onClick = { lenderId, lender ->
+                    updateLender(
+                        onEvent,
+                        lenderField.copy(
+                            lenderId = lenderId,
+                            lender = lender,
+                            error = null
+                        )
+                    )
+                }
             )
 
-            TextFieldWithDropdownMenu(label = stringResource(R.string.borrower),
-                                      text = borrowerField.borrower,
-                                      supportingText = borrowerField.error?.toStringResource(),
-                                      isError = borrowerField.error != null,
-                                      selectedKey = borrowerField.borrowerId.toString(),
-                                      menuOptions = customers.associateBy(
-                                          { it.id },
-                                          { it.name }),
-                                      onClick = { borrowerId, borrower ->
-                                          updateBorrower(
-                                              onEvent,
-                                              borrowerField.copy(
-                                                  borrowerId = borrowerId,
-                                                  borrower = borrower,
-                                                  error = null
-                                              )
-                                          )
-                                      }
+            TextFieldWithDropdownMenu(
+                label = stringResource(R.string.borrower),
+                text = borrowerField.borrower,
+                supportingText = borrowerField.error?.toStringResource(),
+                isError = borrowerField.error != null,
+                selectedKey = borrowerField.borrowerId.toString(),
+                menuOptions = customers.associateBy({ it.id }, { it.name }),
+                onClick = { borrowerId, borrower ->
+                    updateBorrower(
+                        onEvent,
+                        borrowerField.copy(
+                            borrowerId = borrowerId,
+                            borrower = borrower,
+                            error = null
+                        )
+                    )
+                }
             )
 
             DatePicker(

@@ -16,7 +16,7 @@ import com.example.homebankfront.feature.editTransactionHead.EditTransactionHead
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.PrelEndDateField
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.StartDateField
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.TransactionNameField
-import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.Ready
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.Input
 import com.example.homebankfront.feature.utility.ResultGeneric
 import com.example.homebankfront.feature.utility.ResultGeneric.*
 import java.time.LocalDate
@@ -25,7 +25,7 @@ import java.time.LocalDateTime
 sealed interface EditTransactionHeadState {
     data object Loading : EditTransactionHeadState
 
-    data class Ready(
+    data class Input(
         val id: Long,
         val transactionNameField: TransactionNameField,
         val descriptionField: DescriptionField,
@@ -37,7 +37,7 @@ sealed interface EditTransactionHeadState {
         val customers: List<Customer> = emptyList(),
         val rowVersion: LocalDateTime?
     ) : EditTransactionHeadState {
-        fun validate(): ResultGeneric<Unit, Ready> {
+        fun validate(): ResultGeneric<Unit, Input> {
             val transactionNameFieldError = transactionNameField.validate()
             val lenderFieldError = lenderField.validate()
             val borrowerFieldError = borrowerField.validate()
@@ -57,7 +57,7 @@ sealed interface EditTransactionHeadState {
     data object Saved : EditTransactionHeadState
 }
 
-fun TransactionHead.toReady(customers: List<Customer>) = Ready(
+fun TransactionHead.toReady(customers: List<Customer>) = Input(
     id = id,
     transactionNameField = TransactionNameField(transactionName = transactionName),
     descriptionField = DescriptionField(description = description),
@@ -76,7 +76,7 @@ fun TransactionHead.toReady(customers: List<Customer>) = Ready(
     customers = customers
 )
 
-fun Ready.toTransactionHead() = TransactionHead(
+fun Input.toTransactionHead() = TransactionHead(
     id = id,
     lenderId = lenderField.lenderId,
     borrowerId = borrowerField.borrowerId,

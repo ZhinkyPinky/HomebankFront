@@ -35,6 +35,7 @@ import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowFi
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.NameField
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.PaymentDateField
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.TypeOfTransactionField
+import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.*
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowUiEvent.Save
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowUiEvent.UpdateField
 import com.example.homebankfront.feature.utility.Either.Left
@@ -48,13 +49,13 @@ import java.time.Instant
 import java.time.ZoneId
 
 @Composable
-fun EditTransactionRowRoute(
+fun EditTransactionRowScreen(
     viewModel: EditTransactionRowViewModel = hiltViewModel(),
     onBackClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackbarHostState = LocalSnackHostState.current
+    val snackHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
@@ -63,93 +64,79 @@ fun EditTransactionRowRoute(
                 is Right -> error.value.getStringResourceFromContext(context)
             }
 
-            snackbarHostState.showSnackbar(errorMessage)
+            snackHostState.showSnackbar(errorMessage)
         }
     }
 
-    EditTransactionRowScreen(
-        state = state,
-        snackbarHostState = snackbarHostState,
-        onEvent = viewModel::onEvent,
-        onBackClick = onBackClick
-    )
-}
-
-@Composable
-fun EditTransactionRowScreen(
-    state: EditTransactionRowState,
-    snackbarHostState: SnackbarHostState,
-    onEvent: (EditTransactionRowUiEvent) -> Unit,
-    onBackClick: () -> Unit
-) {
     when (state) {
-        is EditTransactionRowState.Loading -> LoadingOverlay()
-        is EditTransactionRowState.Ready -> {
-            EditTransactionRowScreen(
-                transactionRowId = state.transactionRowId,
-                nameField = state.nameField,
-                amountField = state.amountField,
-                paymentDateField = state.paymentDateField,
-                typeOfTransactionField = state.typeOfTransactionField,
-                descriptionField = state.descriptionField,
-                snackbarHostState = snackbarHostState,
-                onEvent = onEvent,
+        is Loading -> LoadingOverlay()
+        is Input -> {
+            val inputState = state as Input
+            EditTransactionRowScreenContent(
+                transactionRowId = inputState.transactionRowId,
+                nameField = inputState.nameField,
+                amountField = inputState.amountField,
+                paymentDateField = inputState.paymentDateField,
+                typeOfTransactionField = inputState.typeOfTransactionField,
+                descriptionField = inputState.descriptionField,
+                snackHostState = snackHostState,
+                onEvent = viewModel::onEvent,
                 onBackClick = onBackClick
             )
         }
 
-        is EditTransactionRowState.Saved -> {
-            onBackClick()
-        }
+        is Saved -> onBackClick()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditTransactionRowScreen(
+fun EditTransactionRowScreenContent(
     transactionRowId: Long,
     nameField: NameField,
     amountField: AmountField,
     paymentDateField: PaymentDateField,
     typeOfTransactionField: TypeOfTransactionField,
     descriptionField: DescriptionField,
-    snackbarHostState: SnackbarHostState,
+    snackHostState: SnackbarHostState,
     onEvent: (EditTransactionRowUiEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = {
-                Text(
-                    text = when (transactionRowId) {
-                        -1L -> ""
-                        else -> stringResource(R.string.edit)
+            TopAppBar(
+                title = {
+                    Text(
+                        text = when (transactionRowId) {
+                            -1L -> ""
+                            else -> stringResource(R.string.edit)
+                        }
+                    )
+                }, navigationIcon = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.go_back)
+                        )
                     }
+                }, actions = {
+                    IconButton(onClick = { onEvent(Save) }) {
+                        Icon(
+                            imageVector = Icons.Filled.Done,
+                            contentDescription = stringResource(R.string.save)
+                        )
+                    }
+                }, colors = TopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    subtitleContentColor = MaterialTheme.colorScheme.onSurface
                 )
-            }, navigationIcon = {
-                IconButton(onClick = { onBackClick() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.go_back)
-                    )
-                }
-            }, actions = {
-                IconButton(onClick = { onEvent(Save) }) {
-                    Icon(
-                        imageVector = Icons.Filled.Done,
-                        contentDescription = stringResource(R.string.save)
-                    )
-                }
-            }, colors = TopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                titleContentColor = MaterialTheme.colorScheme.onSurface,
-                actionIconContentColor = MaterialTheme.colorScheme.onSurface
-            )
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackHostState) }
     ) { paddingValues ->
         Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),

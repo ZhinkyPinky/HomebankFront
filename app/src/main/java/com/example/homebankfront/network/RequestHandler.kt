@@ -13,12 +13,15 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
+// A list of endpoints that do not require an access token to be added to the request.
 val excludedEndpoints = setOf(
-    "/auth/login",
-    "/auth/register",
-    "/auth/refresh",
-    ApiPaths.INITIATE_RECOVERY
+    ApiPaths.LOGIN,
+    ApiPaths.REGISTER,
+    ApiPaths.REFRESH,
+    ApiPaths.INITIATE_RECOVERY,
+    ApiPaths.ACCOUNT_RECOVERY_AUTHENTICATE
 )
+
 
 class RequestHandler @Inject constructor(
     private val tokenStorage: TokenStorage,
@@ -31,7 +34,7 @@ class RequestHandler @Inject constructor(
     ): Response {
         val originalRequest = chain.request()
         val modifiedRequest: Request
-        val urlPath = originalRequest.url().encodedPath()
+        val urlPath = originalRequest.url.encodedPath
         Logger.d(message = "Handling request to: $urlPath")
 
         //Don't add access token when calling excluded endpoints.
@@ -40,7 +43,7 @@ class RequestHandler @Inject constructor(
             modifiedRequest = originalRequest
         } else {
             modifiedRequest = tokenStorage.getAccessToken()?.let {
-                Logger.d(message = "Added authorization header for request to: ${originalRequest.url()}")
+                Logger.d(message = "Added authorization header for request to: ${originalRequest.url}")
                 originalRequest.addAuthorizationHeader(it)
             } ?: originalRequest
         }
@@ -50,16 +53,16 @@ class RequestHandler @Inject constructor(
             try {
                 val response = chain.proceed(modifiedRequest)
                 return if (!response.isSuccessful) {
-                    Logger.e(message = "Request to: ${modifiedRequest.url()} failed with message code ${response.code()}.")
+                    Logger.e(message = "Request to: ${modifiedRequest.url} failed with message code ${response.code}.")
                     runBlocking {
-                        errorHandler(originalRequest, chain, response.use { it.code() })
+                        errorHandler(originalRequest, chain, response.use { it.code })
                     }
                 } else {
-                    Logger.d(message = "Request to: ${modifiedRequest.url()} was successful.")
+                    Logger.d(message = "Request to: ${modifiedRequest.url} was successful.")
                     response
                 }
             } catch (e: SocketTimeoutException) {
-                Logger.e(message = "Request to: ${modifiedRequest.url()} timed out. Attempt $i out of $retryCount.")
+                Logger.e(message = "Request to: ${modifiedRequest.url} timed out. Attempt $i out of $retryCount.")
                 if (i < retryCount) {
                     runBlocking {
                         networkErrorEmitter.emitEvent(NetworkError.ConnectionRetry(i, retryCount))
@@ -68,7 +71,7 @@ class RequestHandler @Inject constructor(
 
                 lastException = e
             } catch (e: IOException) {
-                Logger.e(message = "Request to: ${modifiedRequest.url()} failed with ${e.message}. Attempt $i out of $retryCount.")
+                Logger.e(message = "Request to: ${modifiedRequest.url} failed with ${e.message}. Attempt $i out of $retryCount.")
                 lastException = e
             }
         }

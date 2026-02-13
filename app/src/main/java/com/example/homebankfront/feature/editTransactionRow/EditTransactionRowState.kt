@@ -6,7 +6,7 @@ import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowFi
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.NameField
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.PaymentDateField
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.TypeOfTransactionField
-import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.Ready
+import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.Input
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowError.NameFieldError
 import com.example.homebankfront.feature.utility.ResultGeneric
 import com.example.homebankfront.feature.utility.ResultGeneric.*
@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 
 sealed interface EditTransactionRowState {
     data object Loading : EditTransactionRowState
-    data class Ready(
+    data class Input(
         val transactionHeadId: Long,
         val transactionRowId: Long,
         val transactionRowNo: Int,
@@ -27,7 +27,7 @@ sealed interface EditTransactionRowState {
         val typeOfTransactionField: TypeOfTransactionField,
         val descriptionField: DescriptionField
     ) : EditTransactionRowState {
-        fun validate(): ResultGeneric<Unit, Ready> {
+        fun validate(): ResultGeneric<Unit, Input> {
             val nameFieldError = nameField.validate()
 
             val errors = listOf(nameFieldError)
@@ -43,7 +43,7 @@ sealed interface EditTransactionRowState {
     data object Saved : EditTransactionRowState
 }
 
-fun Ready.toTransactionRow() = TransactionRow(
+fun Input.toTransactionRow() = TransactionRow(
     id = transactionRowId,
     transactionHeadId = transactionHeadId,
     transactionRowNo = transactionRowNo,
@@ -57,7 +57,7 @@ fun Ready.toTransactionRow() = TransactionRow(
     rowVersion = rowVersion
 )
 
-fun TransactionRow.toReady(transactionHeadId: Long, transactionRowId: Long): Ready = Ready(
+fun TransactionRow.toReady(transactionHeadId: Long, transactionRowId: Long): Input = Input(
     transactionHeadId = transactionHeadId,
     transactionRowId = transactionRowId,
     transactionRowNo = transactionRowNo,

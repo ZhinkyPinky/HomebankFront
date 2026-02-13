@@ -1,5 +1,6 @@
 package com.example.homebankfront.di
 
+import com.example.homebankfront.data.remote.services.AccountRecoveryService
 import com.example.homebankfront.data.repositories.AuthRepository
 import com.example.homebankfront.data.remote.services.CustomerService
 import com.example.homebankfront.data.repositories.CustomerRepository
@@ -9,6 +10,7 @@ import com.example.homebankfront.data.remote.services.AuthService
 import com.example.homebankfront.data.remote.services.TransactionHeadService
 import com.example.homebankfront.data.remote.services.TransactionRowService
 import com.example.homebankfront.data.remote.services.UserService
+import com.example.homebankfront.data.repositories.AccountRecoveryRepository
 import com.example.homebankfront.data.repositories.ResponseHandler
 import com.example.homebankfront.data.repositories.UserRepository
 import com.example.homebankfront.security.TokenStorage
@@ -58,4 +60,12 @@ class RepositoryModule {
         userService: UserService,
         responseHandler: ResponseHandler
     ): UserRepository = UserRepository(userService, responseHandler)
+
+    @Provides
+    @Singleton
+    fun provideAccountRecoveryRepository(
+        accountRecoveryService: AccountRecoveryService,
+        tokenStorage: TokenStorage,
+        responseHandler: ResponseHandler
+    ): AccountRecoveryRepository = AccountRecoveryRepository(accountRecoveryService, tokenStorage,responseHandler)
 }

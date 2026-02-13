@@ -10,7 +10,7 @@ import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowFi
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.PaymentDateField
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowField.TypeOfTransactionField
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.Loading
-import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.Ready
+import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.Input
 import com.example.homebankfront.feature.editTransactionRow.EditTransactionRowState.Saved
 import com.example.homebankfront.feature.editTransactionRow.domain.GetTransactionRowUseCase
 import com.example.homebankfront.feature.utility.Either
@@ -93,7 +93,7 @@ class EditTransactionRowViewModel @Inject constructor(
     }
 
     private fun updateField(field: EditTransactionRowField) = _state.value.let { currentState ->
-        if (currentState is Ready) {
+        if (currentState is Input) {
             _state.update {
                 when (field) {
                     is AmountField -> currentState.copy(amountField = field)
@@ -107,7 +107,7 @@ class EditTransactionRowViewModel @Inject constructor(
     }
 
     private fun saveTransactionRow() = _state.value.let { currentState ->
-        if (currentState is Ready) {
+        if (currentState is Input) {
             when (val validationResult = currentState.validate()) {
                 is Failure -> _state.update { validationResult.error }
                 is Success -> viewModelScope.launch {

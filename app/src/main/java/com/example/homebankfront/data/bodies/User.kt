@@ -5,9 +5,8 @@ import java.time.LocalDateTime
 
 class User {
     private val id: Long? = null
-    private val username: String? = null
-    private val password: String? = null
     private val email: String? = null
+    private val password: String? = null
     private val description: String? = null
     private val userToken: String? = null
     private val nextUserTokenChangeDate: LocalDateTime? = null

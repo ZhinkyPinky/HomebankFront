@@ -23,9 +23,9 @@ sealed class ChangePasswordError(private val stringResourceId: Int) {
 
     companion object {
         fun fromString(string: String?) = when (string) {
-            "Wrong password" -> WrongPassword
+            "Wrong value" -> WrongPassword
             "Password too short" -> PasswordTooShortError
-            "Missing password" -> MissingPasswordError
+            "Missing value" -> MissingPasswordError
             "Password does not match" -> PasswordDoesNotMatchError
             else -> null
         }

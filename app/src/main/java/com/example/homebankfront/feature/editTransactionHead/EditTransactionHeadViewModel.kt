@@ -12,14 +12,13 @@ import com.example.homebankfront.feature.editTransactionHead.EditTransactionHead
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.StartDateField
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadField.TransactionNameField
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.Loading
-import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.Ready
+import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.Input
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadState.Saved
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadUiEvent.Save
 import com.example.homebankfront.feature.editTransactionHead.EditTransactionHeadUiEvent.UpdateField
 import com.example.homebankfront.feature.editTransactionRow.domain.GetCustomersAndTransactionHeadUseCase
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Error
-import com.example.homebankfront.feature.utility.Logger
 import com.example.homebankfront.feature.utility.ResultGeneric.Failure
 import com.example.homebankfront.feature.utility.ResultGeneric.Success
 import com.example.homebankfront.feature.utility.logError
@@ -74,7 +73,7 @@ class EditTransactionHeadViewModel @Inject constructor(
     }
 
     private fun updateField(field: EditTransactionHeadField) = _state.value.let { currentState ->
-        if (currentState is Ready) {
+        if (currentState is Input) {
             _state.update {
                 when (field) {
                     is TransactionNameField -> currentState.copy(transactionNameField = field)
@@ -90,7 +89,7 @@ class EditTransactionHeadViewModel @Inject constructor(
     }
 
     private fun save() = _state.value.let { currentState ->
-        if (currentState is Ready) {
+        if (currentState is Input) {
             when (val validationResult = currentState.validate()) {
                 is Failure -> _state.update { validationResult.error }
                 is Success -> viewModelScope.launch {

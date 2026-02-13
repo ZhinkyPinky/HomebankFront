@@ -1,6 +1,5 @@
-package com.example.homebankfront.feature.recoverUserAccount
+package com.example.homebankfront.feature.accountrecovery.emailinput
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,8 +10,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -20,23 +17,26 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homebankfront.LocalSnackHostState
 import com.example.homebankfront.R
-import com.example.homebankfront.feature.authentication.AuthenticationManager
-import com.example.homebankfront.feature.recoverUserAccount.RecoverUserAccountEvent.InitiateRecovery
-import com.example.homebankfront.feature.recoverUserAccount.RecoverUserAccountEvent.Update
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputEvent.RequestRecoveryPassword
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputEvent.Update
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputField.EmailField
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputState.Input
+import com.example.homebankfront.feature.accountrecovery.emailinput.AccountRecoveryEmailInputState.RecoveryPasswordSent
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
 import com.example.homebankfront.ui.components.LoadingOverlay
 import com.example.homebankfront.ui.components.TextField
+import com.example.homebankfront.ui.theme.HomeBankFrontTheme
+import com.example.homebankfront.ui.theme.ThemePreviews
 
 @Composable
-fun RecoverUserAccountScreen(
-    viewModel: RecoverUserAccountViewModel = hiltViewModel(),
-    onRecoveryInitiated: () -> Unit
+fun AccountRecoveryEmailInputScreen(
+    viewModel: AccountRecoveryEmailInputViewModel = hiltViewModel(),
+    onRecoveryPasswordSent: (String) -> Unit
 ) {
-    val state: RecoverUserAccountState by viewModel.state.collectAsStateWithLifecycle()
+    val state: AccountRecoveryEmailInputState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val authenticationManager = remember { AuthenticationManager(context as ComponentActivity) }
-    val snackbarHostState = LocalSnackHostState.current
+    val snackHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
@@ -45,46 +45,30 @@ fun RecoverUserAccountScreen(
                 is Right -> error.value.getStringResourceFromContext(context)
             }
 
-            snackbarHostState.showSnackbar(errorMessage)
+            snackHostState.showSnackbar(errorMessage)
         }
     }
 
-    RecoverUserAccountScreen(
-        state = state,
-        onEvent = viewModel::onEvent,
-        onRecoveryInitiated = onRecoveryInitiated
-    )
-}
-
-@Composable
-fun RecoverUserAccountScreen(
-    state: RecoverUserAccountState,
-    onEvent: (RecoverUserAccountEvent) -> Unit,
-    onRecoveryInitiated: () -> Unit
-) {
-    val coroutineScope = rememberCoroutineScope()
-
-    when (state) {
-        is RecoverUserAccountState.Ready -> {
-            RecoverUserAccountScreen(
-                emailField = state.emailField,
-                isLoading = state.isLoading,
-                onEvent = onEvent,
+    when (val localState = state) {
+        is Input -> {
+            AccountRecoveryEmailInputContent(
+                emailField = localState.emailField,
+                isLoading = localState.isLoading,
+                onEvent = viewModel::onEvent,
             )
 
-            LoadingOverlay(isLoading = state.isLoading)
+            LoadingOverlay(isLoading = localState.isLoading)
         }
 
-        is RecoverUserAccountState.RecoveryInitiated ->
-            onRecoveryInitiated()
+        is RecoveryPasswordSent -> onRecoveryPasswordSent(localState.email)
     }
 }
 
 @Composable
-fun RecoverUserAccountScreen(
-    emailField: RecoverUserAccountField.EmailField,
+private fun AccountRecoveryEmailInputContent(
+    emailField: EmailField,
     isLoading: Boolean,
-    onEvent: (RecoverUserAccountEvent) -> Unit,
+    onEvent: (AccountRecoveryEmailInputEvent) -> Unit,
 ) {
     Scaffold { paddingValues ->
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -95,15 +79,25 @@ fun RecoverUserAccountScreen(
                     supportingText = emailField.error?.toStringResource(),
                     isError = emailField.error != null,
                     enabled = !isLoading,
-                    onValueChange = {
-                        onEvent(Update(emailField.copy(email = it, error =  null)))
-                    }
+                    onValueChange = { onEvent(Update(emailField.copy(email = it, error = null))) }
                 )
 
-                TextButton(onClick = { onEvent(InitiateRecovery) }) {
+                TextButton(onClick = { onEvent(RequestRecoveryPassword) }) {
                     Text(text = stringResource(R.string.recover_password))
                 }
             }
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun ConfirmationEmailRequestScreenPreview() {
+    HomeBankFrontTheme {
+        AccountRecoveryEmailInputContent(
+            emailField = EmailField(),
+            isLoading = false,
+            onEvent = {}
+        )
     }
 }

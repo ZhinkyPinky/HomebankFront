@@ -13,14 +13,14 @@ import javax.inject.Inject
 //) {
 //    suspend operator fun invoke(
 //        username: String,
-//        password: String
+//        value: String
 //    ): ResultGeneric<> {
-//        return when (val result = validateAuthenticationDetails(username, password)) {
+//        return when (val result = validateAuthenticationDetails(username, value)) {
 //            is ResultGeneric.Failure -> ResultGeneric.Failure(Either.Left(result.errorFlow))
 //            is ResultGeneric.Success ->  authRepository.authenticate(
 //                AuthenticationRequest(
 //                    username,
-//                    password
+//                    value
 //                )
 //            )
 //        }
@@ -28,14 +28,14 @@ import javax.inject.Inject
 //
 //    private fun validateAuthenticationDetails(
 //        username: String,
-//        password: String
+//        value: String
 //    ): ResultGeneric<AuthenticationError> {
 //
 //        if (username.isBlank()) {
 //            return ResultGeneric.Failure<AuthenticationError>(AuthenticationError.UsernameFieldError.MissingUsername)
 //        }
 //
-//        if (password.isBlank()) {
+//        if (value.isBlank()) {
 //            return ResultGeneric.Failure<AuthenticationError>(AuthenticationError.PasswordFieldError.MissingPassword)
 //        }
 //

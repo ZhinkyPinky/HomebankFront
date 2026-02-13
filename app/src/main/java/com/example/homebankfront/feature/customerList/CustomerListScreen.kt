@@ -3,7 +3,6 @@ package com.example.homebankfront.feature.customerList
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -27,28 +26,15 @@ import com.example.homebankfront.ui.theme.HomeBankFrontTheme
 import com.example.homebankfront.ui.theme.ThemePreviews
 
 @Composable
-internal fun CustomerListRoute(
+internal fun CustomerListScreen(
     viewModel: CustomerListViewModel = hiltViewModel(),
     onCustomerClick: (Long) -> Unit
 ) {
-    val customerListState: CustomerListState by viewModel.state.collectAsStateWithLifecycle()
+    val state: CustomerListState by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.getCustomers()
-    }
+    LaunchedEffect(Unit) { viewModel.getCustomers() }
 
-    CustomerListScreen(
-        state = customerListState,
-        onCustomerClick = onCustomerClick,
-    )
-}
-
-@Composable
-fun CustomerListScreen(
-    state: CustomerListState,
-    onCustomerClick: (Long) -> Unit,
-) {
-    CustomerListScreen(
+    CustomerListScreenContent(
         customers = state.customers,
         onCustomerClick = onCustomerClick,
     )
@@ -58,17 +44,11 @@ fun CustomerListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomerListScreen(
+fun CustomerListScreenContent(
     customers: List<Customer>,
     onCustomerClick: (Long) -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = {
-                Text(stringResource(R.string.accounts))
-            })
-        },
-    ) { paddingValues ->
+    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.accounts)) }) }) { paddingValues ->
         Surface {
             LazyColumn(
                 modifier = Modifier
@@ -76,27 +56,15 @@ fun CustomerListScreen(
                     .padding(12.dp)
                     .fillMaxSize()
             ) {
-                customerList(
-                    customers = customers,
-                    onCustomerClick = onCustomerClick,
-                )
+                itemsIndexed(items = customers) { _, customer ->
+                    TextButton(onClick = { onCustomerClick(customer.id) }) {
+                        Text(
+                            text = customer.name,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
             }
-        }
-    }
-}
-
-fun LazyListScope.customerList(
-    customers: List<Customer>,
-    onCustomerClick: (Long) -> Unit,
-) {
-    itemsIndexed(
-        items = customers
-    ) { _, customer ->
-        TextButton(onClick = { onCustomerClick(customer.id) }) {
-            Text(
-                text = customer.name,
-                style = MaterialTheme.typography.titleMedium
-            )
         }
     }
 }
@@ -113,11 +81,10 @@ fun CustomerListScreenPreview() {
         Customer(name = "Test"),
         Customer(name = "Test"),
         Customer(name = "Test"),
-
-        )
+    )
 
     HomeBankFrontTheme {
-        CustomerListScreen(
+        CustomerListScreenContent(
             customers = customers,
             onCustomerClick = { _ -> },
         )
