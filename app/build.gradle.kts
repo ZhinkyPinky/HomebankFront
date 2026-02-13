@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.ApplicationExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 val properties: Properties = Properties()
@@ -10,6 +12,13 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.dagger.hilt.android)
     alias(libs.plugins.kotlin.serialization)
+}
+
+kotlin {
+    compilerOptions{
+        jvmTarget = JvmTarget.fromTarget("1.8")
+    }
+
 }
 
 android {
@@ -47,9 +56,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+//    kotlinOptions {
+//        jvmTarget = "1.8"
+//    }
     buildFeatures {
         compose = true
         buildConfig = true
