@@ -24,3 +24,6 @@
 -keep class androidx.credentials.playservices.** {
   *;
 }
+
+# Keep API DTO field names for Gson serialization/deserialization in minified builds.
+-keep class com.example.homebankfront.data.bodies.** { *; }
