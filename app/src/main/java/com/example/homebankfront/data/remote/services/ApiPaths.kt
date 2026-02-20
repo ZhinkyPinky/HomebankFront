@@ -6,6 +6,7 @@ object ApiPaths {
     const val LOGOUT = "$AUTH/logout"
     const val REGISTER = "$AUTH/register"
     const val REFRESH = "$AUTH/refresh"
+    const val RESEND_ACTIVATION_EMAIL = "$AUTH/resend-activation"
 
     const val SAVE = "/save"
     const val DELETE = "/delete"

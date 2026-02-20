@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
+import com.example.homebankfront.feature.authentication.AuthenticationField
 import com.example.homebankfront.feature.authentication.AuthenticationScreen
 import com.example.homebankfront.feature.utility.className
 import com.example.homebankfront.navigation.Route
@@ -20,12 +21,14 @@ fun NavController.navigateToAuthentication(builder: NavOptionsBuilder.() -> Unit
 
 fun NavGraphBuilder.authentication(
     onAuthentication: () -> Unit,
+    onActivationPending: () -> Unit,
     navigateToRegistration: () -> Unit,
     navigateToRecoverUserAccount: () -> Unit
 ) {
     composable<Authentication> {
         AuthenticationScreen(
             onAuthentication = onAuthentication,
+            onActivationPending = onActivationPending,
             navigateToRegistration = navigateToRegistration,
             navigateToRecoverUserAccount = navigateToRecoverUserAccount
         )

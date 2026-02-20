@@ -41,7 +41,7 @@ class TransactionRowRepository @Inject constructor(
         val response = transactionRowService.saveTransactionRow(transactionRow)
         responseHandler(
             response = response,
-            onSuccess = { _ -> Success(Unit) },
+            onSuccess = { Success(Unit) },
             onFailure = { Failure(Right(UnknownError)) }
         )
     }.getOrElse {

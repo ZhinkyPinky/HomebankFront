@@ -3,12 +3,12 @@ package com.example.homebankfront.feature.authentication
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homebankfront.data.repositories.AuthRepository
-import com.example.homebankfront.feature.authentication.AuthenticationError.BadCredentials
+import com.example.homebankfront.feature.accountActivationPending.AccountActivationPendingState
+import com.example.homebankfront.feature.authentication.AuthenticationError.*
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.*
 import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
 import com.example.homebankfront.feature.authentication.AuthenticationField.EmailField
-import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticated
-import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticating
+import com.example.homebankfront.feature.authentication.AuthenticationState.*
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
@@ -99,11 +99,18 @@ class AuthenticationViewModel @Inject constructor(
                     try {
                         when (val result = authRepository.authenticate(currentState.toRequest())) {
                             is Success -> _state.update {
-                                Authenticated(
-                                    email = currentState.emailField.email,
-                                    password = currentState.passwordField.password,
-                                    registerCredentials = !currentState.autoAuthentication
-                                )
+                                val accountStatus = result.data
+
+                                // TODO: Add better handling for different account statuses
+                                if (accountStatus == "ACTIVATION_PENDING") {
+                                    AccountActivationPending
+                                } else {
+                                    Authenticated(
+                                        email = currentState.emailField.email,
+                                        password = currentState.passwordField.password,
+                                        registerCredentials = !currentState.autoAuthentication
+                                    )
+                                }
                             }
 
                             is Failure -> handleError(result.error)
@@ -119,9 +126,13 @@ class AuthenticationViewModel @Inject constructor(
     private suspend fun handleError(error: Either<AuthenticationError, Error>) = when (error) {
         is Left -> when (error.value) {
             BadCredentials -> _errorFlow.emit(error)
+            AccountNotActivated -> _errorFlow.emit(error)
+            ActivationTokenExpired -> _errorFlow.emit(error)
+            UserDisabled -> _errorFlow.emit(error)
             else -> _errorFlow.emit(Right(UnknownError))
         }
 
         is Right -> _errorFlow.emit(error)
     }
+
 }

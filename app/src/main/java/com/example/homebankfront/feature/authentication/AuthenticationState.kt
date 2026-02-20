@@ -43,6 +43,8 @@ sealed interface AuthenticationState {
             password = passwordField.password
         )
     }
+
+    data object AccountActivationPending : AuthenticationState
 }
 
 sealed interface AuthenticationField {

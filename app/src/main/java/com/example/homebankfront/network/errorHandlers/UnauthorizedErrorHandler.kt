@@ -14,6 +14,11 @@ import okhttp3.Request
 import okhttp3.Response
 import javax.inject.Inject
 
+/**
+ * Handles 401 Unauthorized errors by attempting to refresh the access token using the refresh token.
+ * If the refresh is successful, it retries the original request with the new access token.
+ * If the refresh fails, it proceeds with the original request, which will likely fail again with a 401.
+ */
 class UnauthorizedErrorHandler @Inject constructor(
     private val tokenStorage: TokenStorage,
     private val authService: Lazy<AuthService>
@@ -51,7 +56,7 @@ class UnauthorizedErrorHandler @Inject constructor(
                     Log.d(this::class.simpleName, "Refresh token: ${body.refreshToken}")
                     Log.d(this::class.simpleName, "Access token: ${body.accessToken}")
                     tokenStorage.saveAccessToken(body.accessToken)
-                    tokenStorage.saveRefreshToken(body.refreshToken)
+                    body.refreshToken?.let { tokenStorage.saveRefreshToken(it) }
                     true
                 } ?: false
             } else {

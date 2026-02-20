@@ -21,4 +21,7 @@ interface AuthService {
 
     @POST(ApiPaths.LOGOUT)
     suspend fun signOut(@Body signOutRequest: SignOutRequest): Response<Unit>
+
+    @POST(ApiPaths.RESEND_ACTIVATION_EMAIL)
+    suspend fun resendActivationEmail() : Response<Unit>
 }

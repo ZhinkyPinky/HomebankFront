@@ -28,21 +28,24 @@ class AuthRepository @Inject constructor(
     private val tokenStorage: TokenStorage,
     private val responseHandler: ResponseHandler,
 ) {
-    suspend fun authenticate(authenticationRequest: AuthenticationRequest): ResultGeneric<Unit, Either<AuthenticationError, Error>> =
+    suspend fun authenticate(authenticationRequest: AuthenticationRequest): ResultGeneric<String, Either<AuthenticationError, Error>> =
         runCatching {
             logDebug("Trying to authenticate user: ${authenticationRequest.email}")
             val response = authService.authenticate(authenticationRequest)
-            responseHandler(response = response,
-                            onSuccess = { body ->
-                                logDebug("Authentication successful for user: ${authenticationRequest.email}")
-                                tokenStorage.saveAccessToken(body.accessToken)
-                                tokenStorage.saveRefreshToken(body.refreshToken)
-                                Success(Unit)
-                            },
-                            onFailure = { errorMessage: String? ->
-                                logError("Authentication failed for user: ${authenticationRequest.email} with message $errorMessage")
-                                Failure(errorMessage.toAuthenticationError())
-                            }
+            responseHandler(
+                response = response,
+                onSuccess = { body ->
+                    logDebug("Authentication successful for user: ${authenticationRequest.email}")
+
+                    tokenStorage.saveAccessToken(body.accessToken)
+                    body.refreshToken?.let { tokenStorage.saveRefreshToken(it) }
+
+                    Success(body.accountStatus)
+                },
+                onFailure = { errorMessage: String? ->
+                    logError("Authentication failed for user: ${authenticationRequest.email} with message $errorMessage")
+                    Failure(errorMessage.toAuthenticationError())
+                }
             )
         }.getOrElse { handleException(it) }
 
@@ -54,9 +57,6 @@ class AuthRepository @Inject constructor(
                 response = response,
                 onSuccess = { body ->
                     logDebug("Registration successful for user: ${registrationRequest.email}")
-                    //TODO: Don't save tokens on registration?
-                    tokenStorage.saveAccessToken(body.accessToken)
-                    tokenStorage.saveRefreshToken(body.refreshToken)
                     Success(Unit)
                 },
                 onFailure = { errorMessage: String? ->
@@ -85,6 +85,22 @@ class AuthRepository @Inject constructor(
                     Failure(Right(UnknownError))
                 })
         }
+    }.getOrElse { handleException(it) }
+
+    suspend fun resendActivationEmail() = runCatching {
+        logDebug("Requesting resend of activation email.")
+        val response = authService.resendActivationEmail()
+        responseHandler(
+            response = response,
+            onSuccess = {
+                logDebug("Activation email resent successfully.")
+                Success(Unit)
+            },
+            onFailure = { errorMessage ->
+                logError("Failed to resend activation email with message: $errorMessage")
+                Failure(Right(UnknownError))
+            }
+        )
     }.getOrElse { handleException(it) }
 
     private fun handleException(e: Throwable): Failure<Right<Error>> {

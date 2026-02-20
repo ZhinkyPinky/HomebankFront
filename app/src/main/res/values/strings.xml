@@ -66,4 +66,9 @@
     <string name="wrong_password">Fel lösenord</string>
     <string name="forgot_password">Glömt lösenord</string>
     <string name="recover_password">Återställ lösenord</string>
+    <string name="user_disabled">Kontot är inte aktiverat</string>
+    <string name="account_not_activated">Kontot har inte aktiverats. Kolla din e-mail för att aktivera ditt konto.</string>
+    <string name="activation_token_expired">Ditt konto har inte aktiverats och aktiverings tiden har gått ut. Skicka nytt aktiverings meddelande?</string>
+    <string name="resend_activation_email">Skicka nytt aktiverings meddelande</string>
+    <string name="resend_email_failed">Ett nytt aktiverings meddelande kunde inte skickas</string>
 </resources>

@@ -7,6 +7,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
+import com.example.homebankfront.feature.accountActivationPending.navigation.accountActivationPending
+import com.example.homebankfront.feature.accountActivationPending.navigation.navigateToAccountActivationPending
 import com.example.homebankfront.feature.authentication.navigation.Authentication
 import com.example.homebankfront.feature.authentication.navigation.authentication
 import com.example.homebankfront.feature.changePassword.navigation.changePasswordScreen
@@ -20,6 +22,7 @@ import com.example.homebankfront.feature.editTransactionRow.navigation.navigateT
 import com.example.homebankfront.feature.accountrecovery.emailinput.navigateToAccountRecoveryEmailInput
 import com.example.homebankfront.feature.accountrecovery.emailinput.accountRecoveryEmailInput
 import com.example.homebankfront.feature.accountrecovery.recoverypasswordinput.recoveryPasswordInput
+import com.example.homebankfront.feature.authentication.navigation.navigateToAuthentication
 import com.example.homebankfront.feature.registration.navigation.navigateToRegistration
 import com.example.homebankfront.feature.registration.navigation.registration
 import com.example.homebankfront.feature.transactionHeadAndRows.navigation.navigateToTransactionHeadAndRows
@@ -67,11 +70,13 @@ fun HomeBankNavHost(appState: HomebankAppState) {
         navigation<Unauthenticated>(startDestination = Authentication) {
             authentication(
                 onAuthentication = navController::navigateToCustomerList,
+                onActivationPending = navController::navigateToAccountActivationPending,
                 navigateToRegistration = navController::navigateToRegistration,
                 navigateToRecoverUserAccount = navController::navigateToAccountRecoveryEmailInput
             )
 
             registration(navController = navController)
+
 
             accountRecoveryEmailInput(navController = navController)
             recoveryPasswordInput(navController = navController)
@@ -79,6 +84,8 @@ fun HomeBankNavHost(appState: HomebankAppState) {
         }
 
         navigation<Authenticated>(startDestination = CustomerList) {
+            accountActivationPending(navController = navController)
+
             customerListScreen(onCustomerClick = navController::navigateToTransactionHeadsList)
 
             transactionHeadsListScreen(

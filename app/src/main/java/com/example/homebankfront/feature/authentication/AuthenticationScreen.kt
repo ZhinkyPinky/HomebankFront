@@ -23,8 +23,9 @@ import com.example.homebankfront.R
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.Authenticate
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.ToggleAutoAuthentication
 import com.example.homebankfront.feature.authentication.AuthenticationEvent.UpdateField
-import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
 import com.example.homebankfront.feature.authentication.AuthenticationField.EmailField
+import com.example.homebankfront.feature.authentication.AuthenticationField.PasswordField
+import com.example.homebankfront.feature.authentication.AuthenticationState.AccountActivationPending
 import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticated
 import com.example.homebankfront.feature.authentication.AuthenticationState.Authenticating
 import com.example.homebankfront.feature.utility.Either.Left
@@ -38,6 +39,7 @@ import kotlinx.coroutines.launch
 fun AuthenticationScreen(
     viewModel: AuthenticationViewModel = hiltViewModel(),
     onAuthentication: () -> Unit,
+    onActivationPending: () -> Unit,
     navigateToRegistration: () -> Unit,
     navigateToRecoverUserAccount: () -> Unit
 ) {
@@ -103,6 +105,10 @@ fun AuthenticationScreen(
             }.invokeOnCompletion {
                 onAuthentication()
             }
+        }
+
+        is AccountActivationPending -> LaunchedEffect(Unit) {
+            onActivationPending()
         }
     }
 }

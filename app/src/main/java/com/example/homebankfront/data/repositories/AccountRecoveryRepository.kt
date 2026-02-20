@@ -25,11 +25,12 @@ class AccountRecoveryRepository(
 ) {
     suspend fun initiateRecovery(recoveryRequest: RecoveryRequest): ResultGeneric<Unit, Either<Unit, Error>> =
         runCatching {
+            Log.d("AccountRecoveryRepository", "Initiating account recovery for email: ${recoveryRequest.email}")
             val response = accountRecoveryService.initiateRecovery(recoveryRequest)
 
             responseHandler(
                 response = response,
-                onSuccess = { body -> Success(body) },
+                onSuccess = { Success(Unit) },
                 onFailure = { errorMessage: String? -> Failure(Right(UnknownError)) }
             )
         }.getOrElse { handleException(it) }
@@ -60,7 +61,8 @@ class AccountRecoveryRepository(
                 onSuccess = { body ->
 
                     tokenStorage.saveAccessToken(body.accessToken)
-                    tokenStorage.saveRefreshToken(body.refreshToken)
+                    body.refreshToken?.let { tokenStorage.saveRefreshToken(it) }
+
                     Success(Unit)
                 },
                 onFailure = { errorMessage: String? -> Failure(Right(UnknownError)) }

@@ -24,7 +24,7 @@ class TransactionHeadRepository @Inject constructor(
             val response = transactionHeadService.saveTransactionHead(transactionHead)
             responseHandler(
                 response = response,
-                onSuccess = { _ -> ResultGeneric.Success(Unit) },
+                onSuccess = { ResultGeneric.Success(Unit) },
                 onFailure = { ResultGeneric.Failure(Left(UnknownEditTransactionHeadError)) }
             )
         }.getOrElse {
