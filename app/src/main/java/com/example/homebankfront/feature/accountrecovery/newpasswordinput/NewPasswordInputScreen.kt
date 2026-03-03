@@ -30,7 +30,8 @@ import com.example.homebankfront.ui.theme.ThemePreviews
 @Composable
 fun NewPasswordInputScreen(
     viewModel: NewPasswordInputViewModel = hiltViewModel(),
-    onNewPasswordSet: () -> Unit
+    onNewPasswordSet: () -> Unit,
+    onActivationPending: () -> Unit,
 ) {
     val state: NewPasswordInputState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -48,10 +49,7 @@ fun NewPasswordInputScreen(
     }
 
     when (val localState = state) {
-        NewPasswordSet -> {
-            //TODO: Figure out what to do. Go to login screen or just login?
-            onNewPasswordSet()
-        }
+        NewPasswordSet -> LaunchedEffect(Unit) { onNewPasswordSet() }
 
         is Input -> {
             NewPasswordContent(
@@ -62,6 +60,8 @@ fun NewPasswordInputScreen(
 
             LoadingOverlay(isLoading = localState.isLoading)
         }
+
+        AccountActivationPending -> LaunchedEffect(Unit) { onActivationPending() }
     }
 }
 

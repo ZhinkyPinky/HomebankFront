@@ -1,6 +1,7 @@
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.example.homebankfront.feature.accountActivationPending.navigation.navigateToAccountActivationPending
 import com.example.homebankfront.feature.customerList.navigation.navigateToCustomerList
 import com.example.homebankfront.feature.utility.className
 import com.example.homebankfront.navigation.Route
@@ -18,6 +19,9 @@ fun NavController.navigationToNewPasswordInput(recoveryToken: String) =
 
 fun NavGraphBuilder.newPasswordInput(navController: NavController) {
     composable<NewPasswordInput> {
-        NewPasswordInputScreen(onNewPasswordSet = navController::navigateToCustomerList)
+        NewPasswordInputScreen(
+            onNewPasswordSet = navController::navigateToCustomerList,
+            onActivationPending = navController::navigateToAccountActivationPending,
+        )
     }
 }

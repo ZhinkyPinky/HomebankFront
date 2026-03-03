@@ -18,6 +18,7 @@ import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPas
 import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputEvent.UpdateNewPasswordField
 import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputState.Input
 import com.example.homebankfront.feature.accountrecovery.newpasswordinput.NewPasswordInputState.NewPasswordSet
+import com.example.homebankfront.feature.authentication.AuthenticationState
 import com.example.homebankfront.feature.utility.Either
 import com.example.homebankfront.feature.utility.Either.Left
 import com.example.homebankfront.feature.utility.Either.Right
@@ -100,7 +101,8 @@ class NewPasswordInputViewModel @Inject constructor(
 
             is Failure -> _state.update {
                 Log.d("NewPasswordInputViewModel", "Validation failed: ${validationResult.error}")
-                validationResult.error }
+                validationResult.error
+            }
         }
     }
 
@@ -150,6 +152,8 @@ sealed interface NewPasswordInputState {
     }
 
     data object NewPasswordSet : NewPasswordInputState
+
+    data object AccountActivationPending : NewPasswordInputState
 }
 
 sealed interface NewPasswordInputEvent {

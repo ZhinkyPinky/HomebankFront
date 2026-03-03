@@ -54,9 +54,7 @@ fun AccountActivationPendingScreen(
             LoadingOverlay(isLoading = activationPendingState.isLoading)
         }
 
-        is NewActivationEmailSent -> LaunchedEffect(Unit) {
-            onNewActivationEmailSent()
-        }
+        is NewActivationEmailSent -> LaunchedEffect(Unit) { onNewActivationEmailSent() }
     }
 
 
